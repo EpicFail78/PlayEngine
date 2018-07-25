@@ -1,4 +1,3 @@
 [submodule "jkpatch"]
 	path = jkpatch
 	url = https://github.com/xemio/jkpatch
-	branch = master
