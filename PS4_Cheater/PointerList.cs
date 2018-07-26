@@ -49,7 +49,32 @@ namespace PS4_Cheater
         public int Count { get { return pointerPath.Count; } }
     }
 
-    public class PointerList
+   public class PointerResult {
+      public Int32 baseSectionID;
+      public UInt64 baseOffset;
+      public Int64[] offsets;
+
+      public PointerResult() { }
+      public PointerResult(Int32 BaseSectionID, UInt64 BaseOffset, List<Int64> Offsets) {
+         this.baseSectionID = BaseSectionID;
+         this.baseOffset = BaseOffset;
+         this.offsets = new Int64[Offsets.Count];
+         for (Int32 i = 0; i < this.offsets.Length; ++i) {
+            this.offsets[i] = Offsets[this.offsets.Length - 1 - i];
+         }
+
+      }
+
+      public UInt64 GetBaseAddress(MappedSectionList mappedSectionList) {
+         if (baseSectionID >= mappedSectionList.Count)
+            return 0;
+
+         MappedSection section = mappedSectionList[baseSectionID];
+         return section.Start + baseOffset;
+      }
+   }
+
+   public class PointerList
     {
         private List<Pointer> pointer_list_order_by_address;
         private List<Pointer> pointer_list_order_by_pointer_value;
@@ -187,21 +212,21 @@ namespace PS4_Cheater
         {
             ulong tailAddress = pointerResult.GetBaseAddress(mappedSectionList);
 
-            if (pointerResult.Offsets.Length > 0)
+            if (pointerResult.offsets.Length > 0)
             {
                 int j = 0;
                 Pointer pointer = new Pointer();
                 int index = GetPointerByAddress(tailAddress, ref pointer);
                 if (index < 0) return 0;
                 tailAddress = pointer.PointerValue;
-                for (j = 0; j < pointerResult.Offsets.Length - 1; ++j)
+                for (j = 0; j < pointerResult.offsets.Length - 1; ++j)
                 {
-                    index = GetPointerByAddress((ulong)((long)tailAddress + pointerResult.Offsets[j]), ref pointer);
+                    index = GetPointerByAddress((ulong)((long)tailAddress + pointerResult.offsets[j]), ref pointer);
                     if (index < 0) return 0;
                     tailAddress = pointer.PointerValue;
                 }
 
-                tailAddress = (ulong)((long)tailAddress + pointerResult.Offsets[j]);
+                tailAddress = (ulong)((long)tailAddress + pointerResult.offsets[j]);
             }
 
             return tailAddress;

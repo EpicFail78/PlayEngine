@@ -1,376 +1,399 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Serialization;
 
-namespace PS4_Cheater
-{
+namespace PS4_Cheater {
+   public partial class PointerFinder : Form {
+      private struct ScannerThreadArgs {
+         public UInt64 address;
+         public List<Int32> range;
 
-    public partial class PointerFinder : Form
-    {
-        private PointerList pointerList = new PointerList();
-        private ProcessManager processManager = null;
-        private ulong address = 0;
-        private DataGridView cheatList;
-        private List<PointerResult> pointerResults  = new List<PointerResult>();
-        private main mainForm;
-        private MemoryHelper MemoryHelper;
-
-        public PointerFinder(main mainForm, ulong address, string dataType, ProcessManager processManager, DataGridView cheat_list_view)
-        {
-            MemoryHelper = new MemoryHelper(true, 0);
-            MemoryHelper.InitMemoryHandler(dataType, CONSTANT.EXACT_VALUE, true);
-
-            this.mainForm = mainForm;
+         public ScannerThreadArgs(UInt64 address, List<Int32> range) {
             this.address = address;
-            this.cheatList = cheat_list_view;
-            this.processManager = processManager;
+            this.range = range;
+         }
+      }
+      private class PointerFinderWorkerListViewUpdate {
+         public PointerList pointerList { get; set; }
+         public List<Int64> PathOffset { get; set; }
+         public List<Pointer> PathAddress { get; set; }
 
-            InitializeComponent();
-        }
+         public Int32 SectionID { get; set; }
 
-        private void PointerFinder_Load(object sender, EventArgs e)
-        {
-            address_box.Text = address.ToString("X");
-            for (int i = 1; i <= 20; ++i)
-            {
-                level_updown.Items.Add(i);
+         public PointerFinderWorkerListViewUpdate(PointerList pointerList, List<Int64> path_offset, List<Pointer> path_address, Int32 SectionID) {
+            this.pointerList = pointerList;
+            this.PathOffset = new List<Int64>(path_offset);
+            this.PathAddress = new List<Pointer>(path_address);
+            this.SectionID = SectionID;
+         }
+      }
+
+      [Serializable]
+      [XmlRoot("PointerListSave")]
+      public class PointerListSaveFile {
+         [XmlElement("PointerLevel")]
+         public Int32 level;
+         [XmlArray("Pointers")]
+         [XmlArrayItem("PointerResult")]
+         public List<PointerResult> pointers = new List<PointerResult>();
+
+         [XmlIgnore]
+         public static XmlSerializer serializer = null;
+
+         public static PointerListSaveFile loadSaveFile(String saveFilePath) {
+            if (serializer == null)
+               serializer = new XmlSerializer(typeof(PointerListSaveFile));
+
+            PointerListSaveFile saveFile = null;
+            using (StreamReader reader = new StreamReader(saveFilePath))
+               saveFile = (PointerListSaveFile)serializer.Deserialize(reader);
+            return saveFile;
+         }
+         public Boolean saveToFile(String saveFilePath) {
+            if (serializer == null)
+               serializer = new XmlSerializer(typeof(PointerListSaveFile));
+
+            try {
+               using (StreamWriter writer = new StreamWriter(saveFilePath))
+                  serializer.Serialize(writer, this);
+               return true;
+            } catch (Exception) {
+               return false;
             }
-            level_updown.SelectedIndex = 9;
-            pointerList.NewPathGeneratedEvent += PointerList_NewPathGeneratedEvent;
-        }
+         }
+      }
 
-        private void PointerList_NewPathGeneratedEvent(PointerList pointerList, List<long> path_offset, List<Pointer> path_address)
-        {
-            if (path_address.Count > 0)
-            {
+      private PointerList pointerList = new PointerList();
+      private ProcessManager processManager = null;
+      private main mainForm;
+      private MemoryHelper memoryHelper;
+      private List<PointerResult> pointerResults  = new List<PointerResult>();
 
-                int baseSectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_offset.Count - 1].Address);
+      private void PointerList_NewPathGeneratedEvent(PointerList pointerList, List<Int64> path_offset, List<Pointer> path_address) {
+         if (path_address.Count > 0) {
 
-                if (fast_scan && !processManager.MappedSectionList[baseSectionID].Name.StartsWith("executable"))
-                {
-                    return;
-                }
+            Int32 baseSectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_offset.Count - 1].Address);
 
-                PointerFinderWorkerListViewUpdate view_info = new PointerFinderWorkerListViewUpdate(pointerList, path_offset, path_address, baseSectionID);
-                pointer_finder_worker.ReportProgress(95, view_info);
+            if (fast_scan && !processManager.MappedSectionList[baseSectionID].Name.StartsWith("executable")) {
+               return;
             }
-        }
 
-        void set_controls(bool enable)
-        {
-            level_updown.Enabled = enable;
-            address_box.Enabled = enable;
-            find_btn.Enabled = enable;
-        }
+            PointerFinderWorkerListViewUpdate view_info = new PointerFinderWorkerListViewUpdate(pointerList, path_offset, path_address, baseSectionID);
+            pointer_finder_worker.ReportProgress(95, view_info);
+         }
+      }
+      public PointerFinder(main mainForm, UInt64 address, String dataType, ProcessManager processManager) {
+         this.mainForm = mainForm;
+         this.processManager = processManager;
+         memoryHelper = new MemoryHelper(true, 0);
+         memoryHelper.InitMemoryHandler(dataType, CONSTANT.EXACT_VALUE, true);
 
-        class PointerFinderWorkerArgs
-        {
-            public ulong Address { get; set; }
-            public List<int> Range { get; set; }
+         InitializeComponent();
+         textBoxScanAddress.Text = address.ToString("X");
+         pointerList.NewPathGeneratedEvent += PointerList_NewPathGeneratedEvent;
+      }
 
-            public PointerFinderWorkerArgs(ulong address, List<int> range)
-            {
-                this.Address = address;
-                this.Range = range;
-            }
-        }
 
-        class PointerFinderWorkerListViewUpdate
-        {
-            public PointerList PointerList { get; set; }
-            public List<long> PathOffset { get; set; }
-            public List<Pointer> PathAddress { get; set; }
+      static Int32 result_counter = 0;
 
-            public int SectionID { get; set; }
-
-            public PointerFinderWorkerListViewUpdate(PointerList pointerList, List<long> path_offset, List<Pointer> path_address, int SectionID)
-            {
-                this.PointerList = pointerList;
-                this.PathOffset = new List<long>(path_offset);
-                this.PathAddress = new List<Pointer>(path_address);
-                this.SectionID = SectionID;
-            }
-        }
-
-        static int result_counter = 0;
-
-        private void find_btn_Click(object sender, EventArgs e)
-        {
-            if (find_btn.Text == "First Scan")
-            {
-                ulong address = ulong.Parse(address_box.Text, System.Globalization.NumberStyles.HexNumber);
-                int level = level_updown.SelectedIndex + 1;
-                pointerResults.Clear();
-                pointerList.Clear();
-                result_counter = 0;
-                pointerList.Stop = false;
-                List<int> range = new List<int>();
-
-                int i = 0;
-
-                for (i = 0; i < level; ++i)
-                {
-                    range.Add(8 * 1024);
-                }
-
-                pointer_list_view.Rows.Clear();
-                pointer_list_view.Columns.Clear();
-
-                for (i = 0; i < level; ++i)
-                {
-                    pointer_list_view.Columns.Add("Offset " + (i + 1), "Offset " + (i + 1));
-
-                    pointer_list_view.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
-                }
-
-                if (level > 0)
-                {
-
-                    pointer_list_view.Columns.Add("Base Address", "Base Address");
-                    pointer_list_view.Columns.Add("Base Section", "Base Section");
-
-                    pointer_list_view.Columns[level + 0].SortMode = DataGridViewColumnSortMode.NotSortable;
-                    pointer_list_view.Columns[level + 1].SortMode = DataGridViewColumnSortMode.NotSortable;
-                }
-
-                find_btn.Text = "Stop";
-                pointer_finder_worker.RunWorkerAsync(new PointerFinderWorkerArgs(address, range));
-
-                //DoWorkEventArgs doWorkEventArgs = new DoWorkEventArgs(new PointerFinderWorkerArgs(address, range));
-                //pointer_finder_worker_DoWork(null, doWorkEventArgs);
-            }
-            else
-            {
-                pointerList.Stop = true;
-                pointer_finder_worker.CancelAsync();
-                find_btn.Text = "First Scan";
-            }
-        }
-		bool Confirmation;
-        private void next_btn_Click(object sender, EventArgs e)
-        {
-			if (!Confirmation)
-            {
-				Confirmation = true;
-                MessageBox.Show("Verify if you're connected!");
-			}
-			else{
-            ulong address = ulong.Parse(address_box.Text, System.Globalization.NumberStyles.HexNumber);
+      private void btnScan_OnClick() {
+         if (btnScan.Text == "First Scan") {
+            UInt64 address = UInt64.Parse(textBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
+            Int32 level = Convert.ToInt32(numericPointerLevel.Value);
+            pointerResults.Clear();
+            pointerList.Clear();
             result_counter = 0;
             pointerList.Stop = false;
-            next_pointer_finder_worker.RunWorkerAsync(new PointerFinderWorkerArgs(address, null));
-			Confirmation = false;
-			}
-            //DoWorkEventArgs doWorkEventArgs = new DoWorkEventArgs(new PointerFinderWorkerArgs(address, null));
-            //next_pointer_finder_worker_DoWork(null, doWorkEventArgs);
-        }
+            List<Int32> range = new List<Int32>();
 
-        private void pointer_finder_worker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            pointer_finder_worker.ReportProgress(0);
-            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx)
-            {
-                if (pointer_finder_worker.CancellationPending) break;
-                MappedSection mappedSection = processManager.MappedSectionList[section_idx];
-                if (mappedSection.Name.StartsWith("libSce")) continue;
-                mappedSection.PointerSearchInit(processManager, MemoryHelper, pointerList);
-                pointer_finder_worker.ReportProgress((int)(((float)section_idx / processManager.MappedSectionList.Count) * 80));
+            Int32 i = 0;
+
+            for (i = 0; i < level; ++i) {
+               range.Add(8 * 1024);
             }
 
-            if (pointer_finder_worker.CancellationPending) return;
+            dataGridPointerList.Rows.Clear();
+            dataGridPointerList.Columns.Clear();
 
-            pointer_finder_worker.ReportProgress(80);
-            pointerList.Init();
-            pointer_finder_worker.ReportProgress(90);
+            for (i = 0; i < level; ++i) {
+               dataGridPointerList.Columns.Add("Offset " + (i + 1), "Offset " + (i + 1));
 
-            PointerFinderWorkerArgs pointerFinderWorkerArgs = (PointerFinderWorkerArgs)e.Argument;
-            pointerList.FindPointerList(pointerFinderWorkerArgs.Address, pointerFinderWorkerArgs.Range);
-            pointer_finder_worker.ReportProgress(100);
-        }
-
-        private void pointer_finder_worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            progress_bar.Value = e.ProgressPercentage;
-
-            if (e.UserState != null)
-            {
-                PointerFinderWorkerListViewUpdate pointerFinderWorkerListViewUpdate = (PointerFinderWorkerListViewUpdate)e.UserState;
-
-                List<long> path_offset = pointerFinderWorkerListViewUpdate.PathOffset;
-                List<Pointer> path_address = pointerFinderWorkerListViewUpdate.PathAddress;
-                int baseSectionID = pointerFinderWorkerListViewUpdate.SectionID;
-                try
-                {
-                    ulong baseOffset = path_address[path_offset.Count - 1].Address - processManager.MappedSectionList[baseSectionID].Start;
-
-                    PointerResult pointerResult = new PointerResult(baseSectionID, baseOffset, path_offset);
-                    pointerResults.Add(pointerResult);
-
-                    if (result_counter < 2000)
-                    {
-                        int row_index = pointer_list_view.Rows.Add();
-                        DataGridViewCellCollection row = pointer_list_view.Rows[row_index].Cells;
-
-                        for (int i = 0; i < path_offset.Count; ++i)
-                        {
-                            row[i].Value = (path_offset[i].ToString("X"));                           //offset
-                            int sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[i].Address);
-                        }
-
-                        if (path_offset.Count > 0)
-                        {
-                            row[row.Count - 2].Value = (path_address[path_address.Count - 1].Address.ToString("X"));                  //address
-                            int sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_address.Count - 1].Address);
-                            row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(sectionID));               //section
-                        }
-                    }
-
-                    ++result_counter;
-
-                    if (result_counter % 1024 == 0)
-                    {
-                        msg.Text = result_counter.ToString() + " results";
-                    }
-                }
-                catch (Exception exception)
-                {
-                    MessageBox.Show(exception.Message);
-                }
+               dataGridPointerList.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
             }
-        }
 
-        private void pointer_finder_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            msg.Text = result_counter.ToString() + " results";
-            find_btn.Text = "First Scan";
-        }
+            if (level > 0) {
 
-        private void next_pointer_finder_worker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            PointerFinderWorkerArgs pointerFinderWorkerArgs = (PointerFinderWorkerArgs)e.Argument;
-            result_counter = 0;
+               dataGridPointerList.Columns.Add("Base Address", "Base Address");
+               dataGridPointerList.Columns.Add("Base Section", "Base Section");
+
+               dataGridPointerList.Columns[level + 0].SortMode = DataGridViewColumnSortMode.NotSortable;
+               dataGridPointerList.Columns[level + 1].SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
+
+            btnScan.Text = "Stop";
+            pointer_finder_worker.RunWorkerAsync(new ScannerThreadArgs(address, range));
+
+            //DoWorkEventArgs doWorkEventArgs = new DoWorkEventArgs(new PointerFinderWorkerArgs(address, range));
+            //pointer_finder_worker_DoWork(null, doWorkEventArgs);
+         } else {
+            pointerList.Stop = true;
+            pointer_finder_worker.CancelAsync();
+            btnScan.Text = "First Scan";
+         }
+      }
+      private void btnScanNext_OnClick() {
+         UInt64 address = UInt64.Parse(textBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
+         result_counter = 0;
+         pointerList.Stop = false;
+         next_pointer_finder_worker.RunWorkerAsync(new ScannerThreadArgs(address, null));
+         //DoWorkEventArgs doWorkEventArgs = new DoWorkEventArgs(new PointerFinderWorkerArgs(address, null));
+         //next_pointer_finder_worker_DoWork(null, doWorkEventArgs);
+      }
+      private void btnLoadPointerList_OnClick() {
+         OpenFileDialog ofdialog = new OpenFileDialog();
+         if (ofdialog.ShowDialog() == DialogResult.OK) {
+            pointerResults.Clear();
             pointerList.Clear();
-            next_pointer_finder_worker.ReportProgress(0);
-            for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx)
-            {
-                if (next_pointer_finder_worker.CancellationPending) break;
-                MappedSection mappedSection = processManager.MappedSectionList[section_idx];
-                if (mappedSection.Name.StartsWith("libSce")) continue;
-                mappedSection.PointerSearchInit(processManager, MemoryHelper, pointerList);
-                next_pointer_finder_worker.ReportProgress((int)(((float)section_idx / processManager.MappedSectionList.Count) * 30));
-            }
-
-            if (next_pointer_finder_worker.CancellationPending) return;
-
-            next_pointer_finder_worker.ReportProgress(30);
             pointerList.Init();
-            next_pointer_finder_worker.ReportProgress(50);
+            dataGridPointerList.Rows.Clear();
+            dataGridPointerList.Columns.Clear();
 
-            List<PointerResult> newPointerResultList = new List<PointerResult>();
-            pointer_list_view.Rows.Clear();
+            var saveFile = PointerListSaveFile.loadSaveFile(ofdialog.FileName);
+            if (saveFile != null) {
+               for (Int32 i = 0; i < saveFile.level; ++i) {
+                  dataGridPointerList.Columns.Add("Offset " + (i + 1), "Offset " + (i + 1));
+                  dataGridPointerList.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
+               }
 
-            for (int i = 0; i < pointerResults.Count; ++i)
-            {
-                if (i % 100 == 0)
-                {
-                    next_pointer_finder_worker.ReportProgress((int)(50 * (float)(i) / pointerResults.Count) + 50);
-                }
+               if (saveFile.level > 0) {
+                  dataGridPointerList.Columns.Add("Base Address", "Base Address");
+                  dataGridPointerList.Columns.Add("Base Section", "Base Section");
 
-                PointerResult pointerResult = pointerResults[i];
+                  dataGridPointerList.Columns[saveFile.level + 0].SortMode = DataGridViewColumnSortMode.NotSortable;
+                  dataGridPointerList.Columns[saveFile.level + 1].SortMode = DataGridViewColumnSortMode.NotSortable;
+               }
 
-                if (pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList) == pointerFinderWorkerArgs.Address)
-                {
-                    newPointerResultList.Add(pointerResult);
-                    ++result_counter;
 
-                    if (result_counter < 2000)
-                    {
-                        int row_index = pointer_list_view.Rows.Add();
-                        DataGridViewCellCollection row = pointer_list_view.Rows[row_index].Cells;
+               foreach (PointerEntry item in saveFile.pointers) {
+                  Int32 row_index = dataGridPointerList.Rows.Add();
+                  pointerResults.Add(item.pointerResult);
+                  DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
 
-                        for (int j = 0; j < pointerResult.Offsets.Length; ++j)
-                        {
-                            row[j].Value = (pointerResult.Offsets[j].ToString("X"));                           //offset
-                        }
+                  for (Int32 i = 0; i < saveFile.level; ++i) {
+                     row[i].Value = item.offsets[i];                       //offset
+                  }
 
-                        if (pointerResult.Offsets.Length > 0)
-                        {
-                            row[row.Count - 2].Value = (pointerResult.GetBaseAddress(processManager.MappedSectionList).ToString("X"));   //address
-                            row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(pointerResult.BaseSectionID));   //section
-                        }
-                    }
-                }
+                  if (saveFile.level > 0) {
+                     row[row.Count - 2].Value = item.address;                  //address
+                     row[row.Count - 1].Value = item.section;               //section
+                  }
+               }
+               numericPointerLevel.Value = saveFile.level;
             }
 
-            pointerResults = newPointerResultList;
+         }
+      }
+      private void btnSavePointerList_OnClick() {
+         SaveFileDialog sfdialog = new SaveFileDialog();
+         if (sfdialog.ShowDialog() == DialogResult.OK) {
+            var saveFile = new PointerListSaveFile();
+            saveFile.level = Convert.ToInt32(numericPointerLevel.Text);
+            foreach (DataGridViewRow item in dataGridPointerList.Rows) {
+               DataGridViewCellCollection row = item.Cells;
+               PointerEntry pEntry = new PointerEntry();
+               for (Int32 i = 0; i < saveFile.level; ++i) {
+                  pEntry.offsets.Add(row[i].Value.ToString());                       //offset
+               }
+               pEntry.address = row[row.Count - 2].Value.ToString();
+               pEntry.section = row[row.Count - 1].Value.ToString();
+               pEntry.pointerResult = pointerResults[item.Index];
 
-
-            next_pointer_finder_worker.ReportProgress(100);
-        }
-
-        private void next_pointer_finder_worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            msg.Text = result_counter.ToString() + " results";
-            progress_bar.Value = e.ProgressPercentage;
-        }
-
-        private void next_pointer_finder_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            msg.Text = pointerResults.Count.ToString() + " results";
-        }
-
-        private void pointer_list_view_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
-            PointerResult pointerResult = pointerResults[e.RowIndex];
-
-            ulong baseAddress = pointerResult.GetBaseAddress(processManager.MappedSectionList);
-            ulong tailAddress = pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList);
-            string data = MemoryHelper.BytesToString(MemoryHelper.GetBytesByType(tailAddress));
-            string dataType = MemoryHelper.GetStringOfValueType(MemoryHelper.ValueType);
-            mainForm.new_pointer_cheat(baseAddress, pointerResult.Offsets.ToList(), dataType, data, false, "");
-        }
-
-        private bool fast_scan = true;
-
-        private void fast_scan_box_CheckedChanged(object sender, EventArgs e)
-        {
-            fast_scan = fast_scan_box.Checked;
-        }
-    }
-
-    public class PointerResult
-    {
-        public int BaseSectionID { get; }
-        public ulong BaseOffset { get; }
-        public long[] Offsets { get; }
-
-        public PointerResult(int BaseSectionID, ulong BaseOffset, List<long> Offsets)
-        {
-            this.BaseSectionID = BaseSectionID;
-            this.BaseOffset = BaseOffset;
-            this.Offsets = new long[Offsets.Count];
-            for (int i = 0; i < this.Offsets.Length; ++i)
-            {
-                this.Offsets[i] = Offsets[this.Offsets.Length - 1 - i];
+               saveFile.pointers.Add(pEntry);
             }
 
-        }
+            saveFile.saveToFile(sfdialog.FileName);
+         }
+      }
 
-        public ulong GetBaseAddress(MappedSectionList mappedSectionList)
-        {
-            if (BaseSectionID >= mappedSectionList.Count)
-                return 0;
+      private void uiButtonHandler_Click(Object sender, EventArgs e) {
+         String btnName = sender.GetType() == typeof(Button) ? (sender as Button).Name : (sender as ToolStripMenuItem).Name;
+         switch (btnName) {
+            case "btnScan":
+               btnScan_OnClick();
+               break;
+            case "btnScanNext":
+               btnScanNext_OnClick();
+               break;
+            case "uiToolStrip_btnLoadPointerList":
+               btnLoadPointerList_OnClick();
+               break;
+            case "uiToolStrip_btnSavePointerList":
+               btnSavePointerList_OnClick();
+               break;
+            default:
+               break;
+         }
+      }
 
-            MappedSection section = mappedSectionList[BaseSectionID];
+      private void pointer_finder_worker_DoWork(Object sender, DoWorkEventArgs e) {
+         pointer_finder_worker.ReportProgress(0);
+         for (Int32 section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
+            if (pointer_finder_worker.CancellationPending)
+               break;
 
-            return section.Start + BaseOffset;
-        }
-    }
+            MappedSection mappedSection = processManager.MappedSectionList[section_idx];
+            if (mappedSection.Name.StartsWith("libSce"))
+               continue;
+
+            mappedSection.PointerSearchInit(processManager, memoryHelper, pointerList);
+            pointer_finder_worker.ReportProgress((Int32)(((Single)section_idx / processManager.MappedSectionList.Count) * 80));
+         }
+
+         if (pointer_finder_worker.CancellationPending)
+            return;
+
+         pointer_finder_worker.ReportProgress(80);
+         pointerList.Init();
+         pointer_finder_worker.ReportProgress(90);
+
+         var pointerFinderWorkerArgs = (ScannerThreadArgs)e.Argument;
+         pointerList.FindPointerList(pointerFinderWorkerArgs.address, pointerFinderWorkerArgs.range);
+         pointer_finder_worker.ReportProgress(100);
+      }
+
+      private void pointer_finder_worker_ProgressChanged(Object sender, ProgressChangedEventArgs e) {
+         progressBarScannerThread.Value = e.ProgressPercentage;
+
+         if (e.UserState != null) {
+            PointerFinderWorkerListViewUpdate pointerFinderWorkerListViewUpdate = (PointerFinderWorkerListViewUpdate)e.UserState;
+
+            List<Int64> path_offset = pointerFinderWorkerListViewUpdate.PathOffset;
+            List<Pointer> path_address = pointerFinderWorkerListViewUpdate.PathAddress;
+            Int32 baseSectionID = pointerFinderWorkerListViewUpdate.SectionID;
+            try {
+               UInt64 baseOffset = path_address[path_offset.Count - 1].Address - processManager.MappedSectionList[baseSectionID].Start;
+
+               PointerResult pointerResult = new PointerResult(baseSectionID, baseOffset, path_offset);
+               pointerResults.Add(pointerResult);
+
+               if (result_counter < 2000) {
+                  Int32 row_index = dataGridPointerList.Rows.Add();
+                  DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
+
+                  for (Int32 i = 0; i < path_offset.Count; ++i) {
+                     row[i].Value = (path_offset[i].ToString("X"));                           //offset
+                     Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[i].Address);
+                  }
+
+                  if (path_offset.Count > 0) {
+                     row[row.Count - 2].Value = (path_address[path_address.Count - 1].Address.ToString("X"));                  //address
+                     Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_address.Count - 1].Address);
+                     row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(sectionID));               //section
+                  }
+               }
+
+               ++result_counter;
+
+               if (result_counter % 1024 == 0) {
+                  msg.Text = result_counter.ToString() + " results";
+               }
+            } catch (Exception exception) {
+               MessageBox.Show(exception.Message);
+            }
+         }
+      }
+
+      private void pointer_finder_worker_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
+         msg.Text = result_counter.ToString() + " results";
+         btnScan.Text = "First Scan";
+      }
+
+      private void next_pointer_finder_worker_DoWork(Object sender, DoWorkEventArgs e) {
+         var pointerFinderWorkerArgs = (ScannerThreadArgs)e.Argument;
+         result_counter = 0;
+         pointerList.Clear();
+         next_pointer_finder_worker.ReportProgress(0);
+         for (Int32 section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
+            if (next_pointer_finder_worker.CancellationPending) break;
+            MappedSection mappedSection = processManager.MappedSectionList[section_idx];
+            if (mappedSection.Name.StartsWith("libSce")) continue;
+            mappedSection.PointerSearchInit(processManager, memoryHelper, pointerList);
+            next_pointer_finder_worker.ReportProgress((Int32)(((Single)section_idx / processManager.MappedSectionList.Count) * 30));
+         }
+
+         if (next_pointer_finder_worker.CancellationPending) return;
+
+         next_pointer_finder_worker.ReportProgress(30);
+         pointerList.Init();
+         next_pointer_finder_worker.ReportProgress(50);
+
+         List<PointerResult> newPointerResultList = new List<PointerResult>();
+         dataGridPointerList.Rows.Clear();
+
+         for (Int32 i = 0; i < pointerResults.Count; ++i) {
+            if (i % 100 == 0) {
+               next_pointer_finder_worker.ReportProgress((Int32)(50 * (Single)(i) / pointerResults.Count) + 50);
+            }
+
+            PointerResult pointerResult = pointerResults[i];
+
+            if (pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList) == pointerFinderWorkerArgs.address) {
+               newPointerResultList.Add(pointerResult);
+               ++result_counter;
+
+               if (result_counter < 2000) {
+                  Int32 row_index = dataGridPointerList.Rows.Add();
+                  DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
+
+                  for (Int32 j = 0; j < pointerResult.offsets.Length; ++j) {
+                     row[j].Value = (pointerResult.offsets[j].ToString("X"));                           //offset
+                  }
+
+                  if (pointerResult.offsets.Length > 0) {
+                     row[row.Count - 2].Value = (pointerResult.GetBaseAddress(processManager.MappedSectionList).ToString("X"));   //address
+                     row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(pointerResult.baseSectionID));   //section
+                  }
+               }
+            }
+         }
+
+         pointerResults = newPointerResultList;
+
+
+         next_pointer_finder_worker.ReportProgress(100);
+      }
+
+      private void next_pointer_finder_worker_ProgressChanged(Object sender, ProgressChangedEventArgs e) {
+         msg.Text = result_counter.ToString() + " results";
+         progressBarScannerThread.Value = e.ProgressPercentage;
+      }
+
+      private void next_pointer_finder_worker_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
+         msg.Text = pointerResults.Count.ToString() + " results";
+      }
+
+      private void pointer_list_view_CellDoubleClick(Object sender, DataGridViewCellEventArgs e) {
+         if (e.RowIndex < 0) return;
+         PointerResult pointerResult = pointerResults[e.RowIndex];
+
+         UInt64 baseAddress = pointerResult.GetBaseAddress(processManager.MappedSectionList);
+         UInt64 tailAddress = pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList);
+         String data = memoryHelper.BytesToString(memoryHelper.GetBytesByType(tailAddress));
+         String dataType = MemoryHelper.GetStringOfValueType(memoryHelper.ValueType);
+         mainForm.new_pointer_cheat(baseAddress, pointerResult.offsets.ToList(), dataType, data, false, "");
+      }
+
+      private Boolean fast_scan = true;
+
+      private void fast_scan_box_CheckedChanged(Object sender, EventArgs e) {
+         fast_scan = checkBoxFastScan.Checked;
+      }
+   }
+
+
 }

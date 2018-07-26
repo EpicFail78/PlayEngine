@@ -28,170 +28,243 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.status_strip = new System.Windows.Forms.StatusStrip();
-            this.progress_bar = new System.Windows.Forms.ToolStripProgressBar();
-            this.msg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.address_box = new System.Windows.Forms.TextBox();
-            this.find_btn = new System.Windows.Forms.Button();
-            this.level_updown = new System.Windows.Forms.DomainUpDown();
-            this.pointer_finder_worker = new System.ComponentModel.BackgroundWorker();
-            this.pointer_list_view = new System.Windows.Forms.DataGridView();
-            this.next_btn = new System.Windows.Forms.Button();
-            this.next_pointer_finder_worker = new System.ComponentModel.BackgroundWorker();
-            this.label1 = new System.Windows.Forms.Label();
-            this.fast_scan_box = new System.Windows.Forms.CheckBox();
-            this.status_strip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pointer_list_view)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // status_strip
-            // 
-            this.status_strip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.progress_bar,
+         this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
+         this.progressBarScannerThread = new System.Windows.Forms.ToolStripProgressBar();
+         this.msg = new System.Windows.Forms.ToolStripStatusLabel();
+         this.textBoxScanAddress = new System.Windows.Forms.TextBox();
+         this.btnScan = new System.Windows.Forms.Button();
+         this.pointer_finder_worker = new System.ComponentModel.BackgroundWorker();
+         this.dataGridPointerList = new System.Windows.Forms.DataGridView();
+         this.btnScanNext = new System.Windows.Forms.Button();
+         this.next_pointer_finder_worker = new System.ComponentModel.BackgroundWorker();
+         this.label1 = new System.Windows.Forms.Label();
+         this.checkBoxFastScan = new System.Windows.Forms.CheckBox();
+         this.uiToolStrip = new System.Windows.Forms.ToolStrip();
+         this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+         this.uiToolStrip_btnLoadPointerList = new System.Windows.Forms.ToolStripMenuItem();
+         this.uiToolStrip_btnSavePointerList = new System.Windows.Forms.ToolStripMenuItem();
+         this.numericPointerLevel = new System.Windows.Forms.NumericUpDown();
+         this.label2 = new System.Windows.Forms.Label();
+         this.uiStatusStrip.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.dataGridPointerList)).BeginInit();
+         this.uiToolStrip.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.numericPointerLevel)).BeginInit();
+         this.SuspendLayout();
+         // 
+         // uiStatusStrip
+         // 
+         this.uiStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.progressBarScannerThread,
             this.msg});
-            this.status_strip.Location = new System.Drawing.Point(0, 399);
-            this.status_strip.Name = "status_strip";
-            this.status_strip.Size = new System.Drawing.Size(851, 22);
-            this.status_strip.TabIndex = 2;
-            this.status_strip.Text = "statusStrip1";
-            // 
-            // progress_bar
-            // 
-            this.progress_bar.Name = "progress_bar";
-            this.progress_bar.Size = new System.Drawing.Size(600, 16);
-            // 
-            // msg
-            // 
-            this.msg.Name = "msg";
-            this.msg.Size = new System.Drawing.Size(0, 17);
-            // 
-            // address_box
-            // 
-            this.address_box.Location = new System.Drawing.Point(202, 10);
-            this.address_box.Name = "address_box";
-            this.address_box.Size = new System.Drawing.Size(133, 21);
-            this.address_box.TabIndex = 3;
-            // 
-            // find_btn
-            // 
-            this.find_btn.Location = new System.Drawing.Point(351, 8);
-            this.find_btn.Name = "find_btn";
-            this.find_btn.Size = new System.Drawing.Size(96, 23);
-            this.find_btn.TabIndex = 4;
-            this.find_btn.Text = "First Scan";
-            this.find_btn.UseVisualStyleBackColor = true;
-            this.find_btn.Click += new System.EventHandler(this.find_btn_Click);
-            // 
-            // level_updown
-            // 
-            this.level_updown.Location = new System.Drawing.Point(11, 11);
-            this.level_updown.Name = "level_updown";
-            this.level_updown.ReadOnly = true;
-            this.level_updown.Size = new System.Drawing.Size(120, 21);
-            this.level_updown.TabIndex = 6;
-            // 
-            // pointer_finder_worker
-            // 
-            this.pointer_finder_worker.WorkerReportsProgress = true;
-            this.pointer_finder_worker.WorkerSupportsCancellation = true;
-            this.pointer_finder_worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.pointer_finder_worker_DoWork);
-            this.pointer_finder_worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.pointer_finder_worker_ProgressChanged);
-            this.pointer_finder_worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.pointer_finder_worker_RunWorkerCompleted);
-            // 
-            // pointer_list_view
-            // 
-            this.pointer_list_view.AllowUserToAddRows = false;
-            this.pointer_list_view.AllowUserToDeleteRows = false;
-            this.pointer_list_view.AllowUserToResizeRows = false;
-            this.pointer_list_view.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+         this.uiStatusStrip.Location = new System.Drawing.Point(0, 433);
+         this.uiStatusStrip.Name = "uiStatusStrip";
+         this.uiStatusStrip.Size = new System.Drawing.Size(851, 23);
+         this.uiStatusStrip.SizingGrip = false;
+         this.uiStatusStrip.TabIndex = 2;
+         // 
+         // progressBarScannerThread
+         // 
+         this.progressBarScannerThread.Name = "progressBarScannerThread";
+         this.progressBarScannerThread.Size = new System.Drawing.Size(837, 17);
+         // 
+         // msg
+         // 
+         this.msg.Name = "msg";
+         this.msg.Size = new System.Drawing.Size(0, 18);
+         // 
+         // textBoxScanAddress
+         // 
+         this.textBoxScanAddress.Location = new System.Drawing.Point(66, 26);
+         this.textBoxScanAddress.Name = "textBoxScanAddress";
+         this.textBoxScanAddress.Size = new System.Drawing.Size(133, 20);
+         this.textBoxScanAddress.TabIndex = 3;
+         // 
+         // btnScan
+         // 
+         this.btnScan.Location = new System.Drawing.Point(567, 23);
+         this.btnScan.Name = "btnScan";
+         this.btnScan.Size = new System.Drawing.Size(96, 25);
+         this.btnScan.TabIndex = 4;
+         this.btnScan.Text = "First Scan";
+         this.btnScan.UseVisualStyleBackColor = true;
+         this.btnScan.Click += new System.EventHandler(this.uiButtonHandler_Click);
+         // 
+         // pointer_finder_worker
+         // 
+         this.pointer_finder_worker.WorkerReportsProgress = true;
+         this.pointer_finder_worker.WorkerSupportsCancellation = true;
+         this.pointer_finder_worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.pointer_finder_worker_DoWork);
+         this.pointer_finder_worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.pointer_finder_worker_ProgressChanged);
+         this.pointer_finder_worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.pointer_finder_worker_RunWorkerCompleted);
+         // 
+         // dataGridPointerList
+         // 
+         this.dataGridPointerList.AllowUserToAddRows = false;
+         this.dataGridPointerList.AllowUserToDeleteRows = false;
+         this.dataGridPointerList.AllowUserToResizeRows = false;
+         this.dataGridPointerList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pointer_list_view.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.pointer_list_view.Location = new System.Drawing.Point(0, 37);
-            this.pointer_list_view.Name = "pointer_list_view";
-            this.pointer_list_view.ReadOnly = true;
-            this.pointer_list_view.RowTemplate.Height = 23;
-            this.pointer_list_view.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.pointer_list_view.Size = new System.Drawing.Size(851, 362);
-            this.pointer_list_view.TabIndex = 7;
-            this.pointer_list_view.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.pointer_list_view_CellDoubleClick);
-            // 
-            // next_btn
-            // 
-            this.next_btn.Location = new System.Drawing.Point(471, 8);
-            this.next_btn.Name = "next_btn";
-            this.next_btn.Size = new System.Drawing.Size(96, 23);
-            this.next_btn.TabIndex = 8;
-            this.next_btn.Text = "Next Scan";
-            this.next_btn.UseVisualStyleBackColor = true;
-            this.next_btn.Click += new System.EventHandler(this.next_btn_Click);
-            // 
-            // next_pointer_finder_worker
-            // 
-            this.next_pointer_finder_worker.WorkerReportsProgress = true;
-            this.next_pointer_finder_worker.WorkerSupportsCancellation = true;
-            this.next_pointer_finder_worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.next_pointer_finder_worker_DoWork);
-            this.next_pointer_finder_worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.next_pointer_finder_worker_ProgressChanged);
-            this.next_pointer_finder_worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.next_pointer_finder_worker_RunWorkerCompleted);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(143, 19);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 12);
-            this.label1.TabIndex = 9;
-            this.label1.Text = "Address:";
-            // 
-            // fast_scan_box
-            // 
-            this.fast_scan_box.AutoSize = true;
-            this.fast_scan_box.Checked = true;
-            this.fast_scan_box.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.fast_scan_box.Location = new System.Drawing.Point(706, 12);
-            this.fast_scan_box.Name = "fast_scan_box";
-            this.fast_scan_box.Size = new System.Drawing.Size(72, 16);
-            this.fast_scan_box.TabIndex = 10;
-            this.fast_scan_box.Text = "FastScan";
-            this.fast_scan_box.UseVisualStyleBackColor = true;
-            this.fast_scan_box.CheckedChanged += new System.EventHandler(this.fast_scan_box_CheckedChanged);
-            // 
-            // PointerFinder
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(851, 421);
-            this.Controls.Add(this.fast_scan_box);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.next_btn);
-            this.Controls.Add(this.pointer_list_view);
-            this.Controls.Add(this.level_updown);
-            this.Controls.Add(this.find_btn);
-            this.Controls.Add(this.address_box);
-            this.Controls.Add(this.status_strip);
-            this.Name = "PointerFinder";
-            this.Text = "Pointer Finder";
-            this.Load += new System.EventHandler(this.PointerFinder_Load);
-            this.status_strip.ResumeLayout(false);
-            this.status_strip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pointer_list_view)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+         this.dataGridPointerList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dataGridPointerList.Location = new System.Drawing.Point(0, 52);
+         this.dataGridPointerList.Name = "dataGridPointerList";
+         this.dataGridPointerList.ReadOnly = true;
+         this.dataGridPointerList.RowTemplate.Height = 23;
+         this.dataGridPointerList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+         this.dataGridPointerList.Size = new System.Drawing.Size(851, 380);
+         this.dataGridPointerList.TabIndex = 7;
+         this.dataGridPointerList.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.pointer_list_view_CellDoubleClick);
+         // 
+         // btnScanNext
+         // 
+         this.btnScanNext.Location = new System.Drawing.Point(669, 23);
+         this.btnScanNext.Name = "btnScanNext";
+         this.btnScanNext.Size = new System.Drawing.Size(96, 25);
+         this.btnScanNext.TabIndex = 8;
+         this.btnScanNext.Text = "Next Scan";
+         this.btnScanNext.UseVisualStyleBackColor = true;
+         this.btnScanNext.Click += new System.EventHandler(this.uiButtonHandler_Click);
+         // 
+         // next_pointer_finder_worker
+         // 
+         this.next_pointer_finder_worker.WorkerReportsProgress = true;
+         this.next_pointer_finder_worker.WorkerSupportsCancellation = true;
+         this.next_pointer_finder_worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.next_pointer_finder_worker_DoWork);
+         this.next_pointer_finder_worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.next_pointer_finder_worker_ProgressChanged);
+         this.next_pointer_finder_worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.next_pointer_finder_worker_RunWorkerCompleted);
+         // 
+         // label1
+         // 
+         this.label1.AutoSize = true;
+         this.label1.Location = new System.Drawing.Point(12, 29);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(48, 13);
+         this.label1.TabIndex = 9;
+         this.label1.Text = "Address:";
+         // 
+         // checkBoxFastScan
+         // 
+         this.checkBoxFastScan.AutoSize = true;
+         this.checkBoxFastScan.Checked = true;
+         this.checkBoxFastScan.CheckState = System.Windows.Forms.CheckState.Checked;
+         this.checkBoxFastScan.Location = new System.Drawing.Point(771, 28);
+         this.checkBoxFastScan.Name = "checkBoxFastScan";
+         this.checkBoxFastScan.Size = new System.Drawing.Size(71, 17);
+         this.checkBoxFastScan.TabIndex = 10;
+         this.checkBoxFastScan.Text = "FastScan";
+         this.checkBoxFastScan.UseVisualStyleBackColor = true;
+         this.checkBoxFastScan.CheckedChanged += new System.EventHandler(this.fast_scan_box_CheckedChanged);
+         // 
+         // uiToolStrip
+         // 
+         this.uiToolStrip.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+         this.uiToolStrip.CanOverflow = false;
+         this.uiToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+         this.uiToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripDropDownButton1});
+         this.uiToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
+         this.uiToolStrip.Location = new System.Drawing.Point(0, 0);
+         this.uiToolStrip.Name = "uiToolStrip";
+         this.uiToolStrip.Size = new System.Drawing.Size(851, 22);
+         this.uiToolStrip.TabIndex = 11;
+         // 
+         // toolStripDropDownButton1
+         // 
+         this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.uiToolStrip_btnLoadPointerList,
+            this.uiToolStrip_btnSavePointerList});
+         this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+         this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
+         this.toolStripDropDownButton1.Size = new System.Drawing.Size(38, 19);
+         this.toolStripDropDownButton1.Text = "File";
+         this.toolStripDropDownButton1.TextImageRelation = System.Windows.Forms.TextImageRelation.TextAboveImage;
+         // 
+         // uiToolStrip_btnLoadPointerList
+         // 
+         this.uiToolStrip_btnLoadPointerList.Name = "uiToolStrip_btnLoadPointerList";
+         this.uiToolStrip_btnLoadPointerList.Size = new System.Drawing.Size(168, 22);
+         this.uiToolStrip_btnLoadPointerList.Text = "Load pointer list...";
+         this.uiToolStrip_btnLoadPointerList.Click += new System.EventHandler(this.uiButtonHandler_Click);
+         // 
+         // uiToolStrip_btnSavePointerList
+         // 
+         this.uiToolStrip_btnSavePointerList.Name = "uiToolStrip_btnSavePointerList";
+         this.uiToolStrip_btnSavePointerList.Size = new System.Drawing.Size(168, 22);
+         this.uiToolStrip_btnSavePointerList.Text = "Save pointer list...";
+         this.uiToolStrip_btnSavePointerList.Click += new System.EventHandler(this.uiButtonHandler_Click);
+         // 
+         // numericPointerLevel
+         // 
+         this.numericPointerLevel.Location = new System.Drawing.Point(245, 26);
+         this.numericPointerLevel.Maximum = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+         this.numericPointerLevel.Name = "numericPointerLevel";
+         this.numericPointerLevel.Size = new System.Drawing.Size(49, 20);
+         this.numericPointerLevel.TabIndex = 12;
+         this.numericPointerLevel.Value = new decimal(new int[] {
+            6,
+            0,
+            0,
+            0});
+         // 
+         // label2
+         // 
+         this.label2.AutoSize = true;
+         this.label2.Location = new System.Drawing.Point(205, 29);
+         this.label2.Name = "label2";
+         this.label2.Size = new System.Drawing.Size(39, 13);
+         this.label2.TabIndex = 13;
+         this.label2.Text = "Level: ";
+         // 
+         // PointerFinder
+         // 
+         this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+         this.ClientSize = new System.Drawing.Size(851, 456);
+         this.Controls.Add(this.label2);
+         this.Controls.Add(this.numericPointerLevel);
+         this.Controls.Add(this.uiToolStrip);
+         this.Controls.Add(this.checkBoxFastScan);
+         this.Controls.Add(this.label1);
+         this.Controls.Add(this.btnScanNext);
+         this.Controls.Add(this.dataGridPointerList);
+         this.Controls.Add(this.btnScan);
+         this.Controls.Add(this.textBoxScanAddress);
+         this.Controls.Add(this.uiStatusStrip);
+         this.Name = "PointerFinder";
+         this.Text = "Pointer Finder";
+         this.uiStatusStrip.ResumeLayout(false);
+         this.uiStatusStrip.PerformLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.dataGridPointerList)).EndInit();
+         this.uiToolStrip.ResumeLayout(false);
+         this.uiToolStrip.PerformLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.numericPointerLevel)).EndInit();
+         this.ResumeLayout(false);
+         this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.StatusStrip status_strip;
-        private System.Windows.Forms.TextBox address_box;
-        private System.Windows.Forms.Button find_btn;
-        private System.Windows.Forms.ToolStripProgressBar progress_bar;
-        private System.Windows.Forms.DomainUpDown level_updown;
+        private System.Windows.Forms.StatusStrip uiStatusStrip;
+        private System.Windows.Forms.TextBox textBoxScanAddress;
+        private System.Windows.Forms.Button btnScan;
+        private System.Windows.Forms.ToolStripProgressBar progressBarScannerThread;
         private System.ComponentModel.BackgroundWorker pointer_finder_worker;
-        private System.Windows.Forms.DataGridView pointer_list_view;
-        private System.Windows.Forms.Button next_btn;
+        private System.Windows.Forms.DataGridView dataGridPointerList;
+        private System.Windows.Forms.Button btnScanNext;
         private System.ComponentModel.BackgroundWorker next_pointer_finder_worker;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripStatusLabel msg;
-        private System.Windows.Forms.CheckBox fast_scan_box;
-    }
+        private System.Windows.Forms.CheckBox checkBoxFastScan;
+        private System.Windows.Forms.ToolStrip uiToolStrip;
+        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
+        private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnLoadPointerList;
+        private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnSavePointerList;
+      private System.Windows.Forms.NumericUpDown numericPointerLevel;
+      private System.Windows.Forms.Label label2;
+   }
 }
