@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
@@ -11,7 +10,7 @@ using System.Xml.Serialization;
 namespace PS4_Cheater {
    public partial class PointerFinder : Form {
       private enum ScanStatus {
-         NoScan,
+         FirstScan,
          DidScan,
          Scanning
       }
@@ -71,13 +70,13 @@ namespace PS4_Cheater {
          }
       }
 
-      private main mainForm;
+      private MainForm mainForm;
       private MemoryHelper memoryHelper;
       private PointerList pointerList = new PointerList();
       private ProcessManager processManager = null;
       private List<PointerResult> pointerResults  = new List<PointerResult>();
       private bool fastScan = true;
-      private ScanStatus _curScanStatus = ScanStatus.NoScan;
+      private ScanStatus _curScanStatus = ScanStatus.FirstScan;
       private ScanStatus curScanStatus
       {
          get {
@@ -85,11 +84,11 @@ namespace PS4_Cheater {
          }
          set {
             switch (value) {
-               case ScanStatus.NoScan:
+               case ScanStatus.FirstScan:
                   btnScan.Invoke(new Action(() => btnScan.Text = "First Scan"));
                   btnScan.Invoke(new Action(() => btnScan.Enabled = true));
                   btnScanNext.Invoke(new Action(() => btnScanNext.Enabled = false));
-                  this.Invoke(new Action(() => uiStatusStrip_labelStatus.Text = String.Empty));
+                  this.Invoke(new Action(() => uiStatusStrip_labelStatus.Text = "Standby..."));
                   break;
                case ScanStatus.DidScan:
                   btnScan.Invoke(new Action(() => btnScan.Text = "New Scan"));
@@ -99,8 +98,9 @@ namespace PS4_Cheater {
                   break;
                case ScanStatus.Scanning:
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
-                  btnScan.Invoke(new Action(() => btnScan.Enabled = false));
+                  btnScan.Invoke(new Action(() => btnScan.Enabled = true));
                   btnScanNext.Invoke(new Action(() => btnScanNext.Enabled = false));
+                  this.Invoke(new Action(() => uiStatusStrip_labelStatus.Text = "Scanning..."));
                   break;
             }
          }
@@ -119,7 +119,7 @@ namespace PS4_Cheater {
             bgWorkerScanner.ReportProgress(95, view_info);
          }
       }
-      public PointerFinder(main mainForm, UInt64 address, String dataType, ProcessManager processManager) {
+      public PointerFinder(MainForm mainForm, UInt64 address, String dataType, ProcessManager processManager) {
          this.mainForm = mainForm;
          this.processManager = processManager;
          memoryHelper = new MemoryHelper(true, 0);
@@ -134,10 +134,10 @@ namespace PS4_Cheater {
          if (curScanStatus == ScanStatus.Scanning) {
             pointerList.Stop = true;
             bgWorkerScanner.CancelAsync();
-            curScanStatus = ScanStatus.NoScan;
+            curScanStatus = ScanStatus.FirstScan;
             return;
          }
-         curScanStatus = ScanStatus.NoScan;
+         curScanStatus = ScanStatus.FirstScan;
 
          Int32 level = Convert.ToInt32(numericPointerLevel.Value);
          if (level <= 0)
@@ -175,7 +175,7 @@ namespace PS4_Cheater {
          if (ofdialog.ShowDialog() == DialogResult.OK) {
             var saveFile = PointerListSaveFile.loadSaveFile(ofdialog.FileName);
             if (saveFile != null) {
-               curScanStatus = ScanStatus.NoScan;
+               curScanStatus = ScanStatus.FirstScan;
                pointerResults.Clear();
                dataGridPointerList.Rows.Clear();
                dataGridPointerList.Columns.Clear();

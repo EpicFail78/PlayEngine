@@ -13,7 +13,7 @@
    using System.Linq;
    using System.Threading;
 
-   public partial class main : Form {
+   public partial class MainForm : Form {
       private ProcessManager processManager = new ProcessManager();
       private MemoryHelper memoryHelper = new MemoryHelper(true, 0);
       private CheatList cheatList = new CheatList();
@@ -91,7 +91,7 @@
             CONSTANT.EXACT_VALUE,
         };
 
-      public main() {
+      public MainForm() {
          this.InitializeComponent();
       }
 
@@ -771,6 +771,9 @@
                this.processes_comboBox.Items.Add(process.name);
             }
             this.processes_comboBox.SelectedIndex = 0;
+            // TODO: WRAP IT
+            btnOpenPointerScanner.Enabled = true;
+            btnOpenPointerScanner.Text = "Open Pointer Scanner";
          } catch (Exception exception) {
             MessageBox.Show(exception.Message, exception.Source, MessageBoxButtons.OK, MessageBoxIcon.Hand);
          }
@@ -1040,6 +1043,11 @@
 
                break;
          }
+      }
+
+      private void btnOpenPointerScanner_Click(Object sender, EventArgs e) {
+         PointerFinder pointerFinder = new PointerFinder(this, 0xDEADBEEF, MemoryHelper.GetStringOfValueType(ValueType.UINT_TYPE), processManager);
+         pointerFinder.Show();
       }
    }
 }

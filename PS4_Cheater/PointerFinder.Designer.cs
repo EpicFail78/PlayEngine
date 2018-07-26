@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
          this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
-         this.uiStatusStrip_ProgressBarScannerThread = new System.Windows.Forms.ToolStripProgressBar();
          this.uiStatusStrip_labelStatus = new System.Windows.Forms.ToolStripStatusLabel();
+         this.uiStatusStrip_ProgressBarScannerThread = new System.Windows.Forms.ToolStripProgressBar();
          this.textBoxScanAddress = new System.Windows.Forms.TextBox();
          this.btnScan = new System.Windows.Forms.Button();
          this.dataGridPointerList = new System.Windows.Forms.DataGridView();
@@ -62,11 +62,6 @@
          this.uiStatusStrip.SizingGrip = false;
          this.uiStatusStrip.TabIndex = 2;
          // 
-         // uiStatusStrip_ProgressBarScannerThread
-         // 
-         this.uiStatusStrip_ProgressBarScannerThread.Name = "uiStatusStrip_ProgressBarScannerThread";
-         this.uiStatusStrip_ProgressBarScannerThread.Size = new System.Drawing.Size(737, 17);
-         // 
          // uiStatusStrip_labelStatus
          // 
          this.uiStatusStrip_labelStatus.AutoSize = false;
@@ -75,6 +70,12 @@
          this.uiStatusStrip_labelStatus.Size = new System.Drawing.Size(200, 18);
          this.uiStatusStrip_labelStatus.Text = "";
          this.uiStatusStrip_labelStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+         // 
+         // uiStatusStrip_ProgressBarScannerThread
+         // 
+         this.uiStatusStrip_ProgressBarScannerThread.AutoSize = false;
+         this.uiStatusStrip_ProgressBarScannerThread.Name = "uiStatusStrip_ProgressBarScannerThread";
+         this.uiStatusStrip_ProgressBarScannerThread.Size = new System.Drawing.Size(620, 17);
          // 
          // textBoxScanAddress
          // 

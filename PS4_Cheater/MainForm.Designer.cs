@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace PS4_Cheater
 {
-    partial class main
+    partial class MainForm
     {
         private ColumnHeader result_list_view_value;
         private ColumnHeader result_list_view_section;
@@ -57,8 +57,8 @@ namespace PS4_Cheater
         private void InitializeComponent()
         {
          this.components = new System.ComponentModel.Container();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
          this.parent = new System.Windows.Forms.Panel();
          this.result_list_view_value = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.result_list_view_section = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -128,6 +128,7 @@ namespace PS4_Cheater
          this.next_scan_worker = new System.ComponentModel.BackgroundWorker();
          this.open_file_dialog = new System.Windows.Forms.OpenFileDialog();
          this.update_result_list_worker = new System.ComponentModel.BackgroundWorker();
+         this.btnOpenPointerScanner = new System.Windows.Forms.Button();
          ((System.ComponentModel.ISupportInitialize)(this.cheat_list_view)).BeginInit();
          this.cheat_list_menu.SuspendLayout();
          this.section_list_menu.SuspendLayout();
@@ -173,12 +174,12 @@ namespace PS4_Cheater
          this.refresh_cheat_list_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
          this.refresh_cheat_list_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.refresh_cheat_list_btn.ForeColor = System.Drawing.Color.White;
-         this.refresh_cheat_list_btn.Location = new System.Drawing.Point(164, 2);
+         this.refresh_cheat_list_btn.Location = new System.Drawing.Point(124, 2);
          this.refresh_cheat_list_btn.Name = "refresh_cheat_list_btn";
-         this.refresh_cheat_list_btn.Size = new System.Drawing.Size(165, 27);
+         this.refresh_cheat_list_btn.Size = new System.Drawing.Size(119, 27);
          this.refresh_cheat_list_btn.TabIndex = 31;
          this.refresh_cheat_list_btn.TabStop = false;
-         this.refresh_cheat_list_btn.Text = "Refresh";
+         this.refresh_cheat_list_btn.Text = "Refresh values";
          this.refresh_cheat_list_btn.UseMnemonic = false;
          this.refresh_cheat_list_btn.UseVisualStyleBackColor = false;
          this.refresh_cheat_list_btn.Click += new System.EventHandler(this.refresh_cheat_list_Click);
@@ -192,12 +193,12 @@ namespace PS4_Cheater
          this.load_cheat_list_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
          this.load_cheat_list_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.load_cheat_list_btn.ForeColor = System.Drawing.Color.White;
-         this.load_cheat_list_btn.Location = new System.Drawing.Point(534, 2);
+         this.load_cheat_list_btn.Location = new System.Drawing.Point(560, 2);
          this.load_cheat_list_btn.Name = "load_cheat_list_btn";
-         this.load_cheat_list_btn.Size = new System.Drawing.Size(165, 27);
+         this.load_cheat_list_btn.Size = new System.Drawing.Size(139, 27);
          this.load_cheat_list_btn.TabIndex = 33;
          this.load_cheat_list_btn.TabStop = false;
-         this.load_cheat_list_btn.Text = "Load";
+         this.load_cheat_list_btn.Text = "Load cheat table";
          this.load_cheat_list_btn.UseMnemonic = false;
          this.load_cheat_list_btn.UseVisualStyleBackColor = false;
          this.load_cheat_list_btn.Click += new System.EventHandler(this.load_address_btn_Click);
@@ -216,12 +217,12 @@ namespace PS4_Cheater
          this.save_cheat_list_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
          this.save_cheat_list_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.save_cheat_list_btn.ForeColor = System.Drawing.Color.White;
-         this.save_cheat_list_btn.Location = new System.Drawing.Point(363, 2);
+         this.save_cheat_list_btn.Location = new System.Drawing.Point(415, 2);
          this.save_cheat_list_btn.Name = "save_cheat_list_btn";
-         this.save_cheat_list_btn.Size = new System.Drawing.Size(165, 27);
+         this.save_cheat_list_btn.Size = new System.Drawing.Size(139, 27);
          this.save_cheat_list_btn.TabIndex = 32;
          this.save_cheat_list_btn.TabStop = false;
-         this.save_cheat_list_btn.Text = "Save";
+         this.save_cheat_list_btn.Text = "Save cheat table";
          this.save_cheat_list_btn.UseMnemonic = false;
          this.save_cheat_list_btn.UseVisualStyleBackColor = false;
          this.save_cheat_list_btn.Click += new System.EventHandler(this.save_address_btn_Click);
@@ -235,12 +236,12 @@ namespace PS4_Cheater
          this.new_cheat_list_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
          this.new_cheat_list_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.new_cheat_list_btn.ForeColor = System.Drawing.Color.White;
-         this.new_cheat_list_btn.Location = new System.Drawing.Point(0, 2);
+         this.new_cheat_list_btn.Location = new System.Drawing.Point(4, 2);
          this.new_cheat_list_btn.Name = "new_cheat_list_btn";
-         this.new_cheat_list_btn.Size = new System.Drawing.Size(158, 27);
+         this.new_cheat_list_btn.Size = new System.Drawing.Size(115, 27);
          this.new_cheat_list_btn.TabIndex = 30;
          this.new_cheat_list_btn.TabStop = false;
-         this.new_cheat_list_btn.Text = "New";
+         this.new_cheat_list_btn.Text = "Add entry...";
          this.new_cheat_list_btn.UseMnemonic = false;
          this.new_cheat_list_btn.UseVisualStyleBackColor = false;
          this.new_cheat_list_btn.Click += new System.EventHandler(this.add_address_btn_Click);
@@ -277,9 +278,9 @@ namespace PS4_Cheater
          // 
          // cheat_list_view_del
          // 
-         dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-         dataGridViewCellStyle1.NullValue = "Delete";
-         this.cheat_list_view_del.DefaultCellStyle = dataGridViewCellStyle1;
+         dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+         dataGridViewCellStyle7.NullValue = "Delete";
+         this.cheat_list_view_del.DefaultCellStyle = dataGridViewCellStyle7;
          this.cheat_list_view_del.HeaderText = "Delete";
          this.cheat_list_view_del.Name = "cheat_list_view_del";
          this.cheat_list_view_del.Width = 50;
@@ -300,9 +301,9 @@ namespace PS4_Cheater
          // 
          // cheat_list_view_active
          // 
-         dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-         dataGridViewCellStyle2.NullValue = "X";
-         this.cheat_list_view_active.DefaultCellStyle = dataGridViewCellStyle2;
+         dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+         dataGridViewCellStyle8.NullValue = "X";
+         this.cheat_list_view_active.DefaultCellStyle = dataGridViewCellStyle8;
          this.cheat_list_view_active.HeaderText = "X";
          this.cheat_list_view_active.Name = "cheat_list_view_active";
          this.cheat_list_view_active.Resizable = System.Windows.Forms.DataGridViewTriState.False;
@@ -494,6 +495,7 @@ namespace PS4_Cheater
          // 
          // splitContainer4.Panel2
          // 
+         this.splitContainer4.Panel2.Controls.Add(this.btnOpenPointerScanner);
          this.splitContainer4.Panel2.Controls.Add(this.refresh_cheat_list_btn);
          this.splitContainer4.Panel2.Controls.Add(this.load_cheat_list_btn);
          this.splitContainer4.Panel2.Controls.Add(this.save_cheat_list_btn);
@@ -936,7 +938,27 @@ namespace PS4_Cheater
          this.update_result_list_worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.update_result_list_worker_ProgressChanged);
          this.update_result_list_worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.update_result_list_worker_RunWorkerCompleted);
          // 
-         // main
+         // btnOpenPointerScanner
+         // 
+         this.btnOpenPointerScanner.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(37)))), ((int)(((byte)(38)))));
+         this.btnOpenPointerScanner.Enabled = false;
+         this.btnOpenPointerScanner.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
+         this.btnOpenPointerScanner.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+         this.btnOpenPointerScanner.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(84)))), ((int)(((byte)(92)))));
+         this.btnOpenPointerScanner.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+         this.btnOpenPointerScanner.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.btnOpenPointerScanner.ForeColor = System.Drawing.Color.White;
+         this.btnOpenPointerScanner.Location = new System.Drawing.Point(249, 3);
+         this.btnOpenPointerScanner.Name = "btnOpenPointerScanner";
+         this.btnOpenPointerScanner.Size = new System.Drawing.Size(160, 27);
+         this.btnOpenPointerScanner.TabIndex = 51;
+         this.btnOpenPointerScanner.TabStop = false;
+         this.btnOpenPointerScanner.Text = "NO PROCESS";
+         this.btnOpenPointerScanner.UseMnemonic = false;
+         this.btnOpenPointerScanner.UseVisualStyleBackColor = false;
+         this.btnOpenPointerScanner.Click += new System.EventHandler(this.btnOpenPointerScanner_Click);
+         // 
+         // MainForm
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -948,7 +970,7 @@ namespace PS4_Cheater
          this.DoubleBuffered = true;
          this.ForeColor = System.Drawing.Color.Silver;
          this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
-         this.Name = "main";
+         this.Name = "MainForm";
          this.Opacity = 0.99D;
          this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
          this.Text = "PS4 Cheater";
@@ -1006,5 +1028,6 @@ namespace PS4_Cheater
         private CheckBox hex_box;
         private ToolStripMenuItem cheat_list_item_find_pointer;
         private ToolStripSeparator cheat_list_item_separator_2;
-    }
+      private Button btnOpenPointerScanner;
+   }
 }
