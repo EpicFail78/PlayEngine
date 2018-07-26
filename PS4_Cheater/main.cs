@@ -1018,7 +1018,7 @@
             ulong address = ulong.Parse((string)items[0].Cells[CHEAT_LIST_ADDRESS].Value, NumberStyles.HexNumber);
             string type = (string)items[0].Cells[CHEAT_LIST_TYPE].Value;
 
-            PointerFinder pointerFinder = new PointerFinder(this, address, type, processManager, cheat_list_view);
+            PointerFinder pointerFinder = new PointerFinder(this, address, type, processManager);
             pointerFinder.Show();
          } catch {
 

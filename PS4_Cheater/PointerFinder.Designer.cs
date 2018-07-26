@@ -29,14 +29,12 @@
         private void InitializeComponent()
         {
          this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
-         this.progressBarScannerThread = new System.Windows.Forms.ToolStripProgressBar();
-         this.msg = new System.Windows.Forms.ToolStripStatusLabel();
+         this.uiStatusStrip_ProgressBarScannerThread = new System.Windows.Forms.ToolStripProgressBar();
+         this.uiStatusStrip_labelStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.textBoxScanAddress = new System.Windows.Forms.TextBox();
          this.btnScan = new System.Windows.Forms.Button();
-         this.pointer_finder_worker = new System.ComponentModel.BackgroundWorker();
          this.dataGridPointerList = new System.Windows.Forms.DataGridView();
          this.btnScanNext = new System.Windows.Forms.Button();
-         this.next_pointer_finder_worker = new System.ComponentModel.BackgroundWorker();
          this.label1 = new System.Windows.Forms.Label();
          this.checkBoxFastScan = new System.Windows.Forms.CheckBox();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
@@ -45,6 +43,8 @@
          this.uiToolStrip_btnSavePointerList = new System.Windows.Forms.ToolStripMenuItem();
          this.numericPointerLevel = new System.Windows.Forms.NumericUpDown();
          this.label2 = new System.Windows.Forms.Label();
+         this.next_pointer_finder_worker = new System.ComponentModel.BackgroundWorker();
+         this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.uiStatusStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dataGridPointerList)).BeginInit();
          this.uiToolStrip.SuspendLayout();
@@ -54,23 +54,27 @@
          // uiStatusStrip
          // 
          this.uiStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.progressBarScannerThread,
-            this.msg});
+            this.uiStatusStrip_labelStatus,
+            this.uiStatusStrip_ProgressBarScannerThread});
          this.uiStatusStrip.Location = new System.Drawing.Point(0, 433);
          this.uiStatusStrip.Name = "uiStatusStrip";
          this.uiStatusStrip.Size = new System.Drawing.Size(851, 23);
          this.uiStatusStrip.SizingGrip = false;
          this.uiStatusStrip.TabIndex = 2;
          // 
-         // progressBarScannerThread
+         // uiStatusStrip_ProgressBarScannerThread
          // 
-         this.progressBarScannerThread.Name = "progressBarScannerThread";
-         this.progressBarScannerThread.Size = new System.Drawing.Size(837, 17);
+         this.uiStatusStrip_ProgressBarScannerThread.Name = "uiStatusStrip_ProgressBarScannerThread";
+         this.uiStatusStrip_ProgressBarScannerThread.Size = new System.Drawing.Size(737, 17);
          // 
-         // msg
+         // uiStatusStrip_labelStatus
          // 
-         this.msg.Name = "msg";
-         this.msg.Size = new System.Drawing.Size(0, 18);
+         this.uiStatusStrip_labelStatus.AutoSize = false;
+         this.uiStatusStrip_labelStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_labelStatus.Name = "uiStatusStrip_labelStatus";
+         this.uiStatusStrip_labelStatus.Size = new System.Drawing.Size(200, 18);
+         this.uiStatusStrip_labelStatus.Text = "";
+         this.uiStatusStrip_labelStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
          // 
          // textBoxScanAddress
          // 
@@ -88,14 +92,6 @@
          this.btnScan.Text = "First Scan";
          this.btnScan.UseVisualStyleBackColor = true;
          this.btnScan.Click += new System.EventHandler(this.uiButtonHandler_Click);
-         // 
-         // pointer_finder_worker
-         // 
-         this.pointer_finder_worker.WorkerReportsProgress = true;
-         this.pointer_finder_worker.WorkerSupportsCancellation = true;
-         this.pointer_finder_worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.pointer_finder_worker_DoWork);
-         this.pointer_finder_worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.pointer_finder_worker_ProgressChanged);
-         this.pointer_finder_worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.pointer_finder_worker_RunWorkerCompleted);
          // 
          // dataGridPointerList
          // 
@@ -117,6 +113,7 @@
          // 
          // btnScanNext
          // 
+         this.btnScanNext.Enabled = false;
          this.btnScanNext.Location = new System.Drawing.Point(669, 23);
          this.btnScanNext.Name = "btnScanNext";
          this.btnScanNext.Size = new System.Drawing.Size(96, 25);
@@ -124,14 +121,6 @@
          this.btnScanNext.Text = "Next Scan";
          this.btnScanNext.UseVisualStyleBackColor = true;
          this.btnScanNext.Click += new System.EventHandler(this.uiButtonHandler_Click);
-         // 
-         // next_pointer_finder_worker
-         // 
-         this.next_pointer_finder_worker.WorkerReportsProgress = true;
-         this.next_pointer_finder_worker.WorkerSupportsCancellation = true;
-         this.next_pointer_finder_worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.next_pointer_finder_worker_DoWork);
-         this.next_pointer_finder_worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.next_pointer_finder_worker_ProgressChanged);
-         this.next_pointer_finder_worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.next_pointer_finder_worker_RunWorkerCompleted);
          // 
          // label1
          // 
@@ -149,11 +138,11 @@
          this.checkBoxFastScan.CheckState = System.Windows.Forms.CheckState.Checked;
          this.checkBoxFastScan.Location = new System.Drawing.Point(771, 28);
          this.checkBoxFastScan.Name = "checkBoxFastScan";
-         this.checkBoxFastScan.Size = new System.Drawing.Size(71, 17);
+         this.checkBoxFastScan.Size = new System.Drawing.Size(74, 17);
          this.checkBoxFastScan.TabIndex = 10;
-         this.checkBoxFastScan.Text = "FastScan";
+         this.checkBoxFastScan.Text = "Fast Scan";
          this.checkBoxFastScan.UseVisualStyleBackColor = true;
-         this.checkBoxFastScan.CheckedChanged += new System.EventHandler(this.fast_scan_box_CheckedChanged);
+         this.checkBoxFastScan.CheckedChanged += new System.EventHandler(this.checkBoxFastScan_CheckedChanged);
          // 
          // uiToolStrip
          // 
@@ -202,6 +191,11 @@
             0,
             0,
             0});
+         this.numericPointerLevel.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
          this.numericPointerLevel.Name = "numericPointerLevel";
          this.numericPointerLevel.Size = new System.Drawing.Size(49, 20);
          this.numericPointerLevel.TabIndex = 12;
@@ -219,6 +213,22 @@
          this.label2.Size = new System.Drawing.Size(39, 13);
          this.label2.TabIndex = 13;
          this.label2.Text = "Level: ";
+         // 
+         // next_pointer_finder_worker
+         // 
+         this.next_pointer_finder_worker.WorkerReportsProgress = true;
+         this.next_pointer_finder_worker.WorkerSupportsCancellation = true;
+         this.next_pointer_finder_worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.next_pointer_finder_worker_DoWork);
+         this.next_pointer_finder_worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.next_pointer_finder_worker_ProgressChanged);
+         this.next_pointer_finder_worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.next_pointer_finder_worker_RunWorkerCompleted);
+         // 
+         // bgWorkerScanner
+         // 
+         this.bgWorkerScanner.WorkerReportsProgress = true;
+         this.bgWorkerScanner.WorkerSupportsCancellation = true;
+         this.bgWorkerScanner.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerScanner_DoWork);
+         this.bgWorkerScanner.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorkerScanner_ProgressChanged);
+         this.bgWorkerScanner.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorkerScanner_RunWorkerCompleted);
          // 
          // PointerFinder
          // 
@@ -252,13 +262,11 @@
         private System.Windows.Forms.StatusStrip uiStatusStrip;
         private System.Windows.Forms.TextBox textBoxScanAddress;
         private System.Windows.Forms.Button btnScan;
-        private System.Windows.Forms.ToolStripProgressBar progressBarScannerThread;
-        private System.ComponentModel.BackgroundWorker pointer_finder_worker;
+        private System.Windows.Forms.ToolStripProgressBar uiStatusStrip_ProgressBarScannerThread;
         private System.Windows.Forms.DataGridView dataGridPointerList;
         private System.Windows.Forms.Button btnScanNext;
-        private System.ComponentModel.BackgroundWorker next_pointer_finder_worker;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ToolStripStatusLabel msg;
+        private System.Windows.Forms.ToolStripStatusLabel uiStatusStrip_labelStatus;
         private System.Windows.Forms.CheckBox checkBoxFastScan;
         private System.Windows.Forms.ToolStrip uiToolStrip;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
@@ -266,5 +274,7 @@
         private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnSavePointerList;
       private System.Windows.Forms.NumericUpDown numericPointerLevel;
       private System.Windows.Forms.Label label2;
+      private System.ComponentModel.BackgroundWorker next_pointer_finder_worker;
+      private System.ComponentModel.BackgroundWorker bgWorkerScanner;
    }
 }

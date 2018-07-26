@@ -3,33 +3,36 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
 
 namespace PS4_Cheater {
    public partial class PointerFinder : Form {
+      private enum ScanStatus {
+         NoScan,
+         DidScan,
+         Scanning
+      }
       private struct ScannerThreadArgs {
          public UInt64 address;
          public List<Int32> range;
 
          public ScannerThreadArgs(UInt64 address, List<Int32> range) {
             this.address = address;
-            this.range = range;
+            this.range = new List<Int32>(range);
          }
       }
-      private class PointerFinderWorkerListViewUpdate {
-         public PointerList pointerList { get; set; }
-         public List<Int64> PathOffset { get; set; }
-         public List<Pointer> PathAddress { get; set; }
+      private struct ScannerThreadUIUpdateInfo {
+         public List<Int64> pathOffset;
+         public List<Pointer> pathAddress;
+         public Int32 sectionID;
 
-         public Int32 SectionID { get; set; }
-
-         public PointerFinderWorkerListViewUpdate(PointerList pointerList, List<Int64> path_offset, List<Pointer> path_address, Int32 SectionID) {
-            this.pointerList = pointerList;
-            this.PathOffset = new List<Int64>(path_offset);
-            this.PathAddress = new List<Pointer>(path_address);
-            this.SectionID = SectionID;
+         public ScannerThreadUIUpdateInfo(List<Int64> pathOffset, List<Pointer> pathAddress, Int32 sectionID) {
+            this.pathOffset = new List<Int64>(pathOffset);
+            this.pathAddress = new List<Pointer>(pathAddress);
+            this.sectionID = sectionID;
          }
       }
 
@@ -68,23 +71,52 @@ namespace PS4_Cheater {
          }
       }
 
-      private PointerList pointerList = new PointerList();
-      private ProcessManager processManager = null;
       private main mainForm;
       private MemoryHelper memoryHelper;
+      private PointerList pointerList = new PointerList();
+      private ProcessManager processManager = null;
       private List<PointerResult> pointerResults  = new List<PointerResult>();
-
-      private void PointerList_NewPathGeneratedEvent(PointerList pointerList, List<Int64> path_offset, List<Pointer> path_address) {
-         if (path_address.Count > 0) {
-
-            Int32 baseSectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_offset.Count - 1].Address);
-
-            if (fast_scan && !processManager.MappedSectionList[baseSectionID].Name.StartsWith("executable")) {
-               return;
+      private bool fastScan = true;
+      private ScanStatus _curScanStatus = ScanStatus.NoScan;
+      private ScanStatus curScanStatus
+      {
+         get {
+            return _curScanStatus;
+         }
+         set {
+            switch (value) {
+               case ScanStatus.NoScan:
+                  btnScan.Invoke(new Action(() => btnScan.Text = "First Scan"));
+                  btnScan.Invoke(new Action(() => btnScan.Enabled = true));
+                  btnScanNext.Invoke(new Action(() => btnScanNext.Enabled = false));
+                  this.Invoke(new Action(() => uiStatusStrip_labelStatus.Text = String.Empty));
+                  break;
+               case ScanStatus.DidScan:
+                  btnScan.Invoke(new Action(() => btnScan.Text = "New Scan"));
+                  btnScan.Invoke(new Action(() => btnScan.Enabled = true));
+                  btnScanNext.Invoke(new Action(() => btnScanNext.Enabled = true));
+                  this.Invoke(new Action(() => uiStatusStrip_labelStatus.Text = String.Format("{0} results", pointerResults.Count)));
+                  break;
+               case ScanStatus.Scanning:
+                  btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
+                  btnScan.Invoke(new Action(() => btnScan.Enabled = false));
+                  btnScanNext.Invoke(new Action(() => btnScanNext.Enabled = false));
+                  break;
             }
+         }
+      }
 
-            PointerFinderWorkerListViewUpdate view_info = new PointerFinderWorkerListViewUpdate(pointerList, path_offset, path_address, baseSectionID);
-            pointer_finder_worker.ReportProgress(95, view_info);
+      private void checkBoxFastScan_CheckedChanged(Object sender, EventArgs e) {
+         fastScan = checkBoxFastScan.Checked;
+      }
+      private void PointerList_OnNewPathGenerated(PointerList pointerList, List<Int64> path_offset, List<Pointer> path_address) {
+         if (path_address.Count > 0) {
+            Int32 baseSectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_offset.Count - 1].Address);
+            if (fastScan && !processManager.MappedSectionList[baseSectionID].Name.StartsWith("executable"))
+               return;
+
+            ScannerThreadUIUpdateInfo view_info = new ScannerThreadUIUpdateInfo(path_offset, path_address, baseSectionID);
+            bgWorkerScanner.ReportProgress(95, view_info);
          }
       }
       public PointerFinder(main mainForm, UInt64 address, String dataType, ProcessManager processManager) {
@@ -95,131 +127,98 @@ namespace PS4_Cheater {
 
          InitializeComponent();
          textBoxScanAddress.Text = address.ToString("X");
-         pointerList.NewPathGeneratedEvent += PointerList_NewPathGeneratedEvent;
+         pointerList.NewPathGeneratedEvent += PointerList_OnNewPathGenerated;
       }
 
-
-      static Int32 result_counter = 0;
-
       private void btnScan_OnClick() {
-         if (btnScan.Text == "First Scan") {
-            UInt64 address = UInt64.Parse(textBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
-            Int32 level = Convert.ToInt32(numericPointerLevel.Value);
-            pointerResults.Clear();
-            pointerList.Clear();
-            result_counter = 0;
-            pointerList.Stop = false;
-            List<Int32> range = new List<Int32>();
-
-            Int32 i = 0;
-
-            for (i = 0; i < level; ++i) {
-               range.Add(8 * 1024);
-            }
-
-            dataGridPointerList.Rows.Clear();
-            dataGridPointerList.Columns.Clear();
-
-            for (i = 0; i < level; ++i) {
-               dataGridPointerList.Columns.Add("Offset " + (i + 1), "Offset " + (i + 1));
-
-               dataGridPointerList.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
-            }
-
-            if (level > 0) {
-
-               dataGridPointerList.Columns.Add("Base Address", "Base Address");
-               dataGridPointerList.Columns.Add("Base Section", "Base Section");
-
-               dataGridPointerList.Columns[level + 0].SortMode = DataGridViewColumnSortMode.NotSortable;
-               dataGridPointerList.Columns[level + 1].SortMode = DataGridViewColumnSortMode.NotSortable;
-            }
-
-            btnScan.Text = "Stop";
-            pointer_finder_worker.RunWorkerAsync(new ScannerThreadArgs(address, range));
-
-            //DoWorkEventArgs doWorkEventArgs = new DoWorkEventArgs(new PointerFinderWorkerArgs(address, range));
-            //pointer_finder_worker_DoWork(null, doWorkEventArgs);
-         } else {
+         if (curScanStatus == ScanStatus.Scanning) {
             pointerList.Stop = true;
-            pointer_finder_worker.CancelAsync();
-            btnScan.Text = "First Scan";
+            bgWorkerScanner.CancelAsync();
+            curScanStatus = ScanStatus.NoScan;
+            return;
          }
+         curScanStatus = ScanStatus.NoScan;
+
+         Int32 level = Convert.ToInt32(numericPointerLevel.Value);
+         if (level <= 0)
+            return;
+
+         UInt64 address = UInt64.Parse(textBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
+         pointerResults.Clear();
+         dataGridPointerList.Rows.Clear();
+         dataGridPointerList.Columns.Clear();
+
+         pointerList.Clear();
+         pointerList.Stop = false;
+         List<Int32> range = new List<Int32>();
+
+         for (Int32 i = 0; i < level; i++) {
+            range.Add(8 * 1024);
+            dataGridPointerList.Columns.Add("Offset " + (i + 1), "Offset " + (i + 1));
+            dataGridPointerList.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
+         }
+
+         dataGridPointerList.Columns.Add("Base Address", "Base Address");
+         dataGridPointerList.Columns.Add("Base Section", "Base Section");
+         dataGridPointerList.Columns[level + 0].SortMode = DataGridViewColumnSortMode.NotSortable;
+         dataGridPointerList.Columns[level + 1].SortMode = DataGridViewColumnSortMode.NotSortable;
+
+         bgWorkerScanner.RunWorkerAsync(new ScannerThreadArgs(address, range));
       }
       private void btnScanNext_OnClick() {
          UInt64 address = UInt64.Parse(textBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
-         result_counter = 0;
          pointerList.Stop = false;
          next_pointer_finder_worker.RunWorkerAsync(new ScannerThreadArgs(address, null));
-         //DoWorkEventArgs doWorkEventArgs = new DoWorkEventArgs(new PointerFinderWorkerArgs(address, null));
-         //next_pointer_finder_worker_DoWork(null, doWorkEventArgs);
       }
       private void btnLoadPointerList_OnClick() {
          OpenFileDialog ofdialog = new OpenFileDialog();
          if (ofdialog.ShowDialog() == DialogResult.OK) {
-            pointerResults.Clear();
-            pointerList.Clear();
-            pointerList.Init();
-            dataGridPointerList.Rows.Clear();
-            dataGridPointerList.Columns.Clear();
-
             var saveFile = PointerListSaveFile.loadSaveFile(ofdialog.FileName);
             if (saveFile != null) {
-               for (Int32 i = 0; i < saveFile.level; ++i) {
-                  dataGridPointerList.Columns.Add("Offset " + (i + 1), "Offset " + (i + 1));
+               curScanStatus = ScanStatus.NoScan;
+               pointerResults.Clear();
+               dataGridPointerList.Rows.Clear();
+               dataGridPointerList.Columns.Clear();
+               pointerList.Clear();
+
+               for (Int32 i = 0; i < saveFile.level; i++) {
+                  dataGridPointerList.Columns.Add(String.Format("Offset {0}", i + 1), String.Format("Offset {0}", i + 1));
                   dataGridPointerList.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
                }
+               dataGridPointerList.Columns.Add("Base Address", "Base Address");
+               dataGridPointerList.Columns.Add("Base Section", "Base Section");
+               dataGridPointerList.Columns[saveFile.level + 0].SortMode = DataGridViewColumnSortMode.NotSortable;
+               dataGridPointerList.Columns[saveFile.level + 1].SortMode = DataGridViewColumnSortMode.NotSortable;
 
-               if (saveFile.level > 0) {
-                  dataGridPointerList.Columns.Add("Base Address", "Base Address");
-                  dataGridPointerList.Columns.Add("Base Section", "Base Section");
-
-                  dataGridPointerList.Columns[saveFile.level + 0].SortMode = DataGridViewColumnSortMode.NotSortable;
-                  dataGridPointerList.Columns[saveFile.level + 1].SortMode = DataGridViewColumnSortMode.NotSortable;
-               }
-
-
-               foreach (PointerEntry item in saveFile.pointers) {
+               pointerList.Init();
+               foreach (var ptrResult in saveFile.pointers) {
                   Int32 row_index = dataGridPointerList.Rows.Add();
-                  pointerResults.Add(item.pointerResult);
                   DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
 
-                  for (Int32 i = 0; i < saveFile.level; ++i) {
-                     row[i].Value = item.offsets[i];                       //offset
+                  for (Int32 i = 0; i < ptrResult.offsets.Length; i++) {
+                     row[i].Value = (ptrResult.offsets[i].ToString("X"));                           //offset
                   }
 
-                  if (saveFile.level > 0) {
-                     row[row.Count - 2].Value = item.address;                  //address
-                     row[row.Count - 1].Value = item.section;               //section
+                  if (ptrResult.offsets.Length > 0) {
+                     row[row.Count - 2].Value = (ptrResult.GetBaseAddress(processManager.MappedSectionList).ToString("X"));   //address
+                     row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(ptrResult.baseSectionID));   //section
                   }
                }
-               numericPointerLevel.Value = saveFile.level;
+               pointerResults = new List<PointerResult>(saveFile.pointers);
             }
-
          }
       }
       private void btnSavePointerList_OnClick() {
          SaveFileDialog sfdialog = new SaveFileDialog();
          if (sfdialog.ShowDialog() == DialogResult.OK) {
             var saveFile = new PointerListSaveFile();
-            saveFile.level = Convert.ToInt32(numericPointerLevel.Text);
-            foreach (DataGridViewRow item in dataGridPointerList.Rows) {
-               DataGridViewCellCollection row = item.Cells;
-               PointerEntry pEntry = new PointerEntry();
-               for (Int32 i = 0; i < saveFile.level; ++i) {
-                  pEntry.offsets.Add(row[i].Value.ToString());                       //offset
-               }
-               pEntry.address = row[row.Count - 2].Value.ToString();
-               pEntry.section = row[row.Count - 1].Value.ToString();
-               pEntry.pointerResult = pointerResults[item.Index];
-
-               saveFile.pointers.Add(pEntry);
-            }
+            saveFile.level = Convert.ToInt32(numericPointerLevel.Value);
+            foreach (var ptrResult in pointerResults)
+               saveFile.pointers.Add(ptrResult);
 
             saveFile.saveToFile(sfdialog.FileName);
          }
       }
-
       private void uiButtonHandler_Click(Object sender, EventArgs e) {
          String btnName = sender.GetType() == typeof(Button) ? (sender as Button).Name : (sender as ToolStripMenuItem).Name;
          switch (btnName) {
@@ -240,10 +239,11 @@ namespace PS4_Cheater {
          }
       }
 
-      private void pointer_finder_worker_DoWork(Object sender, DoWorkEventArgs e) {
-         pointer_finder_worker.ReportProgress(0);
+      private void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
+         curScanStatus = ScanStatus.Scanning;
+         bgWorkerScanner.ReportProgress(0);
          for (Int32 section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
-            if (pointer_finder_worker.CancellationPending)
+            if (bgWorkerScanner.CancellationPending)
                break;
 
             MappedSection mappedSection = processManager.MappedSectionList[section_idx];
@@ -251,71 +251,60 @@ namespace PS4_Cheater {
                continue;
 
             mappedSection.PointerSearchInit(processManager, memoryHelper, pointerList);
-            pointer_finder_worker.ReportProgress((Int32)(((Single)section_idx / processManager.MappedSectionList.Count) * 80));
+            bgWorkerScanner.ReportProgress((Int32)(((Single)section_idx / processManager.MappedSectionList.Count) * 80));
          }
 
-         if (pointer_finder_worker.CancellationPending)
+         if (bgWorkerScanner.CancellationPending)
             return;
 
-         pointer_finder_worker.ReportProgress(80);
+         bgWorkerScanner.ReportProgress(80);
          pointerList.Init();
-         pointer_finder_worker.ReportProgress(90);
+         bgWorkerScanner.ReportProgress(90);
 
          var pointerFinderWorkerArgs = (ScannerThreadArgs)e.Argument;
          pointerList.FindPointerList(pointerFinderWorkerArgs.address, pointerFinderWorkerArgs.range);
-         pointer_finder_worker.ReportProgress(100);
+         bgWorkerScanner.ReportProgress(100);
       }
-
-      private void pointer_finder_worker_ProgressChanged(Object sender, ProgressChangedEventArgs e) {
-         progressBarScannerThread.Value = e.ProgressPercentage;
+      private void bgWorkerScanner_ProgressChanged(Object sender, ProgressChangedEventArgs e) {
+         uiStatusStrip_ProgressBarScannerThread.Value = e.ProgressPercentage;
 
          if (e.UserState != null) {
-            PointerFinderWorkerListViewUpdate pointerFinderWorkerListViewUpdate = (PointerFinderWorkerListViewUpdate)e.UserState;
+            ScannerThreadUIUpdateInfo pointerFinderWorkerListViewUpdate = (ScannerThreadUIUpdateInfo)e.UserState;
 
-            List<Int64> path_offset = pointerFinderWorkerListViewUpdate.PathOffset;
-            List<Pointer> path_address = pointerFinderWorkerListViewUpdate.PathAddress;
-            Int32 baseSectionID = pointerFinderWorkerListViewUpdate.SectionID;
+            List<Int64> path_offset = pointerFinderWorkerListViewUpdate.pathOffset;
+            List<Pointer> path_address = pointerFinderWorkerListViewUpdate.pathAddress;
+            Int32 baseSectionID = pointerFinderWorkerListViewUpdate.sectionID;
             try {
                UInt64 baseOffset = path_address[path_offset.Count - 1].Address - processManager.MappedSectionList[baseSectionID].Start;
 
                PointerResult pointerResult = new PointerResult(baseSectionID, baseOffset, path_offset);
                pointerResults.Add(pointerResult);
 
-               if (result_counter < 2000) {
-                  Int32 row_index = dataGridPointerList.Rows.Add();
-                  DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
+               Int32 row_index = dataGridPointerList.Rows.Add();
+               DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
 
-                  for (Int32 i = 0; i < path_offset.Count; ++i) {
-                     row[i].Value = (path_offset[i].ToString("X"));                           //offset
-                     Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[i].Address);
-                  }
-
-                  if (path_offset.Count > 0) {
-                     row[row.Count - 2].Value = (path_address[path_address.Count - 1].Address.ToString("X"));                  //address
-                     Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_address.Count - 1].Address);
-                     row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(sectionID));               //section
-                  }
+               for (Int32 i = 0; i < path_offset.Count; ++i) {
+                  row[i].Value = (path_offset[i].ToString("X"));                           //offset
+                  Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[i].Address);
                }
 
-               ++result_counter;
-
-               if (result_counter % 1024 == 0) {
-                  msg.Text = result_counter.ToString() + " results";
+               if (path_offset.Count > 0) {
+                  row[row.Count - 2].Value = (path_address[path_address.Count - 1].Address.ToString("X"));                  //address
+                  Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_address.Count - 1].Address);
+                  row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(sectionID));               //section
                }
-            } catch (Exception exception) {
-               MessageBox.Show(exception.Message);
+               uiStatusStrip_labelStatus.Text = String.Format("{0} results", pointerResults.Count);
+            } catch (Exception ex) {
+               MessageBox.Show(ex.ToString());
             }
          }
       }
-
-      private void pointer_finder_worker_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
-         msg.Text = result_counter.ToString() + " results";
-         btnScan.Text = "First Scan";
+      private void bgWorkerScanner_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
+         curScanStatus = ScanStatus.DidScan;
       }
 
       private void next_pointer_finder_worker_DoWork(Object sender, DoWorkEventArgs e) {
          var pointerFinderWorkerArgs = (ScannerThreadArgs)e.Argument;
-         result_counter = 0;
          pointerList.Clear();
          next_pointer_finder_worker.ReportProgress(0);
          for (Int32 section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
@@ -344,41 +333,34 @@ namespace PS4_Cheater {
 
             if (pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList) == pointerFinderWorkerArgs.address) {
                newPointerResultList.Add(pointerResult);
-               ++result_counter;
+               Int32 row_index = dataGridPointerList.Rows.Add();
+               DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
 
-               if (result_counter < 2000) {
-                  Int32 row_index = dataGridPointerList.Rows.Add();
-                  DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
+               for (Int32 j = 0; j < pointerResult.offsets.Length; ++j) {
+                  row[j].Value = (pointerResult.offsets[j].ToString("X"));                           //offset
+               }
 
-                  for (Int32 j = 0; j < pointerResult.offsets.Length; ++j) {
-                     row[j].Value = (pointerResult.offsets[j].ToString("X"));                           //offset
-                  }
-
-                  if (pointerResult.offsets.Length > 0) {
-                     row[row.Count - 2].Value = (pointerResult.GetBaseAddress(processManager.MappedSectionList).ToString("X"));   //address
-                     row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(pointerResult.baseSectionID));   //section
-                  }
+               if (pointerResult.offsets.Length > 0) {
+                  row[row.Count - 2].Value = (pointerResult.GetBaseAddress(processManager.MappedSectionList).ToString("X"));   //address
+                  row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(pointerResult.baseSectionID));   //section
                }
             }
          }
 
-         pointerResults = newPointerResultList;
-
-
+         pointerResults = new List<PointerResult>(newPointerResultList);
          next_pointer_finder_worker.ReportProgress(100);
       }
-
       private void next_pointer_finder_worker_ProgressChanged(Object sender, ProgressChangedEventArgs e) {
-         msg.Text = result_counter.ToString() + " results";
-         progressBarScannerThread.Value = e.ProgressPercentage;
+         uiStatusStrip_ProgressBarScannerThread.Value = e.ProgressPercentage;
       }
-
       private void next_pointer_finder_worker_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
-         msg.Text = pointerResults.Count.ToString() + " results";
+         curScanStatus = ScanStatus.DidScan;
       }
 
       private void pointer_list_view_CellDoubleClick(Object sender, DataGridViewCellEventArgs e) {
-         if (e.RowIndex < 0) return;
+         if (e.RowIndex < 0)
+            return;
+
          PointerResult pointerResult = pointerResults[e.RowIndex];
 
          UInt64 baseAddress = pointerResult.GetBaseAddress(processManager.MappedSectionList);
@@ -387,13 +369,5 @@ namespace PS4_Cheater {
          String dataType = MemoryHelper.GetStringOfValueType(memoryHelper.ValueType);
          mainForm.new_pointer_cheat(baseAddress, pointerResult.offsets.ToList(), dataType, data, false, "");
       }
-
-      private Boolean fast_scan = true;
-
-      private void fast_scan_box_CheckedChanged(Object sender, EventArgs e) {
-         fast_scan = checkBoxFastScan.Checked;
-      }
    }
-
-
 }
