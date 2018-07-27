@@ -1,17 +1,22 @@
-﻿namespace PS4_Cheater
-{
-    using System;
-    using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
+using PS4_Cheater.Utils;
 
-    internal static class Program
-    {
-        [STAThread]
-        private static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
-        }
-    }
+namespace PS4_Cheater {
+   internal static class Program {
+      private static void onProcessExit(Object sender, EventArgs e) {
+         Settings.setValue(Settings.SettingsKey.PS4IPAddress, SharedInformation.PS4_IPAddress);
+         Settings.setValue(Settings.SettingsKey.PS4IPPort, SharedInformation.PS4_IPPort);
+         Settings.setValue(Settings.SettingsKey.PS4Version, SharedInformation.PS4_Version);
+      }
+
+      [STAThread]
+      private static void Main() {
+         Application.EnableVisualStyles();
+         Application.SetCompatibleTextRenderingDefault(false);
+         Application.ApplicationExit += new EventHandler(onProcessExit);
+         Application.Run(new MainForm());
+      }
+   }
 }
 

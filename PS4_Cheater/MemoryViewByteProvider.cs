@@ -9,9 +9,9 @@ namespace PS4_Cheater
 {
     public class MemoryViewByteProvider : IByteProvider
     {
-        private bool _hasChanges;
+        private Boolean _hasChanges;
         private ByteCollection _bytes;
-        public List<int> change_list { get; set; }
+        public List<Int32> change_list { get; set; }
 
         [field: CompilerGenerated, DebuggerBrowsable(0)]
         public event EventHandler Changed;
@@ -19,9 +19,9 @@ namespace PS4_Cheater
         [field: CompilerGenerated, DebuggerBrowsable(0)]
         public event EventHandler LengthChanged;
 
-        public MemoryViewByteProvider(byte[] data) : this(new ByteCollection(data))
+        public MemoryViewByteProvider(Byte[] data) : this(new ByteCollection(data))
         {
-            change_list = new List<int>();
+            change_list = new List<Int32>();
         }
 
         public MemoryViewByteProvider(ByteCollection bytes)
@@ -34,15 +34,15 @@ namespace PS4_Cheater
             this._hasChanges = false;
         }
 
-        public void DeleteBytes(long index, long length)
+        public void DeleteBytes(Int64 index, Int64 length)
         {
 
         }
 
-        public bool HasChanges() =>
+        public Boolean HasChanges() =>
             this._hasChanges;
 
-        public void InsertBytes(long index, byte[] bs)
+        public void InsertBytes(Int64 index, Byte[] bs)
         {
 
         }
@@ -64,32 +64,32 @@ namespace PS4_Cheater
             }
         }
 
-        public byte ReadByte(long index) =>
-            this._bytes[(int)index];
+        public Byte ReadByte(Int64 index) =>
+            this._bytes[(Int32)index];
 
-        public bool SupportsDeleteBytes() =>
+        public Boolean SupportsDeleteBytes() =>
             false;
 
-        public bool SupportsInsertBytes() =>
+        public Boolean SupportsInsertBytes() =>
             false;
 
-        public bool SupportsWriteByte() =>
+        public Boolean SupportsWriteByte() =>
             true;
 
-        public void WriteByte(long index, byte value)
+        public void WriteByte(Int64 index, Byte value)
         {
-            this._bytes[(int)index] = value;
-            this.change_list.Add((int)index);
+            this._bytes[(Int32)index] = value;
+            this.change_list.Add((Int32)index);
             this.OnChanged(EventArgs.Empty);
         }
 
         public ByteCollection Bytes =>
             this._bytes;
 
-        public long Length =>
-            ((long)this._bytes.Count);
+        public Int64 Length =>
+            ((Int64)this._bytes.Count);
 
-        public long Offset =>
+        public Int64 Offset =>
             0L;
     }
 }

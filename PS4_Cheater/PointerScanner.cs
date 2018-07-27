@@ -8,7 +8,7 @@ using System.Xml;
 using System.Xml.Serialization;
 
 namespace PS4_Cheater {
-   public partial class PointerFinder : Form {
+   public partial class PointerScanner : Form {
       private enum ScanStatus {
          FirstScan,
          DidScan,
@@ -75,7 +75,7 @@ namespace PS4_Cheater {
       private PointerList pointerList = new PointerList();
       private ProcessManager processManager = null;
       private List<PointerResult> pointerResults  = new List<PointerResult>();
-      private bool fastScan = true;
+      private Boolean fastScan = true;
       private ScanStatus _curScanStatus = ScanStatus.FirstScan;
       private ScanStatus curScanStatus
       {
@@ -83,31 +83,32 @@ namespace PS4_Cheater {
             return _curScanStatus;
          }
          set {
+            _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan:
                   btnScan.Invoke(new Action(() => btnScan.Text = "First Scan"));
                   btnScan.Invoke(new Action(() => btnScan.Enabled = true));
                   btnScanNext.Invoke(new Action(() => btnScanNext.Enabled = false));
-                  this.Invoke(new Action(() => uiStatusStrip_labelStatus.Text = "Standby..."));
+                  this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Standby..."));
                   break;
                case ScanStatus.DidScan:
                   btnScan.Invoke(new Action(() => btnScan.Text = "New Scan"));
                   btnScan.Invoke(new Action(() => btnScan.Enabled = true));
                   btnScanNext.Invoke(new Action(() => btnScanNext.Enabled = true));
-                  this.Invoke(new Action(() => uiStatusStrip_labelStatus.Text = String.Format("{0} results", pointerResults.Count)));
+                  this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = String.Format("{0} results", pointerResults.Count)));
                   break;
                case ScanStatus.Scanning:
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
                   btnScan.Invoke(new Action(() => btnScan.Enabled = true));
                   btnScanNext.Invoke(new Action(() => btnScanNext.Enabled = false));
-                  this.Invoke(new Action(() => uiStatusStrip_labelStatus.Text = "Scanning..."));
+                  this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Scanning..."));
                   break;
             }
          }
       }
 
-      private void checkBoxFastScan_CheckedChanged(Object sender, EventArgs e) {
-         fastScan = checkBoxFastScan.Checked;
+      private void chkBoxFastScan_CheckedChanged(Object sender, EventArgs e) {
+         fastScan = chkBoxFastScan.Checked;
       }
       private void PointerList_OnNewPathGenerated(PointerList pointerList, List<Int64> path_offset, List<Pointer> path_address) {
          if (path_address.Count > 0) {
@@ -119,19 +120,19 @@ namespace PS4_Cheater {
             bgWorkerScanner.ReportProgress(95, view_info);
          }
       }
-      public PointerFinder(MainForm mainForm, UInt64 address, String dataType, ProcessManager processManager) {
+      public PointerScanner(MainForm mainForm, UInt64 address, MemoryHelper.ValueType valueType, ProcessManager processManager) {
          this.mainForm = mainForm;
          this.processManager = processManager;
          memoryHelper = new MemoryHelper(true, 0);
-         memoryHelper.InitMemoryHandler(dataType, CONSTANT.EXACT_VALUE, true);
+         memoryHelper.InitMemoryHandler(valueType, MemoryHelper.CompareType.ExactValue, true);
 
          InitializeComponent();
-         textBoxScanAddress.Text = address.ToString("X");
+         txtBoxScanAddress.Text = address.ToString("X");
          pointerList.NewPathGeneratedEvent += PointerList_OnNewPathGenerated;
       }
 
       private void btnScan_OnClick() {
-         if (curScanStatus == ScanStatus.Scanning) {
+         if (curScanStatus != ScanStatus.FirstScan) {
             pointerList.Stop = true;
             bgWorkerScanner.CancelAsync();
             curScanStatus = ScanStatus.FirstScan;
@@ -143,7 +144,7 @@ namespace PS4_Cheater {
          if (level <= 0)
             return;
 
-         UInt64 address = UInt64.Parse(textBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
+         UInt64 address = UInt64.Parse(txtBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
          pointerResults.Clear();
          dataGridPointerList.Rows.Clear();
          dataGridPointerList.Columns.Clear();
@@ -163,11 +164,13 @@ namespace PS4_Cheater {
          dataGridPointerList.Columns[level + 0].SortMode = DataGridViewColumnSortMode.NotSortable;
          dataGridPointerList.Columns[level + 1].SortMode = DataGridViewColumnSortMode.NotSortable;
 
+         curScanStatus = ScanStatus.Scanning;
          bgWorkerScanner.RunWorkerAsync(new ScannerThreadArgs(address, range));
       }
       private void btnScanNext_OnClick() {
-         UInt64 address = UInt64.Parse(textBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
+         UInt64 address = UInt64.Parse(txtBoxScanAddress.Text, System.Globalization.NumberStyles.HexNumber);
          pointerList.Stop = false;
+         curScanStatus = ScanStatus.Scanning;
          next_pointer_finder_worker.RunWorkerAsync(new ScannerThreadArgs(address, null));
       }
       private void btnLoadPointerList_OnClick() {
@@ -240,7 +243,6 @@ namespace PS4_Cheater {
       }
 
       private void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
-         curScanStatus = ScanStatus.Scanning;
          bgWorkerScanner.ReportProgress(0);
          for (Int32 section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
             if (bgWorkerScanner.CancellationPending)
@@ -254,8 +256,10 @@ namespace PS4_Cheater {
             bgWorkerScanner.ReportProgress((Int32)(((Single)section_idx / processManager.MappedSectionList.Count) * 80));
          }
 
-         if (bgWorkerScanner.CancellationPending)
+         if (bgWorkerScanner.CancellationPending) {
+            e.Cancel = true;
             return;
+         }
 
          bgWorkerScanner.ReportProgress(80);
          pointerList.Init();
@@ -293,7 +297,7 @@ namespace PS4_Cheater {
                   Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_address.Count - 1].Address);
                   row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(sectionID));               //section
                }
-               uiStatusStrip_labelStatus.Text = String.Format("{0} results", pointerResults.Count);
+               uiStatusStrip_lblStatus.Text = String.Format("{0} results", pointerResults.Count);
             } catch (Exception ex) {
                MessageBox.Show(ex.ToString());
             }
@@ -366,8 +370,8 @@ namespace PS4_Cheater {
          UInt64 baseAddress = pointerResult.GetBaseAddress(processManager.MappedSectionList);
          UInt64 tailAddress = pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList);
          String data = memoryHelper.BytesToString(memoryHelper.GetBytesByType(tailAddress));
-         String dataType = MemoryHelper.GetStringOfValueType(memoryHelper.ValueType);
-         mainForm.new_pointer_cheat(baseAddress, pointerResult.offsets.ToList(), dataType, data, false, "");
+         String valueType = memoryHelper.valueType.ToString();
+         //mainForm.new_pointer_cheat(baseAddress, pointerResult.offsets.ToList(), valueType, data, false, "");
       }
    }
 }

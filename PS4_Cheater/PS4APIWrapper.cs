@@ -7,10 +7,10 @@ using librpc;
 
 namespace PS4_Cheater
 {
-    public interface PS4APIWarpper
+    public interface PS4APIWrapper
     {
         void Connect();
-        ProcessInfo GetProcessInfo(int pid);
+        ProcessInfo GetProcessInfo(Int32 pid);
         ProcessList GetProcessList();
     }
 }

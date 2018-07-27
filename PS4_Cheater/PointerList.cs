@@ -14,10 +14,10 @@ namespace PS4_Cheater
     [StructLayoutAttribute(LayoutKind.Sequential, Pack = 1)]
     public struct Pointer
     {
-        public ulong Address;
-        public ulong PointerValue;
+        public UInt64 Address;
+        public UInt64 PointerValue;
 
-        public Pointer(ulong Address, ulong PointerValue)
+        public Pointer(UInt64 Address, UInt64 PointerValue)
         {
             this.Address = Address;
             this.PointerValue = PointerValue;
@@ -26,19 +26,19 @@ namespace PS4_Cheater
 
     public class PointerPath
     {
-        public List<ulong> pointerPath = new List<ulong>();
+        public List<UInt64> pointerPath = new List<UInt64>();
 
-        public void AddRange(List<ulong> pointerList)
+        public void AddRange(List<UInt64> pointerList)
         {
             pointerPath.AddRange(pointerList);
         }
 
-        public void Add(ulong pointer)
+        public void Add(UInt64 pointer)
         {
             pointerPath.Add(pointer);
         }
 
-        public ulong this[int index]
+        public UInt64 this[Int32 index]
         {
             get
             {
@@ -46,7 +46,7 @@ namespace PS4_Cheater
             }
         }
 
-        public int Count { get { return pointerPath.Count; } }
+        public Int32 Count { get { return pointerPath.Count; } }
     }
 
    public class PointerResult {
@@ -79,7 +79,7 @@ namespace PS4_Cheater
         private List<Pointer> pointer_list_order_by_address;
         private List<Pointer> pointer_list_order_by_pointer_value;
 
-        public bool Stop { get; set; }
+        public Boolean Stop { get; set; }
 
         public PointerList()
         {
@@ -87,13 +87,13 @@ namespace PS4_Cheater
             pointer_list_order_by_pointer_value = new List<Pointer>();
         }
 
-        public delegate void NewPathGeneratedHandler(PointerList pointerList, List<long> path_offset, List<Pointer> path_address);
+        public delegate void NewPathGeneratedHandler(PointerList pointerList, List<Int64> path_offset, List<Pointer> path_address);
 
         public event NewPathGeneratedHandler NewPathGeneratedEvent;
 
         class ComparerByAddress : IComparer<Pointer>
         {
-            public int Compare(Pointer x, Pointer y)
+            public Int32 Compare(Pointer x, Pointer y)
             {
                 if (x.Address == y.Address)
                 {
@@ -112,7 +112,7 @@ namespace PS4_Cheater
 
         class ComparerByPointerValue : IComparer<Pointer>
         {
-            public int Compare(Pointer x, Pointer y)
+            public Int32 Compare(Pointer x, Pointer y)
             {
                 if (x.PointerValue == y.PointerValue)
                 {
@@ -152,9 +152,9 @@ namespace PS4_Cheater
             pointer_list_order_by_pointer_value.Clear();
         }
 
-        private static int BinarySearchByAddress(List<Pointer> pointerList, int low, int high, ulong address)
+        private static Int32 BinarySearchByAddress(List<Pointer> pointerList, Int32 low, Int32 high, UInt64 address)
         {
-            int mid = (low + high) / 2;
+         Int32 mid = (low + high) / 2;
             if (low > high)
             {
                 return -1;
@@ -182,11 +182,11 @@ namespace PS4_Cheater
             }
         }
 
-        private static int BinarySearchByValue(List<Pointer> pointerList, ulong pointerValue)
+        private static Int32 BinarySearchByValue(List<Pointer> pointerList, UInt64 pointerValue)
         {
-            int low = 0;
-            int high = pointerList.Count - 1;
-            int middle;
+         Int32 low = 0;
+         Int32 high = pointerList.Count - 1;
+         Int32 middle;
 
             while (low <= high)
             {
@@ -208,38 +208,38 @@ namespace PS4_Cheater
             return -1;
         }
 
-        public ulong GetTailAddress(PointerResult pointerResult, MappedSectionList mappedSectionList)
+        public UInt64 GetTailAddress(PointerResult pointerResult, MappedSectionList mappedSectionList)
         {
-            ulong tailAddress = pointerResult.GetBaseAddress(mappedSectionList);
+         UInt64 tailAddress = pointerResult.GetBaseAddress(mappedSectionList);
 
             if (pointerResult.offsets.Length > 0)
             {
-                int j = 0;
+            Int32 j = 0;
                 Pointer pointer = new Pointer();
-                int index = GetPointerByAddress(tailAddress, ref pointer);
+            Int32 index = GetPointerByAddress(tailAddress, ref pointer);
                 if (index < 0) return 0;
                 tailAddress = pointer.PointerValue;
                 for (j = 0; j < pointerResult.offsets.Length - 1; ++j)
                 {
-                    index = GetPointerByAddress((ulong)((long)tailAddress + pointerResult.offsets[j]), ref pointer);
+                    index = GetPointerByAddress((UInt64)((Int64)tailAddress + pointerResult.offsets[j]), ref pointer);
                     if (index < 0) return 0;
                     tailAddress = pointer.PointerValue;
                 }
 
-                tailAddress = (ulong)((long)tailAddress + pointerResult.offsets[j]);
+                tailAddress = (UInt64)((Int64)tailAddress + pointerResult.offsets[j]);
             }
 
             return tailAddress;
         }
 
-        private List<Pointer> GetPointerListByValue(ulong pointerValue)
+        private List<Pointer> GetPointerListByValue(UInt64 pointerValue)
         {
             List<Pointer> pointerList = new List<Pointer>();
-            int index = BinarySearchByValue(pointer_list_order_by_pointer_value, pointerValue);
+         Int32 index = BinarySearchByValue(pointer_list_order_by_pointer_value, pointerValue);
 
             if (index < 0) return pointerList;
 
-            int start = index;
+         Int32 start = index;
             for (; start >= 0; --start)
             {
                 if (pointer_list_order_by_pointer_value[start].PointerValue != pointerValue)
@@ -248,8 +248,8 @@ namespace PS4_Cheater
                 }
             }
 
-            bool find = false;
-            for (int i = start; i < pointer_list_order_by_pointer_value.Count; ++i)
+         Boolean find = false;
+            for (Int32 i = start; i < pointer_list_order_by_pointer_value.Count; ++i)
             {
                 if (pointer_list_order_by_pointer_value[i].PointerValue == pointerValue)
                 {
@@ -265,17 +265,17 @@ namespace PS4_Cheater
             return pointerList;
         }
 
-        private int GetPointerByAddress(ulong address, ref Pointer pointer)
+        private Int32 GetPointerByAddress(UInt64 address, ref Pointer pointer)
         {
-            int index = BinarySearchByAddress(pointer_list_order_by_address, 0, pointer_list_order_by_address.Count - 1, address);
+         Int32 index = BinarySearchByAddress(pointer_list_order_by_address, 0, pointer_list_order_by_address.Count - 1, address);
             if (index < 0) return index;
 
             pointer = pointer_list_order_by_address[index];
             return index;
         }
 
-        private void PointerFinder(List<long> path_offset, List<Pointer> path_address,
-            ulong address, List<int> range, int level)
+        private void PointerFinder(List<Int64> path_offset, List<Pointer> path_address,
+            UInt64 address, List<Int32> range, Int32 level)
         {
 
             if (Stop)
@@ -287,17 +287,17 @@ namespace PS4_Cheater
             {
 
                 Pointer position = new Pointer();
-                int index = GetPointerByAddress(address, ref position);
-                int counter = 0;
+            Int32 index = GetPointerByAddress(address, ref position);
+            Int32 counter = 0;
 
-                for (int i = index; i >= 0; i--)
+                for (Int32 i = index; i >= 0; i--)
                 {
                     if (Stop)
                     {
                         break;
                     }
 
-                    if ((long)pointer_list_order_by_address[i].Address + range[level] < (long)address)
+                    if ((Int64)pointer_list_order_by_address[i].Address + range[level] < (Int64)address)
                     {
                         break;
                     }
@@ -306,16 +306,16 @@ namespace PS4_Cheater
 
                     if (pointerList.Count > 0)
                     {
-                        path_offset.Add((long)(address - pointer_list_order_by_address[i].Address));
-                        const int max_pointer_count =  15;
-                        int cur_pointer_counter = 0;
+                        path_offset.Add((Int64)(address - pointer_list_order_by_address[i].Address));
+                        const Int32 max_pointer_count =  15;
+                  Int32 cur_pointer_counter = 0;
 
-                        bool in_new_level = false;
+                  Boolean in_new_level = false;
 
-                        for (int j = 0; j < pointerList.Count; ++j)
+                        for (Int32 j = 0; j < pointerList.Count; ++j)
                         {
-                            bool in_stack = false;
-                            for (int k = 0; k < path_address.Count; ++k)
+                     Boolean in_stack = false;
+                            for (Int32 k = 0; k < path_address.Count; ++k)
                             {
                                 if (path_address[k].PointerValue == pointerList[j].PointerValue ||
                                     path_address[k].Address == pointerList[j].Address)
@@ -361,11 +361,11 @@ namespace PS4_Cheater
 
         public void Save()
         {
-            string ADDRESS_NAME = "D:\\name.txt";
+         String ADDRESS_NAME = "D:\\name.txt";
 
-            string[] lines = new string[pointer_list_order_by_address.Count];
+         String[] lines = new String[pointer_list_order_by_address.Count];
 
-            for (int i = 0; i < pointer_list_order_by_address.Count; ++i)
+            for (Int32 i = 0; i < pointer_list_order_by_address.Count; ++i)
             {
                 lines[i] = pointer_list_order_by_address[i].Address.ToString() + " " + pointer_list_order_by_address[i].PointerValue.ToString();
             }
@@ -374,16 +374,16 @@ namespace PS4_Cheater
 
         public void Load()
         {
-            string ADDRESS_NAME = "D:\\name.txt";
+         String ADDRESS_NAME = "D:\\name.txt";
 
-            string[] lines = File.ReadAllLines(ADDRESS_NAME);
+         String[] lines = File.ReadAllLines(ADDRESS_NAME);
 
-            for (int i = 0; i < lines.Length; ++i)
+            for (Int32 i = 0; i < lines.Length; ++i)
             {
-                string[] elems = lines[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            String[] elems = lines[i].Split(new Char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                ulong Address = UInt64.Parse(elems[0]);
-                ulong PointerValue = UInt64.Parse(elems[1]);
+            UInt64 Address = UInt64.Parse(elems[0]);
+            UInt64 PointerValue = UInt64.Parse(elems[1]);
 
                 Pointer pointer = new Pointer(Address, PointerValue);
                 pointer_list_order_by_address.Add(pointer);
@@ -400,15 +400,15 @@ namespace PS4_Cheater
             pointer_list_order_by_pointer_value.Sort(new ComparerByPointerValue());
         }
 
-        public void FindPointerList(ulong address, List<int> range)
+        public void FindPointerList(UInt64 address, List<Int32> range)
         {
-            List<long> path_offset = new List<long>();
+            List<Int64> path_offset = new List<Int64>();
             List<Pointer> path_address = new List<Pointer>();
-            bool changed = true;
+         Boolean changed = true;
             PointerFinder(path_offset, path_address, address, range, 0);
         }
 
-        public int Count { get { return pointer_list_order_by_address.Count; } }
+        public Int32 Count { get { return pointer_list_order_by_address.Count; } }
     }
 
 }

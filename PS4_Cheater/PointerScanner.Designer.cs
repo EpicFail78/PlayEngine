@@ -1,6 +1,6 @@
 ﻿namespace PS4_Cheater
 {
-    partial class PointerFinder
+    partial class PointerScanner
     {
         /// <summary>
         /// Required designer variable.
@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
          this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
-         this.uiStatusStrip_labelStatus = new System.Windows.Forms.ToolStripStatusLabel();
+         this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.uiStatusStrip_ProgressBarScannerThread = new System.Windows.Forms.ToolStripProgressBar();
-         this.textBoxScanAddress = new System.Windows.Forms.TextBox();
+         this.txtBoxScanAddress = new System.Windows.Forms.TextBox();
          this.btnScan = new System.Windows.Forms.Button();
          this.dataGridPointerList = new System.Windows.Forms.DataGridView();
          this.btnScanNext = new System.Windows.Forms.Button();
          this.label1 = new System.Windows.Forms.Label();
-         this.checkBoxFastScan = new System.Windows.Forms.CheckBox();
+         this.chkBoxFastScan = new System.Windows.Forms.CheckBox();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadPointerList = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,7 +54,7 @@
          // uiStatusStrip
          // 
          this.uiStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.uiStatusStrip_labelStatus,
+            this.uiStatusStrip_lblStatus,
             this.uiStatusStrip_ProgressBarScannerThread});
          this.uiStatusStrip.Location = new System.Drawing.Point(0, 433);
          this.uiStatusStrip.Name = "uiStatusStrip";
@@ -62,14 +62,14 @@
          this.uiStatusStrip.SizingGrip = false;
          this.uiStatusStrip.TabIndex = 2;
          // 
-         // uiStatusStrip_labelStatus
+         // uiStatusStrip_lblStatus
          // 
-         this.uiStatusStrip_labelStatus.AutoSize = false;
-         this.uiStatusStrip_labelStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.uiStatusStrip_labelStatus.Name = "uiStatusStrip_labelStatus";
-         this.uiStatusStrip_labelStatus.Size = new System.Drawing.Size(200, 18);
-         this.uiStatusStrip_labelStatus.Text = "";
-         this.uiStatusStrip_labelStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+         this.uiStatusStrip_lblStatus.AutoSize = false;
+         this.uiStatusStrip_lblStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_lblStatus.Name = "uiStatusStrip_lblStatus";
+         this.uiStatusStrip_lblStatus.Size = new System.Drawing.Size(200, 18);
+         this.uiStatusStrip_lblStatus.Text = "Standby...";
+         this.uiStatusStrip_lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
          // 
          // uiStatusStrip_ProgressBarScannerThread
          // 
@@ -77,12 +77,12 @@
          this.uiStatusStrip_ProgressBarScannerThread.Name = "uiStatusStrip_ProgressBarScannerThread";
          this.uiStatusStrip_ProgressBarScannerThread.Size = new System.Drawing.Size(620, 17);
          // 
-         // textBoxScanAddress
+         // txtBoxScanAddress
          // 
-         this.textBoxScanAddress.Location = new System.Drawing.Point(66, 26);
-         this.textBoxScanAddress.Name = "textBoxScanAddress";
-         this.textBoxScanAddress.Size = new System.Drawing.Size(133, 20);
-         this.textBoxScanAddress.TabIndex = 3;
+         this.txtBoxScanAddress.Location = new System.Drawing.Point(95, 25);
+         this.txtBoxScanAddress.Name = "txtBoxScanAddress";
+         this.txtBoxScanAddress.Size = new System.Drawing.Size(133, 20);
+         this.txtBoxScanAddress.TabIndex = 3;
          // 
          // btnScan
          // 
@@ -128,22 +128,22 @@
          this.label1.AutoSize = true;
          this.label1.Location = new System.Drawing.Point(12, 29);
          this.label1.Name = "label1";
-         this.label1.Size = new System.Drawing.Size(48, 13);
+         this.label1.Size = new System.Drawing.Size(77, 13);
          this.label1.TabIndex = 9;
-         this.label1.Text = "Address:";
+         this.label1.Text = "Address value:";
          // 
-         // checkBoxFastScan
+         // chkBoxFastScan
          // 
-         this.checkBoxFastScan.AutoSize = true;
-         this.checkBoxFastScan.Checked = true;
-         this.checkBoxFastScan.CheckState = System.Windows.Forms.CheckState.Checked;
-         this.checkBoxFastScan.Location = new System.Drawing.Point(771, 28);
-         this.checkBoxFastScan.Name = "checkBoxFastScan";
-         this.checkBoxFastScan.Size = new System.Drawing.Size(74, 17);
-         this.checkBoxFastScan.TabIndex = 10;
-         this.checkBoxFastScan.Text = "Fast Scan";
-         this.checkBoxFastScan.UseVisualStyleBackColor = true;
-         this.checkBoxFastScan.CheckedChanged += new System.EventHandler(this.checkBoxFastScan_CheckedChanged);
+         this.chkBoxFastScan.AutoSize = true;
+         this.chkBoxFastScan.Checked = true;
+         this.chkBoxFastScan.CheckState = System.Windows.Forms.CheckState.Checked;
+         this.chkBoxFastScan.Location = new System.Drawing.Point(771, 28);
+         this.chkBoxFastScan.Name = "chkBoxFastScan";
+         this.chkBoxFastScan.Size = new System.Drawing.Size(74, 17);
+         this.chkBoxFastScan.TabIndex = 10;
+         this.chkBoxFastScan.Text = "Fast Scan";
+         this.chkBoxFastScan.UseVisualStyleBackColor = true;
+         this.chkBoxFastScan.CheckedChanged += new System.EventHandler(this.chkBoxFastScan_CheckedChanged);
          // 
          // uiToolStrip
          // 
@@ -186,7 +186,7 @@
          // 
          // numericPointerLevel
          // 
-         this.numericPointerLevel.Location = new System.Drawing.Point(245, 26);
+         this.numericPointerLevel.Location = new System.Drawing.Point(311, 26);
          this.numericPointerLevel.Maximum = new decimal(new int[] {
             20,
             0,
@@ -209,11 +209,11 @@
          // label2
          // 
          this.label2.AutoSize = true;
-         this.label2.Location = new System.Drawing.Point(205, 29);
+         this.label2.Location = new System.Drawing.Point(234, 29);
          this.label2.Name = "label2";
-         this.label2.Size = new System.Drawing.Size(39, 13);
+         this.label2.Size = new System.Drawing.Size(71, 13);
          this.label2.TabIndex = 13;
-         this.label2.Text = "Level: ";
+         this.label2.Text = "Pointer level: ";
          // 
          // next_pointer_finder_worker
          // 
@@ -231,7 +231,7 @@
          this.bgWorkerScanner.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorkerScanner_ProgressChanged);
          this.bgWorkerScanner.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorkerScanner_RunWorkerCompleted);
          // 
-         // PointerFinder
+         // PointerScanner
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -239,15 +239,15 @@
          this.Controls.Add(this.label2);
          this.Controls.Add(this.numericPointerLevel);
          this.Controls.Add(this.uiToolStrip);
-         this.Controls.Add(this.checkBoxFastScan);
+         this.Controls.Add(this.chkBoxFastScan);
          this.Controls.Add(this.label1);
          this.Controls.Add(this.btnScanNext);
          this.Controls.Add(this.dataGridPointerList);
          this.Controls.Add(this.btnScan);
-         this.Controls.Add(this.textBoxScanAddress);
+         this.Controls.Add(this.txtBoxScanAddress);
          this.Controls.Add(this.uiStatusStrip);
-         this.Name = "PointerFinder";
-         this.Text = "Pointer Finder";
+         this.Name = "PointerScanner";
+         this.Text = "Pointer Scanner";
          this.uiStatusStrip.ResumeLayout(false);
          this.uiStatusStrip.PerformLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dataGridPointerList)).EndInit();
@@ -261,14 +261,14 @@
 
         #endregion
         private System.Windows.Forms.StatusStrip uiStatusStrip;
-        private System.Windows.Forms.TextBox textBoxScanAddress;
+        private System.Windows.Forms.TextBox txtBoxScanAddress;
         private System.Windows.Forms.Button btnScan;
         private System.Windows.Forms.ToolStripProgressBar uiStatusStrip_ProgressBarScannerThread;
         private System.Windows.Forms.DataGridView dataGridPointerList;
         private System.Windows.Forms.Button btnScanNext;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ToolStripStatusLabel uiStatusStrip_labelStatus;
-        private System.Windows.Forms.CheckBox checkBoxFastScan;
+        private System.Windows.Forms.ToolStripStatusLabel uiStatusStrip_lblStatus;
+        private System.Windows.Forms.CheckBox chkBoxFastScan;
         private System.Windows.Forms.ToolStrip uiToolStrip;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
         private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnLoadPointerList;

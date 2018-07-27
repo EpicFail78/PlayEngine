@@ -12,32 +12,32 @@ namespace PS4_Cheater
 {
     public class ResultList
     {
-        private const int buffer_size = 4096 * 16;
-        private List<byte[]> buffer_list = new List<byte[]>();
+        private const Int32 buffer_size = 4096 * 16;
+        private List<Byte[]> buffer_list = new List<Byte[]>();
 
-        private int buffer_tag_offset = 0;
-        private int buffer_tag_elem_count = 0;
-        private int buffer_id = 0;
+        private Int32 buffer_tag_offset = 0;
+        private Int32 buffer_tag_elem_count = 0;
+        private Int32 buffer_id = 0;
 
-        private int count = 0;
-        private int iterator = 0;
-        private int element_size = 0;
-        private int element_alignment = 1;
+        private Int32 count = 0;
+        private Int32 iterator = 0;
+        private Int32 element_size = 0;
+        private Int32 element_alignment = 1;
 
-        private const int OFFSET_SIZE = 4;
-        private const int BIT_MAP_SIZE = 8;
+        private const Int32 OFFSET_SIZE = 4;
+        private const Int32 BIT_MAP_SIZE = 8;
 
-        public ResultList(int element_size, int element_alignment)
+        public ResultList(Int32 element_size, Int32 element_alignment)
         {
-            buffer_list.Add(new byte[buffer_size]);
+            buffer_list.Add(new Byte[buffer_size]);
             this.element_size = element_size;
             this.element_alignment = element_alignment;
         }
 
-        private int bit_count(ulong data, int end)
+        private Int32 bit_count(UInt64 data, Int32 end)
         {
-            int sum = 0;
-            for (int i = 0; i <= end; ++i)
+         Int32 sum = 0;
+            for (Int32 i = 0; i <= end; ++i)
             {
                 if ((data & (1ul << i)) != 0)
                 {
@@ -47,10 +47,10 @@ namespace PS4_Cheater
             return sum;
         }
 
-        private int bit_position(ulong data, int pos)
+        private Int32 bit_position(UInt64 data, Int32 pos)
         {
-            int sum = 0;
-            for (int i = 0; i <= 63; ++i)
+         Int32 sum = 0;
+            for (Int32 i = 0; i <= 63; ++i)
             {
                 if ((data & (1ul << i)) != 0)
                 {
@@ -64,17 +64,17 @@ namespace PS4_Cheater
             return -1;
         }
 
-        public void Add(uint memoryAddressOffset, byte[] memoryValue)
+        public void Add(UInt32 memoryAddressOffset, Byte[] memoryValue)
         {
             if (memoryValue.Length != element_size)
             {
                 throw new Exception("Invalid address!");
             }
 
-            byte[] dense_buffer = buffer_list[buffer_id];
+         Byte[] dense_buffer = buffer_list[buffer_id];
 
-            uint tag_address_offset_base = BitConverter.ToUInt32(dense_buffer, buffer_tag_offset);
-            ulong bit_map = BitConverter.ToUInt64(dense_buffer, buffer_tag_offset + OFFSET_SIZE);
+         UInt32 tag_address_offset_base = BitConverter.ToUInt32(dense_buffer, buffer_tag_offset);
+         UInt64 bit_map = BitConverter.ToUInt64(dense_buffer, buffer_tag_offset + OFFSET_SIZE);
 
             if (tag_address_offset_base > memoryAddressOffset)
             {
@@ -87,10 +87,10 @@ namespace PS4_Cheater
                 Buffer.BlockCopy(BitConverter.GetBytes(memoryAddressOffset), 0, dense_buffer, buffer_tag_offset, OFFSET_SIZE);
             }
 
-            int offset_in_bit_map = (int)(memoryAddressOffset - tag_address_offset_base) / element_alignment;
+         Int32 offset_in_bit_map = (Int32)(memoryAddressOffset - tag_address_offset_base) / element_alignment;
             if (offset_in_bit_map < 64)
             {
-                dense_buffer[buffer_tag_offset + OFFSET_SIZE + offset_in_bit_map / 8] |= (byte)(1 << (offset_in_bit_map % 8)); //bit map
+                dense_buffer[buffer_tag_offset + OFFSET_SIZE + offset_in_bit_map / 8] |= (Byte)(1 << (offset_in_bit_map % 8)); //bit map
                 Buffer.BlockCopy(memoryValue, 0, dense_buffer, buffer_tag_offset + OFFSET_SIZE + BIT_MAP_SIZE + element_size * buffer_tag_elem_count, element_size);//value
                 ++buffer_tag_elem_count;
             }
@@ -101,7 +101,7 @@ namespace PS4_Cheater
                 //Alloc new page
                 if (buffer_tag_offset + OFFSET_SIZE + BIT_MAP_SIZE + element_size * 64 >= buffer_size)
                 {
-                    buffer_list.Add(new byte[buffer_size]);
+                    buffer_list.Add(new Byte[buffer_size]);
                     ++buffer_id;
                     buffer_tag_offset = 0;
                     buffer_tag_elem_count = 0;
@@ -109,7 +109,7 @@ namespace PS4_Cheater
                 }
 
                 Buffer.BlockCopy(BitConverter.GetBytes(memoryAddressOffset), 0, dense_buffer, buffer_tag_offset, OFFSET_SIZE); //tag address base
-                dense_buffer[buffer_tag_offset + OFFSET_SIZE] = (byte)1; //bit map
+                dense_buffer[buffer_tag_offset + OFFSET_SIZE] = (Byte)1; //bit map
                 Buffer.BlockCopy(memoryValue, 0, dense_buffer, buffer_tag_offset + OFFSET_SIZE + BIT_MAP_SIZE, element_size); //value
                 buffer_tag_elem_count = 1;
             }
@@ -123,24 +123,24 @@ namespace PS4_Cheater
             buffer_tag_elem_count = 0;
             buffer_id = 0;
             buffer_list.Clear();
-            buffer_list.Add(new byte[buffer_size]);
+            buffer_list.Add(new Byte[buffer_size]);
         }
 
-        public void Get(ref uint memoryAddressOffset, ref byte[] memoryValue)
+        public void Get(ref UInt32 memoryAddressOffset, ref Byte[] memoryValue)
         {
 
-            byte[] dense_buffer = buffer_list[buffer_id];
-            memoryValue = new byte[element_size];
+         Byte[] dense_buffer = buffer_list[buffer_id];
+            memoryValue = new Byte[element_size];
 
-            uint offset_base = BitConverter.ToUInt32(dense_buffer, buffer_tag_offset);
-            ulong bit_map = BitConverter.ToUInt64(dense_buffer, buffer_tag_offset + OFFSET_SIZE);
-            memoryAddressOffset = (uint)(bit_position(bit_map, buffer_tag_elem_count) * element_alignment) + offset_base;
+         UInt32 offset_base = BitConverter.ToUInt32(dense_buffer, buffer_tag_offset);
+         UInt64 bit_map = BitConverter.ToUInt64(dense_buffer, buffer_tag_offset + OFFSET_SIZE);
+            memoryAddressOffset = (UInt32)(bit_position(bit_map, buffer_tag_elem_count) * element_alignment) + offset_base;
             Buffer.BlockCopy(dense_buffer, buffer_tag_offset + OFFSET_SIZE + BIT_MAP_SIZE + element_size * buffer_tag_elem_count, memoryValue, 0, element_size);
         }
 
-        public void Set(byte[] memoryValue)
+        public void Set(Byte[] memoryValue)
         {
-            byte[] dense_buffer = buffer_list[buffer_id];
+         Byte[] dense_buffer = buffer_list[buffer_id];
             Buffer.BlockCopy(memoryValue, 0, dense_buffer, buffer_tag_offset + OFFSET_SIZE + BIT_MAP_SIZE + element_size * buffer_tag_elem_count, element_size);
         }
 
@@ -156,9 +156,9 @@ namespace PS4_Cheater
         {
             ++iterator;
 
-            byte[] dense_buffer = buffer_list[buffer_id];
-            uint base_offset = BitConverter.ToUInt32(dense_buffer, buffer_tag_offset);
-            ulong bit_map = BitConverter.ToUInt64(dense_buffer, buffer_tag_offset + 4);
+         Byte[] dense_buffer = buffer_list[buffer_id];
+         UInt32 base_offset = BitConverter.ToUInt32(dense_buffer, buffer_tag_offset);
+         UInt64 bit_map = BitConverter.ToUInt64(dense_buffer, buffer_tag_offset + 4);
             ++buffer_tag_elem_count;
 
             if (bit_count(bit_map, 63) <= buffer_tag_elem_count)
@@ -177,21 +177,21 @@ namespace PS4_Cheater
             }
         }
 
-        public bool End()
+        public Boolean End()
         {
             return (iterator == count);
         }
 
-        public int Count { get { return count; } }
+        public Int32 Count { get { return count; } }
     }
 
     public class MappedSection
     {
-        public ulong Start { get; set; }
-        public int Length { get; set; }
-        public string Name { get; set; }
-        public bool Check { set; get; }
-        public uint Prot { get; set; }
+        public UInt64 Start { get; set; }
+        public Int32 Length { get; set; }
+        public String Name { get; set; }
+        public Boolean Check { set; get; }
+        public UInt32 Prot { get; set; }
 
         public ResultList ResultList { get; set; }
         
@@ -202,7 +202,7 @@ namespace PS4_Cheater
         }
 
         public void UpdateResultList(ProcessManager processManager, MemoryHelper memoryHelper,
-            string default_value_0_str, string default_value_1_str, bool is_hex, bool newScan)
+            String default_value_0_str, String default_value_1_str, Boolean is_hex, Boolean newScan)
         {
             if (!Check)
             {
@@ -212,15 +212,15 @@ namespace PS4_Cheater
 
             ResultList new_result_list = new ResultList(memoryHelper.Length, memoryHelper.Alignment);
 
-            ulong address = this.Start;
-            uint base_address = 0;
-            int length = this.Length;
+         UInt64 address = this.Start;
+         UInt32 base_address = 0;
+         Int32 length = this.Length;
 
-            const int buffer_length = 1024 * 1024 * 128;
+            const Int32 buffer_length = 1024 * 1024 * 128;
 
             while (length != 0)
             {
-                int cur_length = buffer_length;
+            Int32 cur_length = buffer_length;
 
                 if (cur_length > length)
                 {
@@ -232,9 +232,9 @@ namespace PS4_Cheater
                     length -= cur_length;
                 }
 
-                byte[] buffer = memoryHelper.ReadMemory(address, (int)cur_length);
+            Byte[] buffer = memoryHelper.ReadMemory(address, (Int32)cur_length);
 
-                byte[] default_value_0 = null;
+            Byte[] default_value_0 = null;
                 if (memoryHelper.ParseFirstValue)
                 {
                     if (is_hex)
@@ -247,7 +247,7 @@ namespace PS4_Cheater
                     }
                 }
 
-                byte[] default_value_1 = null;
+            Byte[] default_value_1 = null;
                 if (memoryHelper.ParseSecondValue)
                 {
                     if (is_hex)
@@ -269,22 +269,22 @@ namespace PS4_Cheater
                     memoryHelper.CompareWithMemoryBufferNextScanner(default_value_0, default_value_1, buffer, ResultList, new_result_list);
                 }
 
-                address += (ulong)cur_length;
-                base_address += (uint)cur_length;
+                address += (UInt64)cur_length;
+                base_address += (UInt32)cur_length;
             }
             ResultList = new_result_list;
         }
 
         public void PointerSearchInit(ProcessManager processManager, MemoryHelper memoryHelper, PointerList pointerList)
         {
-            ulong address = this.Start;
-            int length = this.Length;
+         UInt64 address = this.Start;
+         Int32 length = this.Length;
 
-            const int buffer_length = 1024 * 1024 * 128;
+            const Int32 buffer_length = 1024 * 1024 * 128;
 
             while (length != 0)
             {
-                int cur_length = buffer_length;
+            Int32 cur_length = buffer_length;
 
                 if (cur_length > length)
                 {
@@ -296,18 +296,18 @@ namespace PS4_Cheater
                     length -= cur_length;
                 }
 
-                byte[] buffer = memoryHelper.ReadMemory(address, (int)cur_length);
+            Byte[] buffer = memoryHelper.ReadMemory(address, (Int32)cur_length);
 
                 memoryHelper.CompareWithMemoryBufferPointerScanner(processManager, buffer, pointerList, address);
 
-                address += (ulong)cur_length;
+                address += (UInt64)cur_length;
             }
         }
     }
 
     public class MappedSectionList
     {
-        public ulong TotalMemorySize { get; set; }
+        public UInt64 TotalMemorySize { get; set; }
 
         private List<MappedSection> mapped_section_list = new List<MappedSection>();
 
@@ -316,7 +316,7 @@ namespace PS4_Cheater
 
         }
 
-        public MappedSection this[int index]
+        public MappedSection this[Int32 index]
         {
             get
             {
@@ -324,16 +324,16 @@ namespace PS4_Cheater
             }
         }
 
-        private int FindSectionID(ulong address)
+        private Int32 FindSectionID(UInt64 address)
         {
-            int low = 0;
-            int high = mapped_section_list.Count - 1;
-            int middle;
+         Int32 low = 0;
+         Int32 high = mapped_section_list.Count - 1;
+         Int32 middle;
 
             while (low <= high)
             {
                 middle = (low + high) / 2;
-                if (address >= mapped_section_list[middle].Start + (ulong)(mapped_section_list[middle].Length))
+                if (address >= mapped_section_list[middle].Start + (UInt64)(mapped_section_list[middle].Length))
                 {
                     low = middle + 1;   //查找数组后部分  
                 }
@@ -352,15 +352,15 @@ namespace PS4_Cheater
 
 
 
-        public int GetMappedSectionID(ulong address)
+        public Int32 GetMappedSectionID(UInt64 address)
         {
-            ulong start = 0;
-            ulong end = 0;
+         UInt64 start = 0;
+         UInt64 end = 0;
 
             if (mapped_section_list.Count > 0)
             {
                 start = mapped_section_list[0].Start;
-                end = mapped_section_list[mapped_section_list.Count - 1].Start + (ulong)mapped_section_list[mapped_section_list.Count - 1].Length;
+                end = mapped_section_list[mapped_section_list.Count - 1].Start + (UInt64)mapped_section_list[mapped_section_list.Count - 1].Length;
             }
 
             if (start > address || end < address)
@@ -371,9 +371,9 @@ namespace PS4_Cheater
             return FindSectionID(address);
         }
 
-        public MappedSection GetMappedSection(ulong address)
+        public MappedSection GetMappedSection(UInt64 address)
         {
-            int sectionID = GetMappedSectionID(address);
+         Int32 sectionID = GetMappedSectionID(address);
             if (sectionID < 0)
             {
                 return null;
@@ -381,21 +381,21 @@ namespace PS4_Cheater
             return mapped_section_list[sectionID];
         }
 
-        public void SectionCheck(int idx, bool _checked)
+        public void SectionCheck(Int32 idx, Boolean _checked)
         {
             mapped_section_list[idx].Check = _checked;
             if (mapped_section_list[idx].Check)
             {
-                TotalMemorySize += (ulong)mapped_section_list[idx].Length;
+                TotalMemorySize += (UInt64)mapped_section_list[idx].Length;
             }
             else
             {
-                TotalMemorySize -= (ulong)mapped_section_list[idx].Length;
+                TotalMemorySize -= (UInt64)mapped_section_list[idx].Length;
             }
         }
 
 
-        public string GetSectionName(int section_idx)
+        public String GetSectionName(Int32 section_idx)
         {
             if (section_idx < 0)
             {
@@ -412,10 +412,10 @@ namespace PS4_Cheater
             return section_name.ToString();
         }
 
-        public List<MappedSection> GetMappedSectionList(string name, int prot)
+        public List<MappedSection> GetMappedSectionList(String name, Int32 prot)
         {
             List<MappedSection> result_list = new List<MappedSection>();
-            for (int idx = 0; idx < mapped_section_list.Count; ++idx)
+            for (Int32 idx = 0; idx < mapped_section_list.Count; ++idx)
             {
                 if (mapped_section_list[idx].Prot == prot &&
                     mapped_section_list[idx].Name.StartsWith(name))
@@ -431,16 +431,16 @@ namespace PS4_Cheater
             mapped_section_list.Clear();
             TotalMemorySize = 0;
 
-            for (int i = 0; i < pi.entries.Length; i++)
+            for (Int32 i = 0; i < pi.entries.Length; i++)
             {
                 MemoryEntry entry = pi.entries[i];
                 if ((entry.prot & 0x1) == 0x1)
                 {
-                    ulong length = entry.end - entry.start;
-                    ulong start = entry.start;
-                    string name = entry.name;
-                    int idx = 0;
-                    ulong buffer_length = 1024 * 1024 * 128;
+               UInt64 length = entry.end - entry.start;
+               UInt64 start = entry.start;
+               String name = entry.name;
+               Int32 idx = 0;
+               UInt64 buffer_length = 1024 * 1024 * 128;
 
                     //Executable section
                     if ((entry.prot & 0x5) == 0x5)
@@ -450,7 +450,7 @@ namespace PS4_Cheater
 
                     while (length != 0)
                     {
-                        ulong cur_length = buffer_length;
+                  UInt64 cur_length = buffer_length;
 
                         if (cur_length > length)
                         {
@@ -464,7 +464,7 @@ namespace PS4_Cheater
 
                         MappedSection mappedSection = new MappedSection();
                         mappedSection.Start = start;
-                        mappedSection.Length = (int)cur_length;
+                        mappedSection.Length = (Int32)cur_length;
                         mappedSection.Name = entry.name + "[" + idx + "]";
                         mappedSection.Check = false;
                         mappedSection.Prot = entry.prot;
@@ -479,14 +479,14 @@ namespace PS4_Cheater
 
         }
 
-        public ulong TotalResultCount()
+        public UInt64 TotalResultCount()
         {
-            ulong total_result_count = 0;
-            for (int idx = 0; idx < mapped_section_list.Count; ++idx)
+         UInt64 total_result_count = 0;
+            for (Int32 idx = 0; idx < mapped_section_list.Count; ++idx)
             {
                 if (mapped_section_list[idx].Check && mapped_section_list[idx].ResultList != null)
                 {
-                    total_result_count += (ulong)mapped_section_list[idx].ResultList.Count;
+                    total_result_count += (UInt64)mapped_section_list[idx].ResultList.Count;
                 }
             }
             return total_result_count;
@@ -494,7 +494,7 @@ namespace PS4_Cheater
 
         public void ClearResultList()
         {
-            for (int idx = 0; idx < mapped_section_list.Count; ++idx)
+            for (Int32 idx = 0; idx < mapped_section_list.Count; ++idx)
             {
                 if (mapped_section_list[idx].ResultList != null)
                 {
@@ -503,7 +503,7 @@ namespace PS4_Cheater
             }
         }
 
-        public int Count { get { return mapped_section_list.Count; } }
+        public Int32 Count { get { return mapped_section_list.Count; } }
     }
 
     public class ProcessManager
@@ -516,7 +516,7 @@ namespace PS4_Cheater
             MappedSectionList = new MappedSectionList();
         }
 
-        public ProcessInfo GetProcessInfo(string process_name)
+        public ProcessInfo GetProcessInfo(String process_name)
         {
             ProcessList processList = MemoryHelper.GetProcessList();
             ProcessInfo processInfo = null;
@@ -532,7 +532,7 @@ namespace PS4_Cheater
             return processInfo;
         }
 
-        public string GetProcessName(int idx)
+        public String GetProcessName(Int32 idx)
         {
             ProcessList processList = MemoryHelper.GetProcessList();
             return processList.processes[idx].name;
