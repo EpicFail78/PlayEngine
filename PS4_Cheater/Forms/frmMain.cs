@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
@@ -176,7 +175,7 @@ namespace PS4_Cheater.Forms {
                IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, 9023, null, null);
                result.AsyncWaitHandle.WaitOne(1000);
                if (socket.Connected)
-                  uiToolStrip_PayloadManager_chkPayloadActive.Checked = MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress, Settings.mInstance.ps4.FWVersion == PS4FWVersion.v5_05);
+                  uiToolStrip_PayloadManager_chkPayloadActive.Checked = MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress);
 
                socket.Shutdown(SocketShutdown.Both);
                socket.Close();
@@ -188,6 +187,13 @@ namespace PS4_Cheater.Forms {
             btnRefreshProcessList_OnClick();
       }
 
+      #region Functions
+      public void addResult() {
+
+      }
+      #endregion
+
+      #region Buttons
       private void btnScan_OnClick() {
          try {
             switch (curScanStatus) {
@@ -227,7 +233,7 @@ namespace PS4_Cheater.Forms {
       #region uiToolStrip_linkPayloadAndProcess
       private void btnSendPayload_OnClick() {
          new Forms.ChildForms.childFrmSendPayload().ShowDialog();
-         if (MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress, Settings.mInstance.ps4.FWVersion == PS4FWVersion.v5_05)) {
+         if (MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress)) {
             uiToolStrip_PayloadManager_chkPayloadActive.Checked = true;
             btnRefreshProcessList_OnClick(true);
          }
@@ -283,6 +289,7 @@ namespace PS4_Cheater.Forms {
                #endregion
          }
       }
+      #endregion
 
       private void cmbBoxValueType_SelectedIndexChanged(Object sender, EventArgs e) {
          var newIndex = (sender as ComboBox).SelectedIndex;
@@ -336,10 +343,11 @@ namespace PS4_Cheater.Forms {
       private void chkListBoxSearchSections_ItemCheck(Object sender, ItemCheckEventArgs e) {
          processManager.MappedSectionList.SectionCheck(e.Index, e.NewValue == CheckState.Checked);
       }
+      private void listViewResults_DoubleClick(Object sender, EventArgs e) {
+         var selectedItems = (sender as ListView).SelectedItems;
+      }
 
       #region Background Workers
-      private void update_result_list_view(BackgroundWorker worker, bool refresh, int start, float percent) {
-      }
       #region bgWorkerScanner
       private void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
          var oldScanStatus = curScanStatus;

@@ -55,7 +55,7 @@ namespace PS4_Cheater {
          this.DefaultProcessID = defaultProcessID;
       }
 
-      public static Boolean Connect(String ip, Boolean is505) {
+      public static Boolean Connect(String ip, Boolean is505 = true) {
          try {
             mutex.WaitOne();
             if (ps4 != null)

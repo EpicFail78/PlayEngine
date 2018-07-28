@@ -16,7 +16,10 @@ namespace PS4_Cheater.Forms.ChildForms {
 
          txtBoxIPAddress.Text = Settings.mInstance.ps4.IPAddress;
          txtBoxIPPort.Text = Settings.mInstance.ps4.IPPort.ToString();
-         cmbBoxFirmware.SelectedIndex = (Int32)Settings.mInstance.ps4.FWVersion;
+         if (cmbBoxFirmware.Items.Count == 1) {
+            cmbBoxFirmware.SelectedIndex = 0;
+            cmbBoxFirmware.Enabled = false;
+         }
       }
 
       private void btnSendPayload_Click(Object sender, EventArgs e) {
@@ -29,20 +32,12 @@ namespace PS4_Cheater.Forms.ChildForms {
                socket.Close();
                Thread.Sleep(2000);
             }
-            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
-               socket.Connect(new IPEndPoint(IPAddress.Parse(txtBoxIPAddress.Text), 9023));
-               socket.SendFile(Path.Combine(payloadDir, "kpayload.elf"));
-               socket.Shutdown(SocketShutdown.Both);
-               socket.Close();
-               Thread.Sleep(1000);
-            }
             Settings.mInstance.ps4.IPAddress = txtBoxIPAddress.Text;
             Settings.mInstance.ps4.IPPort = Convert.ToInt32(txtBoxIPPort.Text);
-            Settings.mInstance.ps4.FWVersion = (PS4FWVersion)cmbBoxFirmware.SelectedIndex;
             Settings.mInstance.saveToFile();
 
-            if (MessageBox.Show("Payload successfully injected!", "Success") == DialogResult.OK)
-               this.Close();
+            MessageBox.Show("Payload successfully injected!", "Success");
+            this.Close();
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "Error during sending payload!", MessageBoxButtons.OK, MessageBoxIcon.Error);
          }

@@ -3,11 +3,6 @@ using System.IO;
 using System.Xml.Serialization;
 
 namespace PS4_Cheater.Utils {
-   public enum PS4FWVersion {
-      v4_05 = 0,
-      v4_55 = 1,
-      v5_05 = 2
-   }
    [Serializable]
    [XmlRoot("PS4")]
    public class PS4Settings {
@@ -15,8 +10,6 @@ namespace PS4_Cheater.Utils {
       public String IPAddress = String.Empty;
       [XmlElement]
       public Int32 IPPort = 9020;
-      [XmlElement]
-      public PS4FWVersion FWVersion = PS4FWVersion.v5_05;
    }
    [Serializable]
    [XmlRoot("Settings")]
