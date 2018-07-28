@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Threading;
+using System.Linq;
 using System.Windows.Forms;
+
 using PS4_Cheater.Utils;
 
 namespace PS4_Cheater.Forms {
@@ -341,6 +343,19 @@ namespace PS4_Cheater.Forms {
          Settings.mInstance.fastScanEnabled = (sender as CheckBox).Checked;
          Settings.mInstance.saveToFile();
       }
+      private void txtBoxSectionsFilter_TextChanged(Object sender, EventArgs e) {
+         String selectedProcessName = uiToolStrip_ProcessManager_cmbBoxActiveProcess.Text;
+         chkListViewSearchSections.Items.Clear();
+
+         librpc.ProcessInfo processInfo = processManager.GetProcessInfo(selectedProcessName);
+         processManager.MappedSectionList.InitMemorySectionList(processInfo);
+
+         for (int i = 0; i < processManager.MappedSectionList.Count; i++) {
+            String sectionName = processManager.MappedSectionList.GetSectionName(i);
+            if (sectionName.Contains(txtBoxSectionsFilter.Text, StringComparison.OrdinalIgnoreCase))
+               chkListViewSearchSections.Items.Add(sectionName);
+         }
+      }
       private void chkListBoxSearchSections_ItemCheck(Object sender, ItemCheckEventArgs e) {
          processManager.MappedSectionList.SectionCheck(e.Index, e.NewValue == CheckState.Checked);
       }
@@ -438,9 +453,5 @@ namespace PS4_Cheater.Forms {
 
       #endregion
 
-      private void chkListViewSearchSections_SizeChanged(Object sender, EventArgs e) {
-         var listViewWidth = (sender as ListView).Width;
-         (sender as ListView).Columns[0].Width = listViewWidth + 100;
-      }
    }
 }

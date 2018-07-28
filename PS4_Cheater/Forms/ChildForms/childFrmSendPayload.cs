@@ -34,17 +34,23 @@ namespace PS4_Cheater.Forms.ChildForms {
          try {
             String payloadDir = Path.Combine(Application.StartupPath, "Payloads\\" + (String)cmbBoxFirmware.SelectedItem);
             using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
-               socket.Connect(new IPEndPoint(IPAddress.Parse(txtBoxIPAddress.Text), Convert.ToInt32(txtBoxIPPort.Text)));
-               socket.SendFile(Path.Combine(payloadDir, "payload.bin"));
-               socket.Shutdown(SocketShutdown.Both);
-               socket.Close();
-               Thread.Sleep(2000);
+               IAsyncResult result = socket.BeginConnect(txtBoxIPAddress.Text, 733, null, null);
+               result.AsyncWaitHandle.WaitOne(1000);
+               if (!socket.Connected) {
+                  socket.Close();
+                  socket.Connect(txtBoxIPAddress.Text, Convert.ToInt32(txtBoxIPPort.Text));
+                  socket.SendFile(Path.Combine(payloadDir, "payload.bin"));
+                  socket.Shutdown(SocketShutdown.Both);
+                  socket.Close();
+                  MessageBox.Show("Payload successfully injected!", "Success");
+               } else {
+                  MessageBox.Show("Payload is already injected, connecting...", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+               }
             }
             Settings.mInstance.ps4.IPAddress = txtBoxIPAddress.Text;
             Settings.mInstance.ps4.IPPort = Convert.ToInt32(txtBoxIPPort.Text);
             Settings.mInstance.saveToFile();
 
-            MessageBox.Show("Payload successfully injected!", "Success");
             this.DialogResult = DialogResult.OK;
             this.Close();
          } catch (Exception ex) {

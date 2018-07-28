@@ -55,12 +55,12 @@ namespace PS4_Cheater {
          this.DefaultProcessID = defaultProcessID;
       }
 
-      public static Boolean Connect(String ip, Boolean is505 = true) {
+      public static Boolean Connect(String ip) {
          try {
             mutex.WaitOne();
             if (ps4 != null)
                ps4.Disconnect();
-            ps4 = new PS4RPC(ip, is505);
+            ps4 = new PS4RPC(ip);
             ps4.Connect();
             mutex.ReleaseMutex();
             return true;

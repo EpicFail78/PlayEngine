@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>PS4_Cheater</RootNamespace>
     <AssemblyName>PS4_Cheater</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -71,12 +71,12 @@
   <ItemGroup>
     <Reference Include="Be.Windows.Forms.HexBox">
       <HintPath>.\Be.Windows.Forms.HexBox.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
-    <Reference Include="librpc">
-      <HintPath>.\librpc.dll</HintPath>
+    <Reference Include="librpc, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\jkpatch\librpc\bin\Release\netstandard1.4\librpc.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
@@ -123,6 +123,7 @@
     </Compile>
     <Compile Include="ScanThread.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="Utils\dotNetExtensions.cs" />
     <Compile Include="Utils\Settings.cs" />
     <EmbeddedResource Include="Forms\ChildForms\childFrmSendPayload.resx">
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
@@ -146,6 +147,7 @@
     <EmbeddedResource Include="Forms\frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

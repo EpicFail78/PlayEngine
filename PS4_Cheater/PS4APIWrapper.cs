@@ -10,7 +10,7 @@ namespace PS4_Cheater
     public interface PS4APIWrapper
     {
         void Connect();
-        ProcessInfo GetProcessInfo(Int32 pid);
-        ProcessList GetProcessList();
+        librpc.ProcessInfo GetProcessInfo(Int32 pid);
+        librpc.ProcessList GetProcessList();
     }
 }

@@ -63,6 +63,7 @@
          this.btnScanNext = new System.Windows.Forms.Button();
          this.btnScan = new System.Windows.Forms.Button();
          this.chkListViewSearchSections = new System.Windows.Forms.ListView();
+         this.dummColumnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.contextMenuChkListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.contextMenuChkListBox_btnSelectAll = new System.Windows.Forms.ToolStripMenuItem();
          this.dataGridSavedResults = new System.Windows.Forms.DataGridView();
@@ -79,7 +80,6 @@
          this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
-         this.dummColumnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -172,26 +172,26 @@
             this.toolStripSeparator2,
             this.uiToolStrip_PayloadManager_btnSendPayload});
          this.uiToolStrip_linkPayloadManager.Name = "uiToolStrip_linkPayloadManager";
-         this.uiToolStrip_linkPayloadManager.Size = new System.Drawing.Size(180, 22);
+         this.uiToolStrip_linkPayloadManager.Size = new System.Drawing.Size(116, 22);
          this.uiToolStrip_linkPayloadManager.Text = "Payload";
          // 
          // uiToolStrip_PayloadManager_chkPayloadActive
          // 
          this.uiToolStrip_PayloadManager_chkPayloadActive.Enabled = false;
          this.uiToolStrip_PayloadManager_chkPayloadActive.Name = "uiToolStrip_PayloadManager_chkPayloadActive";
-         this.uiToolStrip_PayloadManager_chkPayloadActive.Size = new System.Drawing.Size(180, 22);
+         this.uiToolStrip_PayloadManager_chkPayloadActive.Size = new System.Drawing.Size(155, 22);
          this.uiToolStrip_PayloadManager_chkPayloadActive.Text = "Payload active?";
          this.uiToolStrip_PayloadManager_chkPayloadActive.CheckedChanged += new System.EventHandler(this.uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged);
          // 
          // toolStripSeparator2
          // 
          this.toolStripSeparator2.Name = "toolStripSeparator2";
-         this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+         this.toolStripSeparator2.Size = new System.Drawing.Size(152, 6);
          // 
          // uiToolStrip_PayloadManager_btnSendPayload
          // 
          this.uiToolStrip_PayloadManager_btnSendPayload.Name = "uiToolStrip_PayloadManager_btnSendPayload";
-         this.uiToolStrip_PayloadManager_btnSendPayload.Size = new System.Drawing.Size(180, 22);
+         this.uiToolStrip_PayloadManager_btnSendPayload.Size = new System.Drawing.Size(155, 22);
          this.uiToolStrip_PayloadManager_btnSendPayload.Text = "Send payload";
          this.uiToolStrip_PayloadManager_btnSendPayload.Click += new System.EventHandler(this.uiButtonHandler_Click);
          // 
@@ -202,7 +202,7 @@
             this.uiToolStrip_ProcessManager_cmbBoxActiveProcess});
          this.uiToolStrip_linkProcessManager.Enabled = false;
          this.uiToolStrip_linkProcessManager.Name = "uiToolStrip_linkProcessManager";
-         this.uiToolStrip_linkProcessManager.Size = new System.Drawing.Size(180, 22);
+         this.uiToolStrip_linkProcessManager.Size = new System.Drawing.Size(116, 22);
          this.uiToolStrip_linkProcessManager.Text = "Process";
          // 
          // uiToolStrip_ProcessManager_btnRefreshProcessList
@@ -216,6 +216,7 @@
          // 
          this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
          this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+         this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.DropDownWidth = 230;
          this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.MaxDropDownItems = 12;
          this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.Name = "uiToolStrip_ProcessManager_cmbBoxActiveProcess";
          this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.Size = new System.Drawing.Size(121, 23);
@@ -382,6 +383,7 @@
          this.txtBoxSectionsFilter.Name = "txtBoxSectionsFilter";
          this.txtBoxSectionsFilter.Size = new System.Drawing.Size(185, 23);
          this.txtBoxSectionsFilter.TabIndex = 23;
+         this.txtBoxSectionsFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsFilter_TextChanged);
          // 
          // label2
          // 
@@ -514,7 +516,11 @@
          this.chkListViewSearchSections.UseCompatibleStateImageBehavior = false;
          this.chkListViewSearchSections.View = System.Windows.Forms.View.Details;
          this.chkListViewSearchSections.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.chkListBoxSearchSections_ItemCheck);
-         this.chkListViewSearchSections.SizeChanged += new System.EventHandler(this.chkListViewSearchSections_SizeChanged);
+         // 
+         // dummColumnHeader1
+         // 
+         this.dummColumnHeader1.Text = "";
+         this.dummColumnHeader1.Width = 500;
          // 
          // contextMenuChkListBox
          // 
@@ -662,11 +668,6 @@
          // 
          this.bgWorkerResultsUpdater.WorkerSupportsCancellation = true;
          this.bgWorkerResultsUpdater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerResultsUpdater_DoWork);
-         // 
-         // dummColumnHeader1
-         // 
-         this.dummColumnHeader1.Text = "";
-         this.dummColumnHeader1.Width = 600;
          // 
          // MainForm
          // 
