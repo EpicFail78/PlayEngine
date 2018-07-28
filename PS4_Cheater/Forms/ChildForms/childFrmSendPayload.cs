@@ -13,6 +13,11 @@ namespace PS4_Cheater.Forms.ChildForms {
          InitializeComponent();
          foreach (var payloadDir in Directory.GetDirectories(Path.Combine(Application.StartupPath, "Payloads")))
             cmbBoxFirmware.Items.Add(new DirectoryInfo(payloadDir).Name);
+         if (cmbBoxFirmware.Items.Count == 0) {
+            MessageBox.Show("No payload was found inside 'Payloads/'!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            this.DialogResult = DialogResult.Abort;
+            this.Close();
+         }
 
          txtBoxIPAddress.Text = Settings.mInstance.ps4.IPAddress;
          txtBoxIPPort.Text = Settings.mInstance.ps4.IPPort.ToString();

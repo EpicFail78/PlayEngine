@@ -121,7 +121,7 @@ namespace PS4_Cheater.Forms {
             _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan: {
-                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections, listViewResults, txtBoxSectionsFilter }, true);
+                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -136,7 +136,7 @@ namespace PS4_Cheater.Forms {
                break;
                case ScanStatus.DidScan: {
                   setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, listViewResults }, true);
-                  setControlEnabled(new Control[] { cmbBoxValueType, chkListBoxSearchSections, txtBoxSectionsFilter }, false);
+                  setControlEnabled(new Control[] { cmbBoxValueType, chkListViewSearchSections, txtBoxSectionsFilter }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
                   String strBackupSelectedItem = (String)cmbBoxScanType.SelectedItem;
@@ -150,7 +150,7 @@ namespace PS4_Cheater.Forms {
                break;
                case ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections, listViewResults, txtBoxSectionsFilter }, false);
+                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
@@ -172,7 +172,7 @@ namespace PS4_Cheater.Forms {
 
          using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
             try {
-               IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, 9023, null, null);
+               IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, 733, null, null);
                result.AsyncWaitHandle.WaitOne(1000);
                if (socket.Connected)
                   uiToolStrip_PayloadManager_chkPayloadActive.Checked = MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress);
@@ -257,8 +257,8 @@ namespace PS4_Cheater.Forms {
       #endregion
       #region contextMenuChkListBox
       private void contextMenuChkListBox_btnSelectAll_OnClick() {
-         for (int i = 0; i < chkListBoxSearchSections.Items.Count; i++)
-            chkListBoxSearchSections.SetItemChecked(i, contextMenuChkListBox_btnSelectAll.Checked);
+         foreach (ListViewItem item in chkListViewSearchSections.Items)
+            item.Checked = contextMenuChkListBox_btnSelectAll.Checked;
       }
       #endregion
       private void uiButtonHandler_Click(Object sender, EventArgs e) {
@@ -320,14 +320,14 @@ namespace PS4_Cheater.Forms {
          try {
             String selectedProcessName = uiToolStrip_ProcessManager_cmbBoxActiveProcess.Text;
             curScanStatus = ScanStatus.FirstScan;
-            chkListBoxSearchSections.Items.Clear();
+            chkListViewSearchSections.Items.Clear();
 
             librpc.ProcessInfo processInfo = processManager.GetProcessInfo(selectedProcessName);
             Util.DefaultProcessID = processInfo.pid;
             processManager.MappedSectionList.InitMemorySectionList(processInfo);
 
             for (int i = 0; i < processManager.MappedSectionList.Count; i++)
-               chkListBoxSearchSections.Items.Add(processManager.MappedSectionList.GetSectionName(i), false);
+               chkListViewSearchSections.Items.Add(processManager.MappedSectionList.GetSectionName(i));
             uiToolStrip_lblActiveProcess.Text = String.Format("Process: {0}", selectedProcessName);
          } catch (Exception exception) {
             MessageBox.Show(exception.Message);
@@ -335,7 +335,7 @@ namespace PS4_Cheater.Forms {
       }
       private void uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged(Object sender, EventArgs e) {
          Boolean isLoaded = uiToolStrip_PayloadManager_chkPayloadActive.Checked;
-         splitContainerMain.Enabled = uiToolStrip_btnOpenPointerScanner.Enabled = isLoaded;
+         splitContainerMain.Enabled = uiToolStrip_linkProcessManager.Enabled = uiToolStrip_btnOpenPointerScanner.Enabled = isLoaded;
       }
       private void chkBoxFastScan_CheckedChanged(Object sender, EventArgs e) {
          Settings.mInstance.fastScanEnabled = (sender as CheckBox).Checked;
@@ -435,7 +435,12 @@ namespace PS4_Cheater.Forms {
          }
       }
       #endregion
+
       #endregion
 
+      private void chkListViewSearchSections_SizeChanged(Object sender, EventArgs e) {
+         var listViewWidth = (sender as ListView).Width;
+         (sender as ListView).Columns[0].Width = listViewWidth + 100;
+      }
    }
 }
