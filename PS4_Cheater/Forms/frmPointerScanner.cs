@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace PS4_Cheater {
+namespace PS4_Cheater.Forms {
    public partial class PointerScanner : Form {
       private enum ScanStatus {
          FirstScan,
@@ -369,7 +369,7 @@ namespace PS4_Cheater {
 
          UInt64 baseAddress = pointerResult.GetBaseAddress(processManager.MappedSectionList);
          UInt64 tailAddress = pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList);
-         String data = memoryHelper.BytesToString(memoryHelper.GetBytesByType(tailAddress));
+         String data = memoryHelper.BytesToString(memoryHelper.GetBytesFromAddress(tailAddress));
          String valueType = memoryHelper.valueType.ToString();
          //mainForm.new_pointer_cheat(baseAddress, pointerResult.offsets.ToList(), valueType, data, false, "");
       }

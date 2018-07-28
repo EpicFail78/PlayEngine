@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Windows.Forms;
+
 using PS4_Cheater.Utils;
 
-namespace PS4_Cheater {
+namespace PS4_Cheater.Forms {
    public partial class MainForm : Form {
       private enum ScanStatus {
          FirstScan,
@@ -32,6 +30,7 @@ namespace PS4_Cheater {
          public static readonly List<String> listSearch_FirstScan = new List<String>()
          {
             "Exact value",
+            "Fuzzy value",
             "Bigger than...",
             "Smaller than...",
             "Value between...",
@@ -40,6 +39,7 @@ namespace PS4_Cheater {
          public static readonly List<String> listSearch_NextScan = new List<String>()
          {
             "Exact value",
+            "Fuzzy value",
             "Increased value",
             "Increased value by...",
             "Decreased value",
@@ -104,14 +104,13 @@ namespace PS4_Cheater {
       }
       private void setControlEnabled(Control[] arrControls, Boolean isEnabled) {
          foreach (Control cntrl in arrControls) {
-            cntrl.Enabled = isEnabled;
+            cntrl.Invoke(new Action(() => cntrl.Enabled = isEnabled));
          }
       }
 
       ProcessManager processManager;
       MemoryHelper memoryHelper;
       CheatList cheatList;
-      private List<Int32> scanResults;
       private ScanStatus _curScanStatus = ScanStatus.FirstScan;
       private ScanStatus curScanStatus
       {
@@ -122,34 +121,37 @@ namespace PS4_Cheater {
             _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan: {
-                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections }, true);
+                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections, listViewResults }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
-                  uiToolStrip_linkPayloadAndProcess.Enabled = true;
+                  this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
                   String strBackupSelectedItem = (String)cmbBoxScanType.SelectedItem;
-                  cmbBoxScanType.DataSource = ScanTypeOptions.listSearch_FirstScan;
-                  cmbBoxScanType.SelectedItem = strBackupSelectedItem;
+                  cmbBoxScanType.Invoke(new Action(() => cmbBoxScanType.DataSource = ScanTypeOptions.listSearch_FirstScan));
+                  cmbBoxScanType.Invoke(new Action(() => cmbBoxScanType.SelectedItem = strBackupSelectedItem));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "First Scan"));
                   this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Standby..."));
+                  bgWorkerResultsUpdater.CancelAsync();
                }
                break;
                case ScanStatus.DidScan: {
-                  setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections }, true);
-                  uiToolStrip_linkPayloadAndProcess.Enabled = true;
+                  setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, listViewResults }, true);
+                  setControlEnabled(new Control[] { cmbBoxValueType, chkListBoxSearchSections }, false);
+                  this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
                   String strBackupSelectedItem = (String)cmbBoxScanType.SelectedItem;
-                  cmbBoxScanType.DataSource = ScanTypeOptions.listSearch_NextScan;
-                  cmbBoxScanType.SelectedItem = strBackupSelectedItem;
+                  cmbBoxScanType.Invoke(new Action(() => cmbBoxScanType.DataSource = ScanTypeOptions.listSearch_NextScan));
+                  cmbBoxScanType.Invoke(new Action(() => cmbBoxScanType.SelectedItem = strBackupSelectedItem));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "New Scan"));
-                  this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = String.Format("{0} results", scanResults.Count)));
+                  if (!bgWorkerResultsUpdater.IsBusy)
+                     bgWorkerResultsUpdater.RunWorkerAsync();
                }
                break;
                case ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections }, false);
-                  uiToolStrip_linkPayloadAndProcess.Enabled = false;
+                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections, listViewResults }, false);
+                  this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
                   this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Scanning..."));
@@ -167,6 +169,9 @@ namespace PS4_Cheater {
          InitializeComponent();
          this.Text = String.Format("PS4 Cheater v{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
          cmbBoxValueType.SelectedIndex = 2; // 4 Bytes
+
+         if (MemoryHelper.Connect(SharedInformation.PS4_IPAddress, SharedInformation.PS4_Version == PS4Version.v5_05))
+            uiToolStrip_PayloadManager_chkPayloadActive.Checked = true;
       }
 
       private void btnScan_OnClick() {
@@ -179,9 +184,9 @@ namespace PS4_Cheater {
                   memoryHelper.InitMemoryHandler(
                      ScanTypeOptions.getValueTypeFromString((String)cmbBoxValueType.SelectedItem),
                      ScanTypeOptions.getCompareTypeFromString((String)cmbBoxScanType.SelectedItem),
-                     chkBoxFastScan.Checked, txtBoxValue.Text.Length);
+                     SharedInformation.FastScan, txtBoxScanValue.Text.Length);
 
-                  bgWorkerScanner.RunWorkerAsync();
+                  bgWorkerScanner.RunWorkerAsync(new Object[3] { txtBoxScanValue.Text, txtBoxScanValueSecond.Text, chkBoxIsHexValue.Checked });
                   curScanStatus = ScanStatus.Scanning;
                   break;
                case ScanStatus.DidScan:
@@ -193,11 +198,21 @@ namespace PS4_Cheater {
                   break;
             }
          } catch (Exception ex) {
-            MessageBox.Show(ex.ToString());
+            MessageBox.Show(ex.ToString(), "btnScan");
          }
       }
       private void btnScanNext_OnClick() {
-
+         try {
+            memoryHelper.InitNextScanMemoryHandler(ScanTypeOptions.getCompareTypeFromString((String)cmbBoxScanType.SelectedItem));
+            bgWorkerScanner.RunWorkerAsync();
+         } catch (Exception ex) {
+            MessageBox.Show(ex.ToString(), "btnScanNext");
+         }
+      }
+      private void btnSendPayload_OnClick() {
+         new Forms.ChildForms.childFrmSendPayload().ShowDialog();
+         if (MemoryHelper.Connect(SharedInformation.PS4_IPAddress, SharedInformation.PS4_Version == PS4Version.v5_05))
+            uiToolStrip_PayloadManager_chkPayloadActive.Checked = true;
       }
       private void uiButtonHandler_Click(Object sender, EventArgs e) {
          String btnName = sender.GetType() == typeof(Button) ? (sender as Button).Name : (sender as ToolStripMenuItem).Name;
@@ -208,6 +223,16 @@ namespace PS4_Cheater {
             case "btnScanNext":
                btnScanNext_OnClick();
                break;
+            #region uiToolStrip_linkFile
+            case "uiToolStrip_btnExit":
+               Application.Exit();
+               break;
+            #endregion
+            #region uiToolStrip_linkPayloadAndProcess
+            case "uiToolStrip_PayloadManager_btnSendPayload":
+               btnSendPayload_OnClick();
+               break;
+               #endregion
          }
       }
 
@@ -224,8 +249,6 @@ namespace PS4_Cheater {
                   cmbBoxScanType.DataSource = ScanTypeOptions.listSearch_FirstScan;
                else
                   cmbBoxScanType.DataSource = ScanTypeOptions.listSearch_NextScan;
-               if (newIndex == 4 || newIndex == 5)
-                  ((List<String>)cmbBoxScanType.DataSource).Insert(1, "Fuzzy value");
                break;
             case 6: // String
             case 7: // Array of bytes
@@ -233,9 +256,95 @@ namespace PS4_Cheater {
                break;
          }
       }
-
+      private void cmbBoxScanType_SelectedIndexChanged(Object sender, EventArgs e) {
+         var newCompareType = ScanTypeOptions.getCompareTypeFromString((String)((sender as ComboBox).SelectedItem));
+         lblSecondValue.Enabled = txtBoxScanValueSecond.Enabled = newCompareType == MemoryHelper.CompareType.BetweenValues;
+      }
       private void chkBoxFastScan_CheckedChanged(Object sender, EventArgs e) {
          SharedInformation.FastScan = (sender as CheckBox).Checked;
       }
+      private void chkListBoxSearchSections_ItemCheck(Object sender, ItemCheckEventArgs e) {
+         processManager.MappedSectionList.SectionCheck(e.Index, e.NewValue == CheckState.Checked);
+      }
+
+      #region Background Workers
+      private void update_result_list_view(BackgroundWorker worker, bool refresh, int start, float percent) {
+      }
+      #region bgWorkerScanner
+      private void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
+         var oldScanStatus = curScanStatus;
+         curScanStatus = ScanStatus.Scanning;
+         UInt64 processedMemoryRange = 0, totalMemoryRange = processManager.MappedSectionList.TotalMemorySize + 1;
+         String[] scanValues = (String[])e.Argument;
+         bgWorkerScanner.ReportProgress(0);
+
+         for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; section_idx++) {
+            if (bgWorkerScanner.CancellationPending)
+               break;
+
+            MappedSection mappedSection = processManager.MappedSectionList[section_idx];
+            mappedSection.UpdateResultList(processManager, memoryHelper, scanValues[0], scanValues[1], ((Boolean[])e.Argument)[2], oldScanStatus == ScanStatus.FirstScan);
+            if (mappedSection.Check) {
+               processedMemoryRange += (UInt64)mappedSection.Length;
+
+               ResultList resultList = mappedSection.ResultList;
+               if (resultList != null) {
+                  UInt64 maxResultCount = 2000, curResultCount = 0, totalResultCount = processManager.MappedSectionList.TotalResultCount();
+                  for (resultList.Begin(); !resultList.End(); resultList.Next()) {
+                     if (curResultCount >= maxResultCount) {
+                        listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = String.Format("{0}+ results", curResultCount)));
+                        break;
+                     }
+
+                     UInt32 addressSectionOffsett = 0;
+                     Byte[] valueInMemory = null;
+                     resultList.Get(ref addressSectionOffsett, ref valueInMemory);
+                     UInt64 finalAddress = mappedSection.Start + addressSectionOffsett;
+
+                     ListViewItem listViewItem = new ListViewItem();
+                     // Section Offset
+                     listViewItem.Tag = addressSectionOffsett;
+                     // Address
+                     listViewItem.Text = finalAddress.ToString("X");
+                     // Section
+                     listViewItem.SubItems.Add(processManager.MappedSectionList.GetSectionName(section_idx));
+                     // Value
+                     valueInMemory = memoryHelper.GetBytesFromAddress(finalAddress);
+                     resultList.Set(valueInMemory);
+                     listViewItem.SubItems.Add(memoryHelper.BytesToString(valueInMemory));
+
+                     curResultCount++;
+                     listViewResults.Invoke(new Action(() => listViewResults.Items.Add(listViewItem)));
+                     listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = String.Format("{0} results", curResultCount)));
+                     if (bgWorkerScanner.CancellationPending)
+                        break;
+                  }
+               }
+            }
+            bgWorkerScanner.ReportProgress((Int32)(processedMemoryRange / totalMemoryRange) * 100);
+         }
+      }
+      private void bgWorkerScanner_ProgressChanged(Object sender, ProgressChangedEventArgs e) {
+         progressBarScanPercent.Value = e.ProgressPercentage;
+      }
+      private void bgWorkerScanner_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
+         curScanStatus = ScanStatus.DidScan;
+         if (e.Error != null)
+            uiStatusStrip_lblStatus.Text = e.Error.Message;
+      }
+      #endregion
+      #region bgWorkerResultsUpdater
+      private void bgWorkerResultsUpdater_DoWork(Object sender, DoWorkEventArgs e) {
+         Thread.Sleep(1000);
+         foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
+            var valueInMemory = memoryHelper.GetBytesFromAddress((UInt64)row.Cells[SavedResultsColumnIndex.Address].Value);
+            var value = memoryHelper.BytesToString(valueInMemory);
+            dataGridSavedResults.Invoke(new Action(() => dataGridSavedResults.Rows[row.Index].Cells[SavedResultsColumnIndex.Value].Value = value));
+         }
+      }
+      #endregion
+
+      #endregion
+
    }
 }

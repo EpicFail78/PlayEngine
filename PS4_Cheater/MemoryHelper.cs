@@ -253,7 +253,7 @@ namespace PS4_Cheater {
          return BitConverter.GetBytes(Byte.Parse(value, NumberStyles.HexNumber));
       }
 
-      public Byte[] GetBytesByType(UInt64 address) {
+      public Byte[] GetBytesFromAddress(UInt64 address) {
          return ReadMemory(address, Length);
       }
 

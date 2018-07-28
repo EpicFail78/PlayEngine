@@ -1,4 +1,4 @@
-﻿namespace PS4_Cheater {
+﻿namespace PS4_Cheater.Forms {
    partial class MainForm {
       /// <summary>
       /// Required designer variable.
@@ -49,22 +49,19 @@
          this.columnHeaderSection = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.columnHeaderValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.splitContainerScanDetails = new System.Windows.Forms.SplitContainer();
+         this.txtBoxSectionsFilter = new System.Windows.Forms.TextBox();
+         this.label2 = new System.Windows.Forms.Label();
+         this.txtBoxScanValueSecond = new System.Windows.Forms.TextBox();
+         this.lblSecondValue = new System.Windows.Forms.Label();
          this.chkBoxFastScan = new System.Windows.Forms.CheckBox();
          this.label3 = new System.Windows.Forms.Label();
          this.cmbBoxValueType = new System.Windows.Forms.ComboBox();
          this.cmbBoxScanType = new System.Windows.Forms.ComboBox();
-         this.label2 = new System.Windows.Forms.Label();
-         this.label1 = new System.Windows.Forms.Label();
-         this.txtBoxValue = new System.Windows.Forms.TextBox();
+         this.txtBoxScanValue = new System.Windows.Forms.TextBox();
          this.chkBoxIsHexValue = new System.Windows.Forms.CheckBox();
          this.btnScanNext = new System.Windows.Forms.Button();
          this.btnScan = new System.Windows.Forms.Button();
          this.chkListBoxSearchSections = new System.Windows.Forms.CheckedListBox();
-         this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
-         this.uiStatusStrip_linkEntryManager = new System.Windows.Forms.ToolStripSplitButton();
-         this.uiStatusStrip_EntryManager_btnAddAddress = new System.Windows.Forms.ToolStripMenuItem();
-         this.uiStatusStrip_EntryManager_btnAddPointer = new System.Windows.Forms.ToolStripMenuItem();
-         this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.dataGridSavedResults = new System.Windows.Forms.DataGridView();
          this.dataGridSavedResults_chkBoxFreezeValue = new System.Windows.Forms.DataGridViewCheckBoxColumn();
          this.dataGridSavedResults_txtBoxDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -72,7 +69,13 @@
          this.dataGridSavedResults_txtBoxSection = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.dataGridSavedResults_txtBoxValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.dataGridSavedResults_txtBoxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
+         this.uiStatusStrip_linkEntryManager = new System.Windows.Forms.ToolStripDropDownButton();
+         this.uiStatusStrip_EntryManager_btnAddAddress = new System.Windows.Forms.ToolStripMenuItem();
+         this.uiStatusStrip_EntryManager_btnAddPointer = new System.Windows.Forms.ToolStripMenuItem();
+         this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
+         this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -86,8 +89,8 @@
          this.splitContainerScanDetails.Panel1.SuspendLayout();
          this.splitContainerScanDetails.Panel2.SuspendLayout();
          this.splitContainerScanDetails.SuspendLayout();
-         this.uiStatusStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).BeginInit();
+         this.uiStatusStrip.SuspendLayout();
          this.SuspendLayout();
          // 
          // uiToolStrip
@@ -164,7 +167,7 @@
             this.toolStripSeparator2,
             this.uiToolStrip_PayloadManager_btnSendPayload});
          this.uiToolStrip_linkPayloadManager.Name = "uiToolStrip_linkPayloadManager";
-         this.uiToolStrip_linkPayloadManager.Size = new System.Drawing.Size(180, 22);
+         this.uiToolStrip_linkPayloadManager.Size = new System.Drawing.Size(116, 22);
          this.uiToolStrip_linkPayloadManager.Text = "Payload";
          // 
          // uiToolStrip_PayloadManager_chkPayloadActive
@@ -192,7 +195,7 @@
             this.uiToolStrip_ProcessManager_btnRefreshProcessList,
             this.uiToolStrip_ProcessManager_cmbBoxActiveProcess});
          this.uiToolStrip_linkProcessManager.Name = "uiToolStrip_linkProcessManager";
-         this.uiToolStrip_linkProcessManager.Size = new System.Drawing.Size(180, 22);
+         this.uiToolStrip_linkProcessManager.Size = new System.Drawing.Size(116, 22);
          this.uiToolStrip_linkProcessManager.Text = "Process";
          // 
          // uiToolStrip_ProcessManager_btnRefreshProcessList
@@ -266,10 +269,9 @@
          // 
          // splitContainerMain.Panel2
          // 
-         this.splitContainerMain.Panel2.Controls.Add(this.uiStatusStrip);
          this.splitContainerMain.Panel2.Controls.Add(this.dataGridSavedResults);
          this.splitContainerMain.Panel2MinSize = 50;
-         this.splitContainerMain.Size = new System.Drawing.Size(484, 426);
+         this.splitContainerMain.Size = new System.Drawing.Size(484, 404);
          this.splitContainerMain.SplitterDistance = 315;
          this.splitContainerMain.SplitterWidth = 3;
          this.splitContainerMain.TabIndex = 1;
@@ -292,7 +294,7 @@
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
          this.splitContainerScanner.Panel2MinSize = 160;
          this.splitContainerScanner.Size = new System.Drawing.Size(484, 315);
-         this.splitContainerScanner.SplitterDistance = 230;
+         this.splitContainerScanner.SplitterDistance = 211;
          this.splitContainerScanner.SplitterWidth = 1;
          this.splitContainerScanner.TabIndex = 0;
          // 
@@ -310,7 +312,7 @@
          this.listViewResults.Location = new System.Drawing.Point(0, 0);
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(230, 315);
+         this.listViewResults.Size = new System.Drawing.Size(211, 315);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.UseCompatibleStateImageBehavior = false;
          this.listViewResults.View = System.Windows.Forms.View.Details;
@@ -341,26 +343,63 @@
          // 
          // splitContainerScanDetails.Panel1
          // 
+         this.splitContainerScanDetails.Panel1.Controls.Add(this.txtBoxSectionsFilter);
+         this.splitContainerScanDetails.Panel1.Controls.Add(this.label2);
+         this.splitContainerScanDetails.Panel1.Controls.Add(this.txtBoxScanValueSecond);
+         this.splitContainerScanDetails.Panel1.Controls.Add(this.lblSecondValue);
          this.splitContainerScanDetails.Panel1.Controls.Add(this.chkBoxFastScan);
          this.splitContainerScanDetails.Panel1.Controls.Add(this.label3);
          this.splitContainerScanDetails.Panel1.Controls.Add(this.cmbBoxValueType);
          this.splitContainerScanDetails.Panel1.Controls.Add(this.cmbBoxScanType);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.label2);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.label1);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.txtBoxValue);
+         this.splitContainerScanDetails.Panel1.Controls.Add(this.txtBoxScanValue);
          this.splitContainerScanDetails.Panel1.Controls.Add(this.chkBoxIsHexValue);
          this.splitContainerScanDetails.Panel1.Controls.Add(this.btnScanNext);
          this.splitContainerScanDetails.Panel1.Controls.Add(this.btnScan);
-         this.splitContainerScanDetails.Panel1MinSize = 138;
+         this.splitContainerScanDetails.Panel1MinSize = 163;
          // 
          // splitContainerScanDetails.Panel2
          // 
          this.splitContainerScanDetails.Panel2.Controls.Add(this.chkListBoxSearchSections);
          this.splitContainerScanDetails.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 4, 0);
-         this.splitContainerScanDetails.Size = new System.Drawing.Size(252, 315);
-         this.splitContainerScanDetails.SplitterDistance = 138;
+         this.splitContainerScanDetails.Size = new System.Drawing.Size(271, 315);
+         this.splitContainerScanDetails.SplitterDistance = 163;
          this.splitContainerScanDetails.SplitterWidth = 1;
          this.splitContainerScanDetails.TabIndex = 0;
+         // 
+         // txtBoxSectionsFilter
+         // 
+         this.txtBoxSectionsFilter.Enabled = false;
+         this.txtBoxSectionsFilter.Location = new System.Drawing.Point(81, 138);
+         this.txtBoxSectionsFilter.Name = "txtBoxSectionsFilter";
+         this.txtBoxSectionsFilter.Size = new System.Drawing.Size(179, 23);
+         this.txtBoxSectionsFilter.TabIndex = 23;
+         // 
+         // label2
+         // 
+         this.label2.AutoSize = true;
+         this.label2.Location = new System.Drawing.Point(6, 141);
+         this.label2.Name = "label2";
+         this.label2.Size = new System.Drawing.Size(69, 15);
+         this.label2.TabIndex = 22;
+         this.label2.Text = "Name filter:";
+         // 
+         // txtBoxScanValueSecond
+         // 
+         this.txtBoxScanValueSecond.Enabled = false;
+         this.txtBoxScanValueSecond.Location = new System.Drawing.Point(73, 64);
+         this.txtBoxScanValueSecond.Name = "txtBoxScanValueSecond";
+         this.txtBoxScanValueSecond.Size = new System.Drawing.Size(187, 23);
+         this.txtBoxScanValueSecond.TabIndex = 21;
+         // 
+         // lblSecondValue
+         // 
+         this.lblSecondValue.AutoSize = true;
+         this.lblSecondValue.Enabled = false;
+         this.lblSecondValue.Location = new System.Drawing.Point(6, 67);
+         this.lblSecondValue.Name = "lblSecondValue";
+         this.lblSecondValue.Size = new System.Drawing.Size(61, 15);
+         this.lblSecondValue.TabIndex = 20;
+         this.lblSecondValue.Text = "2nd value:";
          // 
          // chkBoxFastScan
          // 
@@ -376,7 +415,7 @@
          // label3
          // 
          this.label3.AutoSize = true;
-         this.label3.Location = new System.Drawing.Point(3, 119);
+         this.label3.Location = new System.Drawing.Point(6, 120);
          this.label3.Name = "label3";
          this.label3.Size = new System.Drawing.Size(118, 15);
          this.label3.TabIndex = 18;
@@ -395,9 +434,9 @@
             "Double",
             "String",
             "Array of bytes"});
-         this.cmbBoxValueType.Location = new System.Drawing.Point(72, 93);
+         this.cmbBoxValueType.Location = new System.Drawing.Point(9, 93);
          this.cmbBoxValueType.Name = "cmbBoxValueType";
-         this.cmbBoxValueType.Size = new System.Drawing.Size(174, 23);
+         this.cmbBoxValueType.Size = new System.Drawing.Size(115, 23);
          this.cmbBoxValueType.TabIndex = 17;
          this.cmbBoxValueType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxValueType_SelectedIndexChanged);
          // 
@@ -405,38 +444,18 @@
          // 
          this.cmbBoxScanType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cmbBoxScanType.FormattingEnabled = true;
-         this.cmbBoxScanType.Location = new System.Drawing.Point(72, 64);
+         this.cmbBoxScanType.Location = new System.Drawing.Point(130, 93);
          this.cmbBoxScanType.Name = "cmbBoxScanType";
-         this.cmbBoxScanType.Size = new System.Drawing.Size(174, 23);
+         this.cmbBoxScanType.Size = new System.Drawing.Size(130, 23);
          this.cmbBoxScanType.TabIndex = 16;
+         this.cmbBoxScanType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanType_SelectedIndexChanged);
          // 
-         // label2
+         // txtBoxScanValue
          // 
-         this.label2.AutoSize = true;
-         this.label2.Location = new System.Drawing.Point(3, 96);
-         this.label2.Name = "label2";
-         this.label2.Size = new System.Drawing.Size(63, 15);
-         this.label2.TabIndex = 15;
-         this.label2.Text = "Value Type";
-         // 
-         // label1
-         // 
-         this.label1.AutoSize = true;
-         this.label1.Location = new System.Drawing.Point(6, 67);
-         this.label1.Name = "label1";
-         this.label1.Size = new System.Drawing.Size(60, 15);
-         this.label1.TabIndex = 14;
-         this.label1.Text = "Scan Type";
-         // 
-         // txtBoxValue
-         // 
-         this.txtBoxValue.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-         this.txtBoxValue.Location = new System.Drawing.Point(61, 35);
-         this.txtBoxValue.Name = "txtBoxValue";
-         this.txtBoxValue.Size = new System.Drawing.Size(185, 23);
-         this.txtBoxValue.TabIndex = 13;
+         this.txtBoxScanValue.Location = new System.Drawing.Point(73, 35);
+         this.txtBoxScanValue.Name = "txtBoxScanValue";
+         this.txtBoxScanValue.Size = new System.Drawing.Size(187, 23);
+         this.txtBoxScanValue.TabIndex = 13;
          // 
          // chkBoxIsHexValue
          // 
@@ -476,57 +495,9 @@
          this.chkListBoxSearchSections.IntegralHeight = false;
          this.chkListBoxSearchSections.Location = new System.Drawing.Point(0, 0);
          this.chkListBoxSearchSections.Name = "chkListBoxSearchSections";
-         this.chkListBoxSearchSections.Size = new System.Drawing.Size(248, 176);
+         this.chkListBoxSearchSections.Size = new System.Drawing.Size(267, 151);
          this.chkListBoxSearchSections.TabIndex = 0;
-         // 
-         // uiStatusStrip
-         // 
-         this.uiStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.uiStatusStrip_linkEntryManager,
-            this.uiStatusStrip_lblStatus});
-         this.uiStatusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-         this.uiStatusStrip.Location = new System.Drawing.Point(0, 86);
-         this.uiStatusStrip.Name = "uiStatusStrip";
-         this.uiStatusStrip.Size = new System.Drawing.Size(484, 22);
-         this.uiStatusStrip.TabIndex = 52;
-         // 
-         // uiStatusStrip_linkEntryManager
-         // 
-         this.uiStatusStrip_linkEntryManager.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-         this.uiStatusStrip_linkEntryManager.AutoToolTip = false;
-         this.uiStatusStrip_linkEntryManager.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.uiStatusStrip_linkEntryManager.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.uiStatusStrip_EntryManager_btnAddAddress,
-            this.uiStatusStrip_EntryManager_btnAddPointer});
-         this.uiStatusStrip_linkEntryManager.ImageTransparentColor = System.Drawing.Color.Magenta;
-         this.uiStatusStrip_linkEntryManager.Name = "uiStatusStrip_linkEntryManager";
-         this.uiStatusStrip_linkEntryManager.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-         this.uiStatusStrip_linkEntryManager.Size = new System.Drawing.Size(136, 20);
-         this.uiStatusStrip_linkEntryManager.Text = "Add entry manually...";
-         this.uiStatusStrip_linkEntryManager.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-         // 
-         // uiStatusStrip_EntryManager_btnAddAddress
-         // 
-         this.uiStatusStrip_EntryManager_btnAddAddress.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.uiStatusStrip_EntryManager_btnAddAddress.Name = "uiStatusStrip_EntryManager_btnAddAddress";
-         this.uiStatusStrip_EntryManager_btnAddAddress.Size = new System.Drawing.Size(116, 22);
-         this.uiStatusStrip_EntryManager_btnAddAddress.Text = "Address";
-         this.uiStatusStrip_EntryManager_btnAddAddress.Click += new System.EventHandler(this.uiButtonHandler_Click);
-         // 
-         // uiStatusStrip_EntryManager_btnAddPointer
-         // 
-         this.uiStatusStrip_EntryManager_btnAddPointer.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.uiStatusStrip_EntryManager_btnAddPointer.Name = "uiStatusStrip_EntryManager_btnAddPointer";
-         this.uiStatusStrip_EntryManager_btnAddPointer.Size = new System.Drawing.Size(116, 22);
-         this.uiStatusStrip_EntryManager_btnAddPointer.Text = "Pointer";
-         this.uiStatusStrip_EntryManager_btnAddPointer.Click += new System.EventHandler(this.uiButtonHandler_Click);
-         // 
-         // uiStatusStrip_lblStatus
-         // 
-         this.uiStatusStrip_lblStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.uiStatusStrip_lblStatus.Name = "uiStatusStrip_lblStatus";
-         this.uiStatusStrip_lblStatus.Size = new System.Drawing.Size(59, 17);
-         this.uiStatusStrip_lblStatus.Text = "Standby...";
+         this.chkListBoxSearchSections.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.chkListBoxSearchSections_ItemCheck);
          // 
          // dataGridSavedResults
          // 
@@ -546,7 +517,7 @@
          this.dataGridSavedResults.RowHeadersVisible = false;
          this.dataGridSavedResults.RowTemplate.Height = 23;
          this.dataGridSavedResults.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-         this.dataGridSavedResults.Size = new System.Drawing.Size(484, 108);
+         this.dataGridSavedResults.Size = new System.Drawing.Size(484, 86);
          this.dataGridSavedResults.TabIndex = 51;
          this.dataGridSavedResults.TabStop = false;
          // 
@@ -598,10 +569,66 @@
          this.dataGridSavedResults_txtBoxValue.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
          this.dataGridSavedResults_txtBoxValue.Width = 90;
          // 
+         // uiStatusStrip
+         // 
+         this.uiStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.uiStatusStrip_linkEntryManager,
+            this.uiStatusStrip_lblStatus});
+         this.uiStatusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+         this.uiStatusStrip.Location = new System.Drawing.Point(0, 429);
+         this.uiStatusStrip.Name = "uiStatusStrip";
+         this.uiStatusStrip.Size = new System.Drawing.Size(484, 22);
+         this.uiStatusStrip.TabIndex = 52;
+         // 
+         // uiStatusStrip_linkEntryManager
+         // 
+         this.uiStatusStrip_linkEntryManager.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+         this.uiStatusStrip_linkEntryManager.AutoToolTip = false;
+         this.uiStatusStrip_linkEntryManager.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_linkEntryManager.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.uiStatusStrip_EntryManager_btnAddAddress,
+            this.uiStatusStrip_EntryManager_btnAddPointer});
+         this.uiStatusStrip_linkEntryManager.ImageTransparentColor = System.Drawing.Color.Magenta;
+         this.uiStatusStrip_linkEntryManager.Name = "uiStatusStrip_linkEntryManager";
+         this.uiStatusStrip_linkEntryManager.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+         this.uiStatusStrip_linkEntryManager.Size = new System.Drawing.Size(133, 20);
+         this.uiStatusStrip_linkEntryManager.Text = "Add entry manually...";
+         this.uiStatusStrip_linkEntryManager.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+         // 
+         // uiStatusStrip_EntryManager_btnAddAddress
+         // 
+         this.uiStatusStrip_EntryManager_btnAddAddress.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_EntryManager_btnAddAddress.Name = "uiStatusStrip_EntryManager_btnAddAddress";
+         this.uiStatusStrip_EntryManager_btnAddAddress.Size = new System.Drawing.Size(116, 22);
+         this.uiStatusStrip_EntryManager_btnAddAddress.Text = "Address";
+         this.uiStatusStrip_EntryManager_btnAddAddress.Click += new System.EventHandler(this.uiButtonHandler_Click);
+         // 
+         // uiStatusStrip_EntryManager_btnAddPointer
+         // 
+         this.uiStatusStrip_EntryManager_btnAddPointer.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_EntryManager_btnAddPointer.Name = "uiStatusStrip_EntryManager_btnAddPointer";
+         this.uiStatusStrip_EntryManager_btnAddPointer.Size = new System.Drawing.Size(116, 22);
+         this.uiStatusStrip_EntryManager_btnAddPointer.Text = "Pointer";
+         this.uiStatusStrip_EntryManager_btnAddPointer.Click += new System.EventHandler(this.uiButtonHandler_Click);
+         // 
+         // uiStatusStrip_lblStatus
+         // 
+         this.uiStatusStrip_lblStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_lblStatus.Name = "uiStatusStrip_lblStatus";
+         this.uiStatusStrip_lblStatus.Size = new System.Drawing.Size(59, 17);
+         this.uiStatusStrip_lblStatus.Text = "Standby...";
+         // 
          // bgWorkerScanner
          // 
          this.bgWorkerScanner.WorkerReportsProgress = true;
          this.bgWorkerScanner.WorkerSupportsCancellation = true;
+         this.bgWorkerScanner.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerScanner_DoWork);
+         this.bgWorkerScanner.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorkerScanner_ProgressChanged);
+         this.bgWorkerScanner.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorkerScanner_RunWorkerCompleted);
+         // 
+         // bgWorkerResultsUpdater
+         // 
+         this.bgWorkerResultsUpdater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerResultsUpdater_DoWork);
          // 
          // MainForm
          // 
@@ -612,6 +639,7 @@
          this.ClientSize = new System.Drawing.Size(484, 451);
          this.Controls.Add(this.splitContainerMain);
          this.Controls.Add(this.uiToolStrip);
+         this.Controls.Add(this.uiStatusStrip);
          this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.ForeColor = System.Drawing.Color.Black;
          this.MinimumSize = new System.Drawing.Size(500, 490);
@@ -622,7 +650,6 @@
          this.uiToolStrip.PerformLayout();
          this.splitContainerMain.Panel1.ResumeLayout(false);
          this.splitContainerMain.Panel2.ResumeLayout(false);
-         this.splitContainerMain.Panel2.PerformLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).EndInit();
          this.splitContainerMain.ResumeLayout(false);
          this.splitContainerScanner.Panel1.ResumeLayout(false);
@@ -634,9 +661,9 @@
          this.splitContainerScanDetails.Panel2.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerScanDetails)).EndInit();
          this.splitContainerScanDetails.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).EndInit();
          this.uiStatusStrip.ResumeLayout(false);
          this.uiStatusStrip.PerformLayout();
-         ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).EndInit();
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -659,9 +686,7 @@
       private System.Windows.Forms.Label label3;
       private System.Windows.Forms.ComboBox cmbBoxValueType;
       private System.Windows.Forms.ComboBox cmbBoxScanType;
-      private System.Windows.Forms.Label label2;
-      private System.Windows.Forms.Label label1;
-      private System.Windows.Forms.TextBox txtBoxValue;
+      private System.Windows.Forms.TextBox txtBoxScanValue;
       private System.Windows.Forms.CheckBox chkBoxIsHexValue;
       private System.Windows.Forms.Button btnScanNext;
       private System.Windows.Forms.Button btnScan;
@@ -688,11 +713,16 @@
       private System.Windows.Forms.ToolStripLabel lblActiveProcess;
       private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
       private System.Windows.Forms.ToolStripProgressBar progressBarScanPercent;
-      private System.Windows.Forms.ToolStripSplitButton uiStatusStrip_linkEntryManager;
+      private System.Windows.Forms.ToolStripDropDownButton uiStatusStrip_linkEntryManager;
       private System.Windows.Forms.ToolStripMenuItem uiStatusStrip_EntryManager_btnAddAddress;
       private System.Windows.Forms.ToolStripMenuItem uiStatusStrip_EntryManager_btnAddPointer;
       private System.Windows.Forms.ToolStripStatusLabel uiStatusStrip_lblStatus;
       private System.ComponentModel.BackgroundWorker bgWorkerScanner;
       private System.Windows.Forms.CheckBox chkBoxFastScan;
+      private System.ComponentModel.BackgroundWorker bgWorkerResultsUpdater;
+      private System.Windows.Forms.TextBox txtBoxScanValueSecond;
+      private System.Windows.Forms.Label lblSecondValue;
+      private System.Windows.Forms.TextBox txtBoxSectionsFilter;
+      private System.Windows.Forms.Label label2;
    }
 }

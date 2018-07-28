@@ -15,7 +15,7 @@ namespace PS4_Cheater {
          Application.EnableVisualStyles();
          Application.SetCompatibleTextRenderingDefault(false);
          Application.ApplicationExit += new EventHandler(onProcessExit);
-         Application.Run(new MainForm());
+         Application.Run(new Forms.MainForm());
       }
    }
 }
