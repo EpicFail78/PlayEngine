@@ -12,8 +12,8 @@ namespace PS4_Cheater.Forms.ChildForms {
       public childFrmSendPayload() {
          InitializeComponent();
          foreach (var payloadDir in Directory.GetDirectories(Path.Combine(Application.StartupPath, "Payloads")))
-            cmbBoxFirmware.Items.Add(new DirectoryInfo(payloadDir).Name);
-         if (cmbBoxFirmware.Items.Count == 0) {
+            cmbBoxPayload.Items.Add(new DirectoryInfo(payloadDir).Name);
+         if (cmbBoxPayload.Items.Count == 0) {
             MessageBox.Show("No payload was found inside 'Payloads/'!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             this.DialogResult = DialogResult.Abort;
             this.Close();
@@ -21,18 +21,18 @@ namespace PS4_Cheater.Forms.ChildForms {
 
          txtBoxIPAddress.Text = Settings.mInstance.ps4.IPAddress;
          txtBoxIPPort.Text = Settings.mInstance.ps4.IPPort.ToString();
-         if (cmbBoxFirmware.Items.Count == 1) {
-            cmbBoxFirmware.SelectedIndex = 0;
-            cmbBoxFirmware.Enabled = false;
+         if (cmbBoxPayload.Items.Count == 1) {
+            cmbBoxPayload.SelectedIndex = 0;
+            cmbBoxPayload.Enabled = false;
          } else {
-            if (cmbBoxFirmware.Items.Contains(Settings.mInstance.ps4.LastUsedPayload))
-               cmbBoxFirmware.SelectedValue = Settings.mInstance.ps4.LastUsedPayload;
+            if (cmbBoxPayload.Items.Contains(Settings.mInstance.ps4.LastUsedPayload))
+               cmbBoxPayload.SelectedItem = Settings.mInstance.ps4.LastUsedPayload;
          }
       }
 
       private void btnSendPayload_Click(Object sender, EventArgs e) {
          try {
-            String payloadDir = Path.Combine(Application.StartupPath, "Payloads\\" + (String)cmbBoxFirmware.SelectedItem);
+            String payloadDir = Path.Combine(Application.StartupPath, "Payloads\\" + (String)cmbBoxPayload.SelectedItem);
             using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
                IAsyncResult result = socket.BeginConnect(txtBoxIPAddress.Text, 733, null, null);
                result.AsyncWaitHandle.WaitOne(1000);
@@ -49,6 +49,7 @@ namespace PS4_Cheater.Forms.ChildForms {
             }
             Settings.mInstance.ps4.IPAddress = txtBoxIPAddress.Text;
             Settings.mInstance.ps4.IPPort = Convert.ToInt32(txtBoxIPPort.Text);
+            Settings.mInstance.ps4.LastUsedPayload = cmbBoxPayload.SelectedText;
             Settings.mInstance.saveToFile();
 
             this.DialogResult = DialogResult.OK;

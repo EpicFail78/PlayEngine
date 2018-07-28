@@ -23,7 +23,7 @@
       /// the contents of this method with the code editor.
       /// </summary>
       private void InitializeComponent() {
-         this.cmbBoxFirmware = new System.Windows.Forms.ComboBox();
+         this.cmbBoxPayload = new System.Windows.Forms.ComboBox();
          this.label1 = new System.Windows.Forms.Label();
          this.label2 = new System.Windows.Forms.Label();
          this.txtBoxIPAddress = new System.Windows.Forms.TextBox();
@@ -32,14 +32,14 @@
          this.btnSendPayload = new System.Windows.Forms.Button();
          this.SuspendLayout();
          // 
-         // cmbBoxFirmware
+         // cmbBoxPayload
          // 
-         this.cmbBoxFirmware.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cmbBoxFirmware.FormattingEnabled = true;
-         this.cmbBoxFirmware.Location = new System.Drawing.Point(66, 12);
-         this.cmbBoxFirmware.Name = "cmbBoxFirmware";
-         this.cmbBoxFirmware.Size = new System.Drawing.Size(161, 21);
-         this.cmbBoxFirmware.TabIndex = 0;
+         this.cmbBoxPayload.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cmbBoxPayload.FormattingEnabled = true;
+         this.cmbBoxPayload.Location = new System.Drawing.Point(66, 12);
+         this.cmbBoxPayload.Name = "cmbBoxPayload";
+         this.cmbBoxPayload.Size = new System.Drawing.Size(161, 21);
+         this.cmbBoxPayload.TabIndex = 0;
          // 
          // label1
          // 
@@ -103,7 +103,7 @@
          this.Controls.Add(this.txtBoxIPAddress);
          this.Controls.Add(this.label2);
          this.Controls.Add(this.label1);
-         this.Controls.Add(this.cmbBoxFirmware);
+         this.Controls.Add(this.cmbBoxPayload);
          this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
          this.Name = "childFrmSendPayload";
          this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
@@ -117,7 +117,7 @@
 
       #endregion
 
-      private System.Windows.Forms.ComboBox cmbBoxFirmware;
+      private System.Windows.Forms.ComboBox cmbBoxPayload;
       private System.Windows.Forms.Label label1;
       private System.Windows.Forms.Label label2;
       private System.Windows.Forms.TextBox txtBoxIPAddress;
