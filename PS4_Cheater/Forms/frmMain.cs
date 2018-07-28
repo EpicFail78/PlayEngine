@@ -344,20 +344,25 @@ namespace PS4_Cheater.Forms {
          Settings.mInstance.saveToFile();
       }
       private void txtBoxSectionsFilter_TextChanged(Object sender, EventArgs e) {
-         String selectedProcessName = uiToolStrip_ProcessManager_cmbBoxActiveProcess.Text;
+         Int32 listViewIndex = 0;
          chkListViewSearchSections.Items.Clear();
-
-         librpc.ProcessInfo processInfo = processManager.GetProcessInfo(selectedProcessName);
-         processManager.MappedSectionList.InitMemorySectionList(processInfo);
 
          for (int i = 0; i < processManager.MappedSectionList.Count; i++) {
             String sectionName = processManager.MappedSectionList.GetSectionName(i);
-            if (sectionName.Contains(txtBoxSectionsFilter.Text, StringComparison.OrdinalIgnoreCase))
+            if (sectionName.Contains(txtBoxSectionsFilter.Text, StringComparison.OrdinalIgnoreCase)) {
                chkListViewSearchSections.Items.Add(sectionName);
+               chkListViewSearchSections.Items[listViewIndex++].Checked = processManager.MappedSectionList[i].Check;
+            }
          }
       }
       private void chkListBoxSearchSections_ItemCheck(Object sender, ItemCheckEventArgs e) {
-         processManager.MappedSectionList.SectionCheck(e.Index, e.NewValue == CheckState.Checked);
+         for (int i = 0; i < processManager.MappedSectionList.Count; i++) {
+            String sectionName = processManager.MappedSectionList.GetSectionName(i);
+            if (chkListViewSearchSections.Items[e.Index].Text == sectionName) {
+               processManager.MappedSectionList.SectionCheck(i, e.NewValue == CheckState.Checked);
+               break;
+            }
+         }
       }
       private void listViewResults_DoubleClick(Object sender, EventArgs e) {
          var selectedItems = (sender as ListView).SelectedItems;

@@ -768,14 +768,14 @@ namespace PS4_Cheater {
          return true;
       }
 
-      public void SaveFile(String path, String prcessName, ProcessManager processManager) {
+      public void SaveFile(String path, String processName, ProcessManager processManager) {
          GameInfo gameInfo = new GameInfo();
          String save_buf = CONSTANT.MAJOR_VERSION + "."
                 + CONSTANT.SECONDARY_VERSION
-                + "|" + prcessName
+                + "|" + processName
                 + "|ID:" + gameInfo.GameID
                 + "|VER:" + gameInfo.Version
-                + "|FM:" + Util.Version
+                + "|FM:505" 
                 + "\n";
 
          for (Int32 i = 0; i < cheat_list.Count; ++i) {

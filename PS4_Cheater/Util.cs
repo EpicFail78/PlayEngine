@@ -10,59 +10,21 @@ using System.Collections.Generic;
 namespace PS4_Cheater {
 
    class GameInfo {
-      const String GAME_INFO_4_05_PROCESS_NAME = "SceCdlgApp";
-      const String GAME_INFO_4_05_SECTION_NAME = "libSceCdlgUtilServer.sprx";
-      const Int32 GAME_INFO_4_05_SECTION_PROT = 3;
-      const Int32 GAME_INFO_4_05_ID_OFFSET = 0XA0;
-      const Int32 GAME_INFO_4_05_VERSION_OFFSET = 0XC8;
-
-      const String GAME_INFO_4_55_PROCESS_NAME = "SceCdlgApp";
-      const String GAME_INFO_4_55_SECTION_NAME = "libSceCdlgUtilServer.sprx";
-      const Int32 GAME_INFO_4_55_SECTION_PROT = 3;
-      const Int32 GAME_INFO_4_55_ID_OFFSET = 0XA0;
-      const Int32 GAME_INFO_4_55_VERSION_OFFSET = 0XC8;
-
-      const String GAME_INFO_5_05_PROCESS_NAME = "SceCdlgApp";
-      const String GAME_INFO_5_05_SECTION_NAME = "libSceCdlgUtilServer.sprx";
-      const Int32 GAME_INFO_5_05_SECTION_PROT = 3;
-      const Int32 GAME_INFO_5_05_ID_OFFSET = 0XA0;
-      const Int32 GAME_INFO_5_05_VERSION_OFFSET = 0XC8;
+      public const String GAME_INFO_5_05_PROCESS_NAME = "SceCdlgApp";
+      public const String GAME_INFO_5_05_SECTION_NAME = "libSceCdlgUtilServer.sprx";
+      public const Int32 GAME_INFO_5_05_SECTION_PROT = 3;
+      public const Int32 GAME_INFO_5_05_ID_OFFSET = 0xA0;
+      public const Int32 GAME_INFO_5_05_VERSION_OFFSET = 0xC8;
 
       public String GameID = "";
       public String Version = "";
 
       public GameInfo() {
-         String process_name = "";
-         String section_name = "";
-         UInt64 id_offset = 0;
-         UInt64 version_offset = 0;
-         Int32 section_prot = 0;
-
-         switch (Util.Version) {
-            case 405:
-               process_name = GAME_INFO_4_05_PROCESS_NAME;
-               section_name = GAME_INFO_4_05_SECTION_NAME;
-               id_offset = GAME_INFO_4_05_ID_OFFSET;
-               version_offset = GAME_INFO_4_05_VERSION_OFFSET;
-               section_prot = GAME_INFO_4_05_SECTION_PROT;
-               break;
-            case 455:
-               process_name = GAME_INFO_4_55_PROCESS_NAME;
-               section_name = GAME_INFO_4_55_SECTION_NAME;
-               id_offset = GAME_INFO_4_55_ID_OFFSET;
-               version_offset = GAME_INFO_4_55_VERSION_OFFSET;
-               section_prot = GAME_INFO_4_55_SECTION_PROT;
-               break;
-            case 505:
-               process_name = GAME_INFO_5_05_PROCESS_NAME;
-               section_name = GAME_INFO_5_05_SECTION_NAME;
-               id_offset = GAME_INFO_5_05_ID_OFFSET;
-               version_offset = GAME_INFO_5_05_VERSION_OFFSET;
-               section_prot = GAME_INFO_5_05_SECTION_PROT;
-               break;
-            default:
-               break;
-         }
+         String process_name = GAME_INFO_5_05_PROCESS_NAME;
+         String section_name = GAME_INFO_5_05_SECTION_NAME;
+         UInt64 id_offset = GAME_INFO_5_05_ID_OFFSET;
+         UInt64 version_offset = GAME_INFO_5_05_VERSION_OFFSET;
+         Int32 section_prot = GAME_INFO_5_05_SECTION_PROT;
 
          try {
             ProcessManager processManager = new ProcessManager();
@@ -104,6 +66,5 @@ namespace PS4_Cheater {
    public class Util {
       public static Int32 DefaultProcessID = 0;
       public static Int32 SceProcessID = 0;
-      public static Int32 Version = 0;
    }
 }
