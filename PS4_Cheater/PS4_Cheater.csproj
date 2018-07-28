@@ -124,7 +124,6 @@
     <Compile Include="ScanThread.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Utils\Settings.cs" />
-    <Compile Include="Utils\SharedInformation.cs" />
     <EmbeddedResource Include="Forms\ChildForms\childFrmSendPayload.resx">
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
     </EmbeddedResource>
@@ -147,7 +146,6 @@
     <EmbeddedResource Include="Forms\frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

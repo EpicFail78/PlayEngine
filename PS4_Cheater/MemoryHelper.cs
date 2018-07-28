@@ -58,6 +58,8 @@ namespace PS4_Cheater {
       public static Boolean Connect(String ip, Boolean is505) {
          try {
             mutex.WaitOne();
+            if (ps4 != null)
+               ps4.Disconnect();
             ps4 = new PS4RPC(ip, is505);
             ps4.Connect();
             mutex.ReleaseMutex();

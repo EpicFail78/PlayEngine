@@ -23,6 +23,7 @@
       /// the contents of this method with the code editor.
       /// </summary>
       private void InitializeComponent() {
+         this.components = new System.ComponentModel.Container();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,8 +41,8 @@
          this.uiToolStrip_linkTools = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnOpenPointerScanner = new System.Windows.Forms.ToolStripMenuItem();
          this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-         this.progressBarScanPercent = new System.Windows.Forms.ToolStripProgressBar();
-         this.lblActiveProcess = new System.Windows.Forms.ToolStripLabel();
+         this.uiToolStrip_progressBarScanPercent = new System.Windows.Forms.ToolStripProgressBar();
+         this.uiToolStrip_lblActiveProcess = new System.Windows.Forms.ToolStripLabel();
          this.splitContainerMain = new System.Windows.Forms.SplitContainer();
          this.splitContainerScanner = new System.Windows.Forms.SplitContainer();
          this.listViewResults = new System.Windows.Forms.ListView();
@@ -76,6 +77,8 @@
          this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
+         this.contextMenuChkListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
+         this.contextMenuChkListBox_btnSelectAll = new System.Windows.Forms.ToolStripMenuItem();
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -91,6 +94,7 @@
          this.splitContainerScanDetails.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).BeginInit();
          this.uiStatusStrip.SuspendLayout();
+         this.contextMenuChkListBox.SuspendLayout();
          this.SuspendLayout();
          // 
          // uiToolStrip
@@ -101,8 +105,8 @@
             this.uiToolStrip_linkPayloadAndProcess,
             this.uiToolStrip_linkTools,
             this.toolStripSeparator3,
-            this.progressBarScanPercent,
-            this.lblActiveProcess});
+            this.uiToolStrip_progressBarScanPercent,
+            this.uiToolStrip_lblActiveProcess});
          this.uiToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
          this.uiToolStrip.Location = new System.Drawing.Point(0, 0);
          this.uiToolStrip.Name = "uiToolStrip";
@@ -167,25 +171,26 @@
             this.toolStripSeparator2,
             this.uiToolStrip_PayloadManager_btnSendPayload});
          this.uiToolStrip_linkPayloadManager.Name = "uiToolStrip_linkPayloadManager";
-         this.uiToolStrip_linkPayloadManager.Size = new System.Drawing.Size(116, 22);
+         this.uiToolStrip_linkPayloadManager.Size = new System.Drawing.Size(180, 22);
          this.uiToolStrip_linkPayloadManager.Text = "Payload";
          // 
          // uiToolStrip_PayloadManager_chkPayloadActive
          // 
          this.uiToolStrip_PayloadManager_chkPayloadActive.Enabled = false;
          this.uiToolStrip_PayloadManager_chkPayloadActive.Name = "uiToolStrip_PayloadManager_chkPayloadActive";
-         this.uiToolStrip_PayloadManager_chkPayloadActive.Size = new System.Drawing.Size(155, 22);
+         this.uiToolStrip_PayloadManager_chkPayloadActive.Size = new System.Drawing.Size(180, 22);
          this.uiToolStrip_PayloadManager_chkPayloadActive.Text = "Payload active?";
+         this.uiToolStrip_PayloadManager_chkPayloadActive.CheckedChanged += new System.EventHandler(this.uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged);
          // 
          // toolStripSeparator2
          // 
          this.toolStripSeparator2.Name = "toolStripSeparator2";
-         this.toolStripSeparator2.Size = new System.Drawing.Size(152, 6);
+         this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
          // 
          // uiToolStrip_PayloadManager_btnSendPayload
          // 
          this.uiToolStrip_PayloadManager_btnSendPayload.Name = "uiToolStrip_PayloadManager_btnSendPayload";
-         this.uiToolStrip_PayloadManager_btnSendPayload.Size = new System.Drawing.Size(155, 22);
+         this.uiToolStrip_PayloadManager_btnSendPayload.Size = new System.Drawing.Size(180, 22);
          this.uiToolStrip_PayloadManager_btnSendPayload.Text = "Send payload";
          this.uiToolStrip_PayloadManager_btnSendPayload.Click += new System.EventHandler(this.uiButtonHandler_Click);
          // 
@@ -195,7 +200,7 @@
             this.uiToolStrip_ProcessManager_btnRefreshProcessList,
             this.uiToolStrip_ProcessManager_cmbBoxActiveProcess});
          this.uiToolStrip_linkProcessManager.Name = "uiToolStrip_linkProcessManager";
-         this.uiToolStrip_linkProcessManager.Size = new System.Drawing.Size(116, 22);
+         this.uiToolStrip_linkProcessManager.Size = new System.Drawing.Size(180, 22);
          this.uiToolStrip_linkProcessManager.Text = "Process";
          // 
          // uiToolStrip_ProcessManager_btnRefreshProcessList
@@ -213,6 +218,7 @@
          this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.Name = "uiToolStrip_ProcessManager_cmbBoxActiveProcess";
          this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.Size = new System.Drawing.Size(121, 23);
          this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.Text = "Active process";
+         this.uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndexChanged += new System.EventHandler(this.uiToolStrip_ProcessManager_cmbBoxActiveProcess_SelectedIndexChanged);
          // 
          // uiToolStrip_linkTools
          // 
@@ -238,21 +244,22 @@
          this.toolStripSeparator3.Name = "toolStripSeparator3";
          this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
          // 
-         // progressBarScanPercent
+         // uiToolStrip_progressBarScanPercent
          // 
-         this.progressBarScanPercent.Name = "progressBarScanPercent";
-         this.progressBarScanPercent.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-         this.progressBarScanPercent.Size = new System.Drawing.Size(100, 22);
+         this.uiToolStrip_progressBarScanPercent.AutoSize = false;
+         this.uiToolStrip_progressBarScanPercent.Name = "uiToolStrip_progressBarScanPercent";
+         this.uiToolStrip_progressBarScanPercent.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+         this.uiToolStrip_progressBarScanPercent.Size = new System.Drawing.Size(100, 17);
          // 
-         // lblActiveProcess
+         // uiToolStrip_lblActiveProcess
          // 
-         this.lblActiveProcess.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-         this.lblActiveProcess.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.lblActiveProcess.Name = "lblActiveProcess";
-         this.lblActiveProcess.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-         this.lblActiveProcess.Size = new System.Drawing.Size(86, 22);
-         this.lblActiveProcess.Text = "Process: NONE";
-         this.lblActiveProcess.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+         this.uiToolStrip_lblActiveProcess.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+         this.uiToolStrip_lblActiveProcess.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiToolStrip_lblActiveProcess.Name = "uiToolStrip_lblActiveProcess";
+         this.uiToolStrip_lblActiveProcess.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+         this.uiToolStrip_lblActiveProcess.Size = new System.Drawing.Size(86, 22);
+         this.uiToolStrip_lblActiveProcess.Text = "Process: NONE";
+         this.uiToolStrip_lblActiveProcess.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
          // 
          // splitContainerMain
          // 
@@ -368,7 +375,6 @@
          // 
          // txtBoxSectionsFilter
          // 
-         this.txtBoxSectionsFilter.Enabled = false;
          this.txtBoxSectionsFilter.Location = new System.Drawing.Point(81, 138);
          this.txtBoxSectionsFilter.Name = "txtBoxSectionsFilter";
          this.txtBoxSectionsFilter.Size = new System.Drawing.Size(179, 23);
@@ -489,6 +495,7 @@
          // 
          // chkListBoxSearchSections
          // 
+         this.chkListBoxSearchSections.ContextMenuStrip = this.contextMenuChkListBox;
          this.chkListBoxSearchSections.Dock = System.Windows.Forms.DockStyle.Fill;
          this.chkListBoxSearchSections.FormattingEnabled = true;
          this.chkListBoxSearchSections.HorizontalScrollbar = true;
@@ -628,7 +635,23 @@
          // 
          // bgWorkerResultsUpdater
          // 
+         this.bgWorkerResultsUpdater.WorkerSupportsCancellation = true;
          this.bgWorkerResultsUpdater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerResultsUpdater_DoWork);
+         // 
+         // contextMenuChkListBox
+         // 
+         this.contextMenuChkListBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.contextMenuChkListBox_btnSelectAll});
+         this.contextMenuChkListBox.Name = "contextMenuChkListBox";
+         this.contextMenuChkListBox.Size = new System.Drawing.Size(121, 26);
+         // 
+         // contextMenuChkListBox_btnSelectAll
+         // 
+         this.contextMenuChkListBox_btnSelectAll.CheckOnClick = true;
+         this.contextMenuChkListBox_btnSelectAll.Name = "contextMenuChkListBox_btnSelectAll";
+         this.contextMenuChkListBox_btnSelectAll.Size = new System.Drawing.Size(120, 22);
+         this.contextMenuChkListBox_btnSelectAll.Text = "Select all";
+         this.contextMenuChkListBox_btnSelectAll.Click += new System.EventHandler(this.uiButtonHandler_Click);
          // 
          // MainForm
          // 
@@ -646,6 +669,7 @@
          this.Name = "MainForm";
          this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
          this.Text = "PS4 Cheater";
+         this.Load += new System.EventHandler(this.MainForm_Load);
          this.uiToolStrip.ResumeLayout(false);
          this.uiToolStrip.PerformLayout();
          this.splitContainerMain.Panel1.ResumeLayout(false);
@@ -664,6 +688,7 @@
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).EndInit();
          this.uiStatusStrip.ResumeLayout(false);
          this.uiStatusStrip.PerformLayout();
+         this.contextMenuChkListBox.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -710,9 +735,9 @@
       private System.Windows.Forms.ToolStripComboBox uiToolStrip_ProcessManager_cmbBoxActiveProcess;
       private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnOpenPointerScanner;
       private System.Windows.Forms.StatusStrip uiStatusStrip;
-      private System.Windows.Forms.ToolStripLabel lblActiveProcess;
+      private System.Windows.Forms.ToolStripLabel uiToolStrip_lblActiveProcess;
       private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-      private System.Windows.Forms.ToolStripProgressBar progressBarScanPercent;
+      private System.Windows.Forms.ToolStripProgressBar uiToolStrip_progressBarScanPercent;
       private System.Windows.Forms.ToolStripDropDownButton uiStatusStrip_linkEntryManager;
       private System.Windows.Forms.ToolStripMenuItem uiStatusStrip_EntryManager_btnAddAddress;
       private System.Windows.Forms.ToolStripMenuItem uiStatusStrip_EntryManager_btnAddPointer;
@@ -724,5 +749,7 @@
       private System.Windows.Forms.Label lblSecondValue;
       private System.Windows.Forms.TextBox txtBoxSectionsFilter;
       private System.Windows.Forms.Label label2;
+      private System.Windows.Forms.ContextMenuStrip contextMenuChkListBox;
+      private System.Windows.Forms.ToolStripMenuItem contextMenuChkListBox_btnSelectAll;
    }
 }
