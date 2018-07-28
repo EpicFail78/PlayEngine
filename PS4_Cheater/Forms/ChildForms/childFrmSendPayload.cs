@@ -10,13 +10,10 @@ using PS4_Cheater.Utils;
 namespace PS4_Cheater.Forms.ChildForms {
    public partial class childFrmSendPayload : Form {
       public childFrmSendPayload() {
-         if (MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress, Settings.mInstance.ps4.FWVersion == PS4FWVersion.v5_05))
-            MessageBox.Show("Payload is already injected!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
          InitializeComponent();
-
          foreach (var payloadDir in Directory.GetDirectories(Path.Combine(Application.StartupPath, "Payloads")))
             cmbBoxFirmware.Items.Add(new DirectoryInfo(payloadDir).Name);
+
          txtBoxIPAddress.Text = Settings.mInstance.ps4.IPAddress;
          txtBoxIPPort.Text = Settings.mInstance.ps4.IPPort.ToString();
          cmbBoxFirmware.SelectedIndex = (Int32)Settings.mInstance.ps4.FWVersion;
@@ -37,7 +34,7 @@ namespace PS4_Cheater.Forms.ChildForms {
                socket.SendFile(Path.Combine(payloadDir, "kpayload.elf"));
                socket.Shutdown(SocketShutdown.Both);
                socket.Close();
-               Thread.Sleep(2000);
+               Thread.Sleep(1000);
             }
             Settings.mInstance.ps4.IPAddress = txtBoxIPAddress.Text;
             Settings.mInstance.ps4.IPPort = Convert.ToInt32(txtBoxIPPort.Text);

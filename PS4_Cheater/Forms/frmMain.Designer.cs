@@ -64,12 +64,6 @@
          this.btnScan = new System.Windows.Forms.Button();
          this.chkListBoxSearchSections = new System.Windows.Forms.CheckedListBox();
          this.dataGridSavedResults = new System.Windows.Forms.DataGridView();
-         this.dataGridSavedResults_chkBoxFreezeValue = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-         this.dataGridSavedResults_txtBoxDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.dataGridSavedResults_txtBoxAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.dataGridSavedResults_txtBoxSection = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.dataGridSavedResults_txtBoxValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.dataGridSavedResults_txtBoxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
          this.uiStatusStrip_linkEntryManager = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiStatusStrip_EntryManager_btnAddAddress = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,6 +73,12 @@
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
          this.contextMenuChkListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.contextMenuChkListBox_btnSelectAll = new System.Windows.Forms.ToolStripMenuItem();
+         this.dataGridSavedResults_chkBoxFreezeValue = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+         this.dataGridSavedResults_txtBoxDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.dataGridSavedResults_txtBoxAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.dataGridSavedResults_txtBoxSection = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.dataGridSavedResults_txtBoxValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.dataGridSavedResults_txtBoxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -528,54 +528,6 @@
          this.dataGridSavedResults.TabIndex = 51;
          this.dataGridSavedResults.TabStop = false;
          // 
-         // dataGridSavedResults_chkBoxFreezeValue
-         // 
-         this.dataGridSavedResults_chkBoxFreezeValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-         this.dataGridSavedResults_chkBoxFreezeValue.HeaderText = "Freeze";
-         this.dataGridSavedResults_chkBoxFreezeValue.Name = "dataGridSavedResults_chkBoxFreezeValue";
-         this.dataGridSavedResults_chkBoxFreezeValue.Width = 46;
-         // 
-         // dataGridSavedResults_txtBoxDescription
-         // 
-         this.dataGridSavedResults_txtBoxDescription.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-         this.dataGridSavedResults_txtBoxDescription.FillWeight = 50F;
-         this.dataGridSavedResults_txtBoxDescription.HeaderText = "Description";
-         this.dataGridSavedResults_txtBoxDescription.MinimumWidth = 20;
-         this.dataGridSavedResults_txtBoxDescription.Name = "dataGridSavedResults_txtBoxDescription";
-         this.dataGridSavedResults_txtBoxDescription.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-         this.dataGridSavedResults_txtBoxDescription.Width = 73;
-         // 
-         // dataGridSavedResults_txtBoxAddress
-         // 
-         this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
-         this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
-         this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;
-         this.dataGridSavedResults_txtBoxAddress.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-         this.dataGridSavedResults_txtBoxAddress.Width = 91;
-         // 
-         // dataGridSavedResults_txtBoxSection
-         // 
-         this.dataGridSavedResults_txtBoxSection.HeaderText = "Section";
-         this.dataGridSavedResults_txtBoxSection.Name = "dataGridSavedResults_txtBoxSection";
-         this.dataGridSavedResults_txtBoxSection.ReadOnly = true;
-         this.dataGridSavedResults_txtBoxSection.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-         this.dataGridSavedResults_txtBoxSection.Width = 90;
-         // 
-         // dataGridSavedResults_txtBoxValueType
-         // 
-         this.dataGridSavedResults_txtBoxValueType.HeaderText = "Type";
-         this.dataGridSavedResults_txtBoxValueType.Name = "dataGridSavedResults_txtBoxValueType";
-         this.dataGridSavedResults_txtBoxValueType.ReadOnly = true;
-         this.dataGridSavedResults_txtBoxValueType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-         this.dataGridSavedResults_txtBoxValueType.Width = 91;
-         // 
-         // dataGridSavedResults_txtBoxValue
-         // 
-         this.dataGridSavedResults_txtBoxValue.HeaderText = "Value";
-         this.dataGridSavedResults_txtBoxValue.Name = "dataGridSavedResults_txtBoxValue";
-         this.dataGridSavedResults_txtBoxValue.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-         this.dataGridSavedResults_txtBoxValue.Width = 90;
-         // 
          // uiStatusStrip
          // 
          this.uiStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -653,6 +605,54 @@
          this.contextMenuChkListBox_btnSelectAll.Text = "Select all";
          this.contextMenuChkListBox_btnSelectAll.Click += new System.EventHandler(this.uiButtonHandler_Click);
          // 
+         // dataGridSavedResults_chkBoxFreezeValue
+         // 
+         this.dataGridSavedResults_chkBoxFreezeValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+         this.dataGridSavedResults_chkBoxFreezeValue.HeaderText = "Freeze";
+         this.dataGridSavedResults_chkBoxFreezeValue.Name = "dataGridSavedResults_chkBoxFreezeValue";
+         this.dataGridSavedResults_chkBoxFreezeValue.Width = 46;
+         // 
+         // dataGridSavedResults_txtBoxDescription
+         // 
+         this.dataGridSavedResults_txtBoxDescription.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+         this.dataGridSavedResults_txtBoxDescription.FillWeight = 50F;
+         this.dataGridSavedResults_txtBoxDescription.HeaderText = "Description";
+         this.dataGridSavedResults_txtBoxDescription.MinimumWidth = 20;
+         this.dataGridSavedResults_txtBoxDescription.Name = "dataGridSavedResults_txtBoxDescription";
+         this.dataGridSavedResults_txtBoxDescription.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+         this.dataGridSavedResults_txtBoxDescription.Width = 73;
+         // 
+         // dataGridSavedResults_txtBoxAddress
+         // 
+         this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
+         this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
+         this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;
+         this.dataGridSavedResults_txtBoxAddress.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+         this.dataGridSavedResults_txtBoxAddress.Width = 91;
+         // 
+         // dataGridSavedResults_txtBoxSection
+         // 
+         this.dataGridSavedResults_txtBoxSection.HeaderText = "Section";
+         this.dataGridSavedResults_txtBoxSection.Name = "dataGridSavedResults_txtBoxSection";
+         this.dataGridSavedResults_txtBoxSection.ReadOnly = true;
+         this.dataGridSavedResults_txtBoxSection.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+         this.dataGridSavedResults_txtBoxSection.Width = 90;
+         // 
+         // dataGridSavedResults_txtBoxValueType
+         // 
+         this.dataGridSavedResults_txtBoxValueType.HeaderText = "Type";
+         this.dataGridSavedResults_txtBoxValueType.Name = "dataGridSavedResults_txtBoxValueType";
+         this.dataGridSavedResults_txtBoxValueType.ReadOnly = true;
+         this.dataGridSavedResults_txtBoxValueType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+         this.dataGridSavedResults_txtBoxValueType.Width = 91;
+         // 
+         // dataGridSavedResults_txtBoxValue
+         // 
+         this.dataGridSavedResults_txtBoxValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+         this.dataGridSavedResults_txtBoxValue.HeaderText = "Value";
+         this.dataGridSavedResults_txtBoxValue.Name = "dataGridSavedResults_txtBoxValue";
+         this.dataGridSavedResults_txtBoxValue.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+         // 
          // MainForm
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -716,12 +716,6 @@
       private System.Windows.Forms.Button btnScanNext;
       private System.Windows.Forms.Button btnScan;
       private System.Windows.Forms.CheckedListBox chkListBoxSearchSections;
-      private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridSavedResults_chkBoxFreezeValue;
-      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxDescription;
-      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxAddress;
-      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxSection;
-      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValueType;
-      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValue;
       private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnLoadCheatTable;
       private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnSaveCheatTable;
       private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
@@ -751,5 +745,11 @@
       private System.Windows.Forms.Label label2;
       private System.Windows.Forms.ContextMenuStrip contextMenuChkListBox;
       private System.Windows.Forms.ToolStripMenuItem contextMenuChkListBox_btnSelectAll;
+      private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridSavedResults_chkBoxFreezeValue;
+      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxDescription;
+      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxAddress;
+      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxSection;
+      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValueType;
+      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValue;
    }
 }

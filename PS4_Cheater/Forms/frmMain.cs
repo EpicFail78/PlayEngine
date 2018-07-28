@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
 using PS4_Cheater.Utils;
@@ -120,7 +122,7 @@ namespace PS4_Cheater.Forms {
             _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan: {
-                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections, listViewResults }, true);
+                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections, listViewResults, txtBoxSectionsFilter }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -135,7 +137,7 @@ namespace PS4_Cheater.Forms {
                break;
                case ScanStatus.DidScan: {
                   setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, listViewResults }, true);
-                  setControlEnabled(new Control[] { cmbBoxValueType, chkListBoxSearchSections }, false);
+                  setControlEnabled(new Control[] { cmbBoxValueType, chkListBoxSearchSections, txtBoxSectionsFilter }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
                   String strBackupSelectedItem = (String)cmbBoxScanType.SelectedItem;
@@ -149,7 +151,7 @@ namespace PS4_Cheater.Forms {
                break;
                case ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections, listViewResults }, false);
+                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListBoxSearchSections, listViewResults, txtBoxSectionsFilter }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
@@ -169,7 +171,17 @@ namespace PS4_Cheater.Forms {
          this.Text = String.Format("PS4 Cheater v{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
          cmbBoxValueType.SelectedIndex = 2; // 4 Bytes
 
-         uiToolStrip_PayloadManager_chkPayloadActive.Checked = MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress, Settings.mInstance.ps4.FWVersion == PS4FWVersion.v5_05);
+         using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
+            try {
+               IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, 9023, null, null);
+               result.AsyncWaitHandle.WaitOne(1000);
+               if (socket.Connected)
+                  uiToolStrip_PayloadManager_chkPayloadActive.Checked = MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress, Settings.mInstance.ps4.FWVersion == PS4FWVersion.v5_05);
+
+               socket.Shutdown(SocketShutdown.Both);
+               socket.Close();
+            } catch (Exception) { }
+         }
       }
       private void MainForm_Load(Object sender, EventArgs e) {
          if (uiToolStrip_PayloadManager_chkPayloadActive.Checked)
@@ -180,7 +192,7 @@ namespace PS4_Cheater.Forms {
          try {
             switch (curScanStatus) {
                case ScanStatus.FirstScan:
-                  if (MessageBox.Show(String.Format("Search size: {0}KB.\r\nContinue?", processManager.MappedSectionList.TotalMemorySize / 1024), "Scan", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                  if (MessageBox.Show(String.Format("Search size: {0}KB. Continue?", processManager.MappedSectionList.TotalMemorySize / 1024), "Scan", MessageBoxButtons.YesNo) != DialogResult.Yes)
                      return;
 
                   memoryHelper.InitMemoryHandler(
