@@ -19,6 +19,9 @@ namespace PS4_Cheater.Forms.ChildForms {
          if (cmbBoxFirmware.Items.Count == 1) {
             cmbBoxFirmware.SelectedIndex = 0;
             cmbBoxFirmware.Enabled = false;
+         } else {
+            if (cmbBoxFirmware.Items.Contains(Settings.mInstance.ps4.LastUsedPayload))
+               cmbBoxFirmware.SelectedValue = Settings.mInstance.ps4.LastUsedPayload;
          }
       }
 
@@ -37,6 +40,7 @@ namespace PS4_Cheater.Forms.ChildForms {
             Settings.mInstance.saveToFile();
 
             MessageBox.Show("Payload successfully injected!", "Success");
+            this.DialogResult = DialogResult.OK;
             this.Close();
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "Error during sending payload!", MessageBoxButtons.OK, MessageBoxIcon.Error);

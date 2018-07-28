@@ -10,6 +10,8 @@ namespace PS4_Cheater.Utils {
       public String IPAddress = String.Empty;
       [XmlElement]
       public Int32 IPPort = 9020;
+      [XmlElement]
+      public String LastUsedPayload = "5.05";
    }
    [Serializable]
    [XmlRoot("Settings")]

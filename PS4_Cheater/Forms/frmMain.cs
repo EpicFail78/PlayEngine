@@ -232,10 +232,11 @@ namespace PS4_Cheater.Forms {
       }
       #region uiToolStrip_linkPayloadAndProcess
       private void btnSendPayload_OnClick() {
-         new Forms.ChildForms.childFrmSendPayload().ShowDialog();
-         if (MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress)) {
-            uiToolStrip_PayloadManager_chkPayloadActive.Checked = true;
-            btnRefreshProcessList_OnClick(true);
+         if (new Forms.ChildForms.childFrmSendPayload().ShowDialog() == DialogResult.OK) {
+            if (MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress)) {
+               uiToolStrip_PayloadManager_chkPayloadActive.Checked = true;
+               btnRefreshProcessList_OnClick(true);
+            }
          }
       }
       private void btnRefreshProcessList_OnClick(Boolean suppressErrorMessage = false) {

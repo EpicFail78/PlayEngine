@@ -36,9 +36,9 @@
          // 
          this.cmbBoxFirmware.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cmbBoxFirmware.FormattingEnabled = true;
-         this.cmbBoxFirmware.Location = new System.Drawing.Point(45, 12);
+         this.cmbBoxFirmware.Location = new System.Drawing.Point(66, 12);
          this.cmbBoxFirmware.Name = "cmbBoxFirmware";
-         this.cmbBoxFirmware.Size = new System.Drawing.Size(182, 21);
+         this.cmbBoxFirmware.Size = new System.Drawing.Size(161, 21);
          this.cmbBoxFirmware.TabIndex = 0;
          // 
          // label1
@@ -46,9 +46,9 @@
          this.label1.AutoSize = true;
          this.label1.Location = new System.Drawing.Point(12, 15);
          this.label1.Name = "label1";
-         this.label1.Size = new System.Drawing.Size(27, 13);
+         this.label1.Size = new System.Drawing.Size(48, 13);
          this.label1.TabIndex = 1;
-         this.label1.Text = "FW:";
+         this.label1.Text = "Payload:";
          // 
          // label2
          // 
@@ -61,9 +61,9 @@
          // 
          // txtBoxIPAddress
          // 
-         this.txtBoxIPAddress.Location = new System.Drawing.Point(45, 46);
+         this.txtBoxIPAddress.Location = new System.Drawing.Point(38, 46);
          this.txtBoxIPAddress.Name = "txtBoxIPAddress";
-         this.txtBoxIPAddress.Size = new System.Drawing.Size(100, 20);
+         this.txtBoxIPAddress.Size = new System.Drawing.Size(107, 20);
          this.txtBoxIPAddress.TabIndex = 3;
          // 
          // txtBoxIPPort
