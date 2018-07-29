@@ -217,7 +217,6 @@ namespace PS4_Cheater.Forms {
                   break;
                case ScanStatus.Scanning:
                   bgWorkerScanner.CancelAsync();
-                  curScanStatus = ScanStatus.DidScan;
                   break;
             }
          } catch (Exception ex) {
@@ -391,12 +390,11 @@ namespace PS4_Cheater.Forms {
                processedMemoryRange += (UInt64)mappedSection.Length;
                ResultList resultList = mappedSection.ResultList;
                if (resultList != null) {
-                  UInt64 maxResultCount = 2000, curResultCount = 0, totalResultCount = processManager.MappedSectionList.TotalResultCount();
+                  // Per section scan limits
+                  UInt64 maxResultCount = 2000, curResultCount = 0;//, totalResultCount = processManager.MappedSectionList.TotalResultCount();
                   for (resultList.Begin(); !resultList.End(); resultList.Next()) {
-                     if (curResultCount >= maxResultCount) {
-                        listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = String.Format("{0}+ results", curResultCount)));
+                     if (curResultCount > maxResultCount)
                         break;
-                     }
 
                      UInt32 addressSectionOffsett = 0;
                      Byte[] valueInMemory = null;
@@ -434,11 +432,9 @@ namespace PS4_Cheater.Forms {
          uiToolStrip_progressBarScanPercent.Value = e.ProgressPercentage;
       }
       private void bgWorkerScanner_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
-         if (!e.Cancelled) {
-            curScanStatus = ScanStatus.DidScan;
-            if (e.Error != null)
-               uiStatusStrip_lblStatus.Text = e.Error.Message;
-         }
+         curScanStatus = ScanStatus.DidScan;
+         if (e.Error != null)
+            uiStatusStrip_lblStatus.Text = e.Error.Message;
       }
       #endregion
       #region bgWorkerResultsUpdater
