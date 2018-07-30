@@ -447,8 +447,6 @@ namespace PlayEngine.Forms {
                e.Cancel = true;
                break;
             }
-            if (listViewResults.Items.Count == 15)
-               listViewResults.Invoke(new Action(() => listViewResults.BeginUpdate()));
 
             MappedSection mappedSection = ProcessManager.mInstance.MappedSectionList[section_idx];
             if (mappedSection.Check) {
@@ -464,6 +462,8 @@ namespace PlayEngine.Forms {
                foreach (UInt32 sectionAddressOffset in results) {
                   if (curResultCount > maxResultCount)
                      break;
+                  if (listViewResults.Items.Count == 15)
+                     listViewResults.Invoke(new Action(() => listViewResults.BeginUpdate()));
                   UInt64 runtimeAddress = mappedSection.Start + sectionAddressOffset;
 
                   ListViewItem listViewItem = new ListViewItem();
