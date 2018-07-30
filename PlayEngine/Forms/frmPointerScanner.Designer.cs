@@ -1,4 +1,4 @@
-﻿namespace PS4_Cheater.Forms
+﻿namespace PlayEngine.Forms
 {
     partial class PointerScanner
     {

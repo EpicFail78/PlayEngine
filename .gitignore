@@ -13,8 +13,8 @@
 *.userprefs
 
 # Build results
-PS4_Cheater/bin
-PS4_Cheater/obj
+PlayEngine/bin
+PlayEngine/obj
 jkpatch/librpc/bin
 jkpatch/librpc/obj
 [Dd]ebug/

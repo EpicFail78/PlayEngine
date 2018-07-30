@@ -1,8 +1,9 @@
-# PS4_Cheater
+# PlayEngine
 
-PS4 Cheater is homebrew APP to find game cheat codes, and it is based on jkpatch which is from https://github.com/xemio/jkpatch.
+PlayEngine is a Windows application that can scan and edit a PS4 process' memory --easily.
 
-Please feel free to contribute your code!
+It uses [jkpatch](https://github.com/xemio/jkpatch) and is a fork of the original [PS4_Cheater](https://github.com/hurrican6/PS4_Cheater).
 
-Discord chat site: https://discord.gg/PwBwUKf.
-Please join us!
+[PS4 Source Discord](https://discord.gg/PwBwUKf): Come join us for any questions you might have, or just have a cup coffee and chat with the community.
+
+Any help is appreciated!

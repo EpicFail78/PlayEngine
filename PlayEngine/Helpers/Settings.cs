@@ -2,16 +2,16 @@
 using System.IO;
 using System.Xml.Serialization;
 
-namespace PS4_Cheater.Utils {
+namespace PlayEngine.Helpers {
    [Serializable]
    [XmlRoot("PS4")]
    public class PS4Settings {
       [XmlElement]
-      public String IPAddress = String.Empty;
+      public String IPAddress = "0.0.0.0";
       [XmlElement]
       public Int32 IPPort = 9020;
       [XmlElement]
-      public String LastUsedPayload = "5.05";
+      public String LastUsedPayload = "Firmware_v5.05";
    }
    [Serializable]
    [XmlRoot("Settings")]

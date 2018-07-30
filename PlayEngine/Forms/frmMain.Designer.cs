@@ -1,4 +1,4 @@
-﻿namespace PS4_Cheater.Forms {
+﻿namespace PlayEngine.Forms {
    partial class MainForm {
       /// <summary>
       /// Required designer variable.
@@ -74,9 +74,9 @@
          this.dataGridSavedResults_txtBoxValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.dataGridSavedResults_txtBoxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
-         this.uiStatusStrip_linkEntryManager = new System.Windows.Forms.ToolStripDropDownButton();
-         this.uiStatusStrip_EntryManager_btnAddAddress = new System.Windows.Forms.ToolStripMenuItem();
-         this.uiStatusStrip_EntryManager_btnAddPointer = new System.Windows.Forms.ToolStripMenuItem();
+         this.uiStatusStrip_linkSavedResults = new System.Windows.Forms.ToolStripDropDownButton();
+         this.uiStatusStrip_SavedResults_btnAddAddress = new System.Windows.Forms.ToolStripMenuItem();
+         this.uiStatusStrip_SavedResults_btnAddPointer = new System.Windows.Forms.ToolStripMenuItem();
          this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
@@ -327,6 +327,7 @@
          this.listViewResults.UseCompatibleStateImageBehavior = false;
          this.listViewResults.View = System.Windows.Forms.View.Details;
          this.listViewResults.DoubleClick += new System.EventHandler(this.listViewResults_DoubleClick);
+         this.listViewResults.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listViewResults_KeyDown);
          // 
          // columnHeaderAddress
          // 
@@ -558,6 +559,7 @@
          this.dataGridSavedResults.Size = new System.Drawing.Size(484, 86);
          this.dataGridSavedResults.TabIndex = 51;
          this.dataGridSavedResults.TabStop = false;
+         this.dataGridSavedResults.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridSavedResults_CellDoubleClick);
          // 
          // dataGridSavedResults_chkBoxFreezeValue
          // 
@@ -610,7 +612,7 @@
          // uiStatusStrip
          // 
          this.uiStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.uiStatusStrip_linkEntryManager,
+            this.uiStatusStrip_linkSavedResults,
             this.uiStatusStrip_lblStatus});
          this.uiStatusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
          this.uiStatusStrip.Location = new System.Drawing.Point(0, 429);
@@ -618,36 +620,36 @@
          this.uiStatusStrip.Size = new System.Drawing.Size(484, 22);
          this.uiStatusStrip.TabIndex = 52;
          // 
-         // uiStatusStrip_linkEntryManager
+         // uiStatusStrip_linkSavedResults
          // 
-         this.uiStatusStrip_linkEntryManager.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-         this.uiStatusStrip_linkEntryManager.AutoToolTip = false;
-         this.uiStatusStrip_linkEntryManager.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.uiStatusStrip_linkEntryManager.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.uiStatusStrip_EntryManager_btnAddAddress,
-            this.uiStatusStrip_EntryManager_btnAddPointer});
-         this.uiStatusStrip_linkEntryManager.ImageTransparentColor = System.Drawing.Color.Magenta;
-         this.uiStatusStrip_linkEntryManager.Name = "uiStatusStrip_linkEntryManager";
-         this.uiStatusStrip_linkEntryManager.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-         this.uiStatusStrip_linkEntryManager.Size = new System.Drawing.Size(133, 20);
-         this.uiStatusStrip_linkEntryManager.Text = "Add entry manually...";
-         this.uiStatusStrip_linkEntryManager.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+         this.uiStatusStrip_linkSavedResults.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+         this.uiStatusStrip_linkSavedResults.AutoToolTip = false;
+         this.uiStatusStrip_linkSavedResults.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_linkSavedResults.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.uiStatusStrip_SavedResults_btnAddAddress,
+            this.uiStatusStrip_SavedResults_btnAddPointer});
+         this.uiStatusStrip_linkSavedResults.ImageTransparentColor = System.Drawing.Color.Magenta;
+         this.uiStatusStrip_linkSavedResults.Name = "uiStatusStrip_linkSavedResults";
+         this.uiStatusStrip_linkSavedResults.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
+         this.uiStatusStrip_linkSavedResults.Size = new System.Drawing.Size(133, 20);
+         this.uiStatusStrip_linkSavedResults.Text = "Add entry manually...";
+         this.uiStatusStrip_linkSavedResults.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
          // 
-         // uiStatusStrip_EntryManager_btnAddAddress
+         // uiStatusStrip_SavedResults_btnAddAddress
          // 
-         this.uiStatusStrip_EntryManager_btnAddAddress.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.uiStatusStrip_EntryManager_btnAddAddress.Name = "uiStatusStrip_EntryManager_btnAddAddress";
-         this.uiStatusStrip_EntryManager_btnAddAddress.Size = new System.Drawing.Size(116, 22);
-         this.uiStatusStrip_EntryManager_btnAddAddress.Text = "Address";
-         this.uiStatusStrip_EntryManager_btnAddAddress.Click += new System.EventHandler(this.uiButtonHandler_Click);
+         this.uiStatusStrip_SavedResults_btnAddAddress.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_SavedResults_btnAddAddress.Name = "uiStatusStrip_SavedResults_btnAddAddress";
+         this.uiStatusStrip_SavedResults_btnAddAddress.Size = new System.Drawing.Size(116, 22);
+         this.uiStatusStrip_SavedResults_btnAddAddress.Text = "Address";
+         this.uiStatusStrip_SavedResults_btnAddAddress.Click += new System.EventHandler(this.uiButtonHandler_Click);
          // 
-         // uiStatusStrip_EntryManager_btnAddPointer
+         // uiStatusStrip_SavedResults_btnAddPointer
          // 
-         this.uiStatusStrip_EntryManager_btnAddPointer.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.uiStatusStrip_EntryManager_btnAddPointer.Name = "uiStatusStrip_EntryManager_btnAddPointer";
-         this.uiStatusStrip_EntryManager_btnAddPointer.Size = new System.Drawing.Size(116, 22);
-         this.uiStatusStrip_EntryManager_btnAddPointer.Text = "Pointer";
-         this.uiStatusStrip_EntryManager_btnAddPointer.Click += new System.EventHandler(this.uiButtonHandler_Click);
+         this.uiStatusStrip_SavedResults_btnAddPointer.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.uiStatusStrip_SavedResults_btnAddPointer.Name = "uiStatusStrip_SavedResults_btnAddPointer";
+         this.uiStatusStrip_SavedResults_btnAddPointer.Size = new System.Drawing.Size(116, 22);
+         this.uiStatusStrip_SavedResults_btnAddPointer.Text = "Pointer";
+         this.uiStatusStrip_SavedResults_btnAddPointer.Click += new System.EventHandler(this.uiButtonHandler_Click);
          // 
          // uiStatusStrip_lblStatus
          // 
@@ -748,9 +750,9 @@
       private System.Windows.Forms.ToolStripLabel uiToolStrip_lblActiveProcess;
       private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
       private System.Windows.Forms.ToolStripProgressBar uiToolStrip_progressBarScanPercent;
-      private System.Windows.Forms.ToolStripDropDownButton uiStatusStrip_linkEntryManager;
-      private System.Windows.Forms.ToolStripMenuItem uiStatusStrip_EntryManager_btnAddAddress;
-      private System.Windows.Forms.ToolStripMenuItem uiStatusStrip_EntryManager_btnAddPointer;
+      private System.Windows.Forms.ToolStripDropDownButton uiStatusStrip_linkSavedResults;
+      private System.Windows.Forms.ToolStripMenuItem uiStatusStrip_SavedResults_btnAddAddress;
+      private System.Windows.Forms.ToolStripMenuItem uiStatusStrip_SavedResults_btnAddPointer;
       private System.Windows.Forms.ToolStripStatusLabel uiStatusStrip_lblStatus;
       private System.ComponentModel.BackgroundWorker bgWorkerScanner;
       private System.Windows.Forms.CheckBox chkBoxFastScan;

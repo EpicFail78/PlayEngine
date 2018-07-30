@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using librpc;
 
-namespace PS4_Cheater
+namespace PlayEngine
 {
     public interface PS4APIWrapper
     {

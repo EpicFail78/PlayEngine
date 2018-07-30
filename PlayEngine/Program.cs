@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 
-using PS4_Cheater.Utils;
+using PlayEngine.Helpers;
 
-namespace PS4_Cheater {
+namespace PlayEngine {
    internal static class Program {
       [STAThread]
       private static void Main() {

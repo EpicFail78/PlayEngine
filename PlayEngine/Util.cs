@@ -1,5 +1,4 @@
-﻿using Be.Windows.Forms;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
@@ -7,7 +6,7 @@ using System.Configuration;
 using librpc;
 using System.Collections.Generic;
 
-namespace PS4_Cheater {
+namespace PlayEngine {
 
    class GameInfo {
       public const String GAME_INFO_5_05_PROCESS_NAME = "SceCdlgApp";
@@ -55,10 +54,6 @@ namespace PS4_Cheater {
 
       public const UInt32 SECTION_EXECUTABLE = 0x5;
 
-      public static readonly UInt32 MAJOR_VERSION = (UInt32)System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Major;
-      public static readonly UInt32 SECONDARY_VERSION = (UInt32)System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Minor;
-      public static readonly UInt32 THIRD_VERSION = (UInt32)System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Build;
-      
       public const Int32 MAX_PEEK_QUEUE = 4;
       public const Int32 PEEK_BUFFER_LENGTH = 32 * 1024 * 1024;
    }

@@ -6,9 +6,10 @@ using System.Threading;
 using System.Linq;
 using System.Windows.Forms;
 
-using PS4_Cheater.Utils;
+using PlayEngine.Helpers;
+using PlayEngine.Helpers.CheatManager;
 
-namespace PS4_Cheater.Forms {
+namespace PlayEngine.Forms {
    public partial class MainForm : Form {
       private enum ScanStatus {
          FirstScan,
@@ -16,17 +17,17 @@ namespace PS4_Cheater.Forms {
          Scanning
       }
       public static class ResultsColumnIndex {
-         public static readonly Int32 Address = 0;
-         public static readonly Int32 Section = 1;
-         public static readonly Int32 Value = 2;
+         public static readonly Int32 iAddress = 0;
+         public static readonly Int32 iSection = 1;
+         public static readonly Int32 iValue = 2;
       }
       public static class SavedResultsColumnIndex {
-         public static readonly Int32 Freeze = 0;
-         public static readonly Int32 Description = 1;
-         public static readonly Int32 Address = 2;
-         public static readonly Int32 Section = 3;
-         public static readonly Int32 Type = 4;
-         public static readonly Int32 Value = 5;
+         public static readonly Int32 iFreeze = 0;
+         public static readonly Int32 iDescription = 1;
+         public static readonly Int32 iAddress = 2;
+         public static readonly Int32 iSection = 3;
+         public static readonly Int32 iType = 4;
+         public static readonly Int32 iValue = 5;
       }
       public static class ScanTypeOptions {
          public static readonly List<String> listSearch_FirstScan = new List<String>()
@@ -112,7 +113,6 @@ namespace PS4_Cheater.Forms {
 
       ProcessManager processManager;
       MemoryHelper memoryHelper;
-      CheatList cheatList;
       private ScanStatus _curScanStatus = ScanStatus.FirstScan;
       private ScanStatus curScanStatus
       {
@@ -133,7 +133,6 @@ namespace PS4_Cheater.Forms {
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "First Scan"));
                   this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Standby..."));
-                  bgWorkerResultsUpdater.CancelAsync();
                }
                break;
                case ScanStatus.DidScan: {
@@ -146,8 +145,6 @@ namespace PS4_Cheater.Forms {
                   cmbBoxScanType.Invoke(new Action(() => cmbBoxScanType.SelectedItem = strBackupSelectedItem));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "New Scan"));
-                  if (!bgWorkerResultsUpdater.IsBusy)
-                     bgWorkerResultsUpdater.RunWorkerAsync();
                }
                break;
                case ScanStatus.Scanning: {
@@ -166,7 +163,6 @@ namespace PS4_Cheater.Forms {
       public MainForm() {
          processManager = new ProcessManager();
          memoryHelper = new MemoryHelper(true, 0);
-         cheatList = new CheatList();
 
          InitializeComponent();
          this.Text = String.Format("PS4 Cheater v{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
@@ -174,7 +170,7 @@ namespace PS4_Cheater.Forms {
 
          using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
             try {
-               IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, 733, null, null);
+               IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, librpc.PS4RPC.RPC_PORT, null, null);
                result.AsyncWaitHandle.WaitOne(1000);
                if (socket.Connected)
                   uiToolStrip_PayloadManager_chkPayloadActive.Checked = MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress);
@@ -183,6 +179,7 @@ namespace PS4_Cheater.Forms {
                socket.Close();
             } catch (Exception) { }
          }
+         bgWorkerResultsUpdater.RunWorkerAsync();
       }
       private void MainForm_Load(Object sender, EventArgs e) {
          if (uiToolStrip_PayloadManager_chkPayloadActive.Checked)
@@ -190,8 +187,27 @@ namespace PS4_Cheater.Forms {
       }
 
       #region Functions
-      public void addResult() {
+      public void addResult(String description, String sectionName, UInt32 sectionAddressOffset) {
+         UInt64 runtimeAddress = 0;
+         for (int i = 0; i < processManager.MappedSectionList.Count; i++) {
+            if (processManager.MappedSectionList.GetSectionName(i).Contains(txtBoxSectionsFilter.Text, StringComparison.OrdinalIgnoreCase)) {
+               runtimeAddress = processManager.MappedSectionList[i].Start + sectionAddressOffset;
+               break;
+            }
+         }
+         String runtimeValue = memoryHelper.BytesToString(memoryHelper.GetBytesFromAddress(runtimeAddress));
 
+         DataGridViewRow row = new DataGridViewRow();
+         DataGridViewCellCollection cells = new DataGridViewCellCollection(row);
+         cells[SavedResultsColumnIndex.iDescription].Value = "No description";
+         cells[SavedResultsColumnIndex.iAddress].Value = runtimeAddress;
+         cells[SavedResultsColumnIndex.iSection].Value = sectionName;
+         cells[SavedResultsColumnIndex.iValue].Value = runtimeValue;
+
+         CheatInformation cheatInformation = new CheatInformation();
+         cheatInformation.sectionAddressOffset = sectionAddressOffset;
+         row.Tag = cheatInformation;
+         dataGridSavedResults.Rows.Add(row);
       }
       #endregion
 
@@ -256,6 +272,11 @@ namespace PS4_Cheater.Forms {
          }
       }
       #endregion
+      #region uiStatusStrip_linkSavedResults
+      private void btnAddAddress_OnClick() {
+         // TODO: UI to add entries manually
+      }
+      #endregion
       #region contextMenuChkListBox
       private void contextMenuChkListBox_btnSelectAll_OnClick() {
          foreach (ListViewItem item in chkListViewSearchSections.Items)
@@ -284,6 +305,11 @@ namespace PS4_Cheater.Forms {
                btnRefreshProcessList_OnClick();
                break;
             #endregion
+            #region uiStatusStrip_linkSavedResuls
+            case "uiStatusStrip_SavedResults_btnAddAddress":
+               btnAddAddress_OnClick();
+               break;
+            #endregion
             #region contextMenuChkListBox
             case "contextMenuChkListBox_btnSelectAll":
                contextMenuChkListBox_btnSelectAll_OnClick();
@@ -293,6 +319,10 @@ namespace PS4_Cheater.Forms {
       }
       #endregion
 
+      private void chkBoxFastScan_CheckedChanged(Object sender, EventArgs e) {
+         Settings.mInstance.fastScanEnabled = (sender as CheckBox).Checked;
+         Settings.mInstance.saveToFile();
+      }
       private void cmbBoxValueType_SelectedIndexChanged(Object sender, EventArgs e) {
          var newIndex = (sender as ComboBox).SelectedIndex;
          switch (newIndex) {
@@ -317,6 +347,11 @@ namespace PS4_Cheater.Forms {
          var newCompareType = ScanTypeOptions.getCompareTypeFromString((String)((sender as ComboBox).SelectedItem));
          lblSecondValue.Enabled = txtBoxScanValueSecond.Enabled = newCompareType == MemoryHelper.CompareType.BetweenValues;
       }
+
+      private void uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged(Object sender, EventArgs e) {
+         Boolean isLoaded = uiToolStrip_PayloadManager_chkPayloadActive.Checked;
+         splitContainerMain.Enabled = uiToolStrip_linkProcessManager.Enabled = uiToolStrip_btnOpenPointerScanner.Enabled = isLoaded;
+      }
       private void uiToolStrip_ProcessManager_cmbBoxActiveProcess_SelectedIndexChanged(Object sender, EventArgs e) {
          try {
             String selectedProcessName = uiToolStrip_ProcessManager_cmbBoxActiveProcess.Text;
@@ -334,14 +369,7 @@ namespace PS4_Cheater.Forms {
             MessageBox.Show(exception.Message);
          }
       }
-      private void uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged(Object sender, EventArgs e) {
-         Boolean isLoaded = uiToolStrip_PayloadManager_chkPayloadActive.Checked;
-         splitContainerMain.Enabled = uiToolStrip_linkProcessManager.Enabled = uiToolStrip_btnOpenPointerScanner.Enabled = isLoaded;
-      }
-      private void chkBoxFastScan_CheckedChanged(Object sender, EventArgs e) {
-         Settings.mInstance.fastScanEnabled = (sender as CheckBox).Checked;
-         Settings.mInstance.saveToFile();
-      }
+
       private void txtBoxSectionsFilter_TextChanged(Object sender, EventArgs e) {
          Int32 listViewIndex = 0;
          chkListViewSearchSections.Items.Clear();
@@ -363,8 +391,32 @@ namespace PS4_Cheater.Forms {
             }
          }
       }
+
+      private void listViewResults_SaveSelectedEntries() {
+         foreach (ListViewItem selectedEntry in listViewResults.SelectedItems) {
+            String sectionName = selectedEntry.SubItems[0].Text;
+            UInt32 sectionAddressOffset = (UInt32)selectedEntry.Tag;
+            addResult("No description", sectionName, sectionAddressOffset);
+         }
+      }
       private void listViewResults_DoubleClick(Object sender, EventArgs e) {
-         var selectedItems = (sender as ListView).SelectedItems;
+         listViewResults_SaveSelectedEntries();
+      }
+      private void listViewResults_KeyDown(Object sender, KeyEventArgs e) {
+         if (e.KeyCode == Keys.Enter)
+            listViewResults_SaveSelectedEntries();
+      }
+
+      private void dataGridSavedResults_CellDoubleClick(Object sender, DataGridViewCellEventArgs e) {
+         var cells = dataGridSavedResults.Rows[e.RowIndex].Cells;
+         var cheatInformation = (CheatInformation)dataGridSavedResults.Rows[e.RowIndex].Tag;
+         new ChildForms.childFrmEditCheat(
+            (String)cells[SavedResultsColumnIndex.iDescription].Value,
+            (String)cells[SavedResultsColumnIndex.iSection].Value,
+            cheatInformation.sectionAddressOffset,
+            memoryHelper.valueType,
+            (String)cells[SavedResultsColumnIndex.iValue].Value
+            ).ShowDialog();
       }
 
       #region Background Workers
@@ -382,6 +434,8 @@ namespace PS4_Cheater.Forms {
                e.Cancel = true;
                break;
             }
+            if (listViewResults.Items.Count == 100)
+               listViewResults.Invoke(new Action(() => listViewResults.BeginUpdate()));
 
             MappedSection mappedSection = processManager.MappedSectionList[section_idx];
             mappedSection.UpdateResultList(processManager, memoryHelper, scanValues[0], scanValues[1], (Boolean)((Object[])e.Argument)[2], oldScanStatus == ScanStatus.FirstScan);
@@ -391,27 +445,27 @@ namespace PS4_Cheater.Forms {
                ResultList resultList = mappedSection.ResultList;
                if (resultList != null) {
                   // Per section scan limits
-                  UInt64 maxResultCount = 2000, curResultCount = 0;//, totalResultCount = processManager.MappedSectionList.TotalResultCount();
+                  UInt64 maxResultCount = 1000, curResultCount = 0;//, totalResultCount = processManager.MappedSectionList.TotalResultCount();
                   for (resultList.Begin(); !resultList.End(); resultList.Next()) {
                      if (curResultCount > maxResultCount)
                         break;
 
-                     UInt32 addressSectionOffsett = 0;
-                     Byte[] valueInMemory = null;
-                     resultList.Get(ref addressSectionOffsett, ref valueInMemory);
-                     UInt64 finalAddress = mappedSection.Start + addressSectionOffsett;
+                     UInt32 sectionAddressOffset = 0;
+                     Byte[] runtimeValue = null;
+                     resultList.Get(ref sectionAddressOffset, ref runtimeValue);
+                     UInt64 runtimeAddress = mappedSection.Start + sectionAddressOffset;
 
                      ListViewItem listViewItem = new ListViewItem();
                      // Section Offset
-                     listViewItem.Tag = addressSectionOffsett;
+                     listViewItem.Tag = sectionAddressOffset;
                      // Address
-                     listViewItem.Text = finalAddress.ToString("X");
+                     listViewItem.Text = runtimeAddress.ToString("X");
                      // Section
                      listViewItem.SubItems.Add(processManager.MappedSectionList.GetSectionName(section_idx));
                      // Value
-                     valueInMemory = memoryHelper.GetBytesFromAddress(finalAddress);
-                     resultList.Set(valueInMemory);
-                     listViewItem.SubItems.Add(memoryHelper.BytesToString(valueInMemory));
+                     runtimeValue = memoryHelper.GetBytesFromAddress(runtimeAddress);
+                     resultList.Set(runtimeValue);
+                     listViewItem.SubItems.Add(memoryHelper.BytesToString(runtimeValue));
 
                      curResultCount++;
                      listViewResults.Invoke(new Action(() => listViewResults.Items.Add(listViewItem)));
@@ -432,6 +486,7 @@ namespace PS4_Cheater.Forms {
          uiToolStrip_progressBarScanPercent.Value = e.ProgressPercentage;
       }
       private void bgWorkerScanner_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
+         listViewResults.Invoke(new Action(() => listViewResults.EndUpdate()));
          curScanStatus = ScanStatus.DidScan;
          if (e.Error != null)
             uiStatusStrip_lblStatus.Text = e.Error.Message;
@@ -445,9 +500,9 @@ namespace PS4_Cheater.Forms {
                e.Cancel = true;
                return;
             }
-            var valueInMemory = memoryHelper.GetBytesFromAddress((UInt64)row.Cells[SavedResultsColumnIndex.Address].Value);
+            var valueInMemory = memoryHelper.GetBytesFromAddress((UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value);
             var value = memoryHelper.BytesToString(valueInMemory);
-            dataGridSavedResults.Invoke(new Action(() => dataGridSavedResults.Rows[row.Index].Cells[SavedResultsColumnIndex.Value].Value = value));
+            dataGridSavedResults.Invoke(new Action(() => dataGridSavedResults.Rows[row.Index].Cells[SavedResultsColumnIndex.iValue].Value = value));
          }
       }
       #endregion

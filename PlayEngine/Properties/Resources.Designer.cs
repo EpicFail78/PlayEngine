@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace PS4_Cheater.Properties {
+namespace PlayEngine.Properties {
     using System;
     
     

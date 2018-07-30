@@ -4,7 +4,7 @@ using System.Threading;
 
 using librpc;
 
-namespace PS4_Cheater {
+namespace PlayEngine {
    public class MemoryHelper {
       public enum CompareType {
          None,

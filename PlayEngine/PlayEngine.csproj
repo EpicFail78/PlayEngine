@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4E9777CB-1A84-41F6-ACB0-62EE5C9744AE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>PS4_Cheater</RootNamespace>
-    <AssemblyName>PS4_Cheater</AssemblyName>
+    <RootNamespace>PlayEngine</RootNamespace>
+    <AssemblyName>PlayEngine</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -35,7 +35,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>PS4_Cheater.Program</StartupObject>
+    <StartupObject>PlayEngine.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -62,17 +62,13 @@
     <ManifestCertificateThumbprint>A4C68085A7240674E9A7ED36D8BE63EB909FEC97</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>PS4_Cheater_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>PlayEngine_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
-    <Reference Include="Be.Windows.Forms.HexBox">
-      <HintPath>.\Be.Windows.Forms.HexBox.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceProcess" />
@@ -86,21 +82,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CheatList.cs" />
+    <Compile Include="Forms\ChildForms\childFrmEditCheat.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ChildForms\childFrmEditCheat.Designer.cs">
+      <DependentUpon>childFrmEditCheat.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\ChildForms\childFrmSendPayload.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\ChildForms\childFrmSendPayload.Designer.cs">
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
     </Compile>
-    <Compile Include="HexEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HexEditor.Designer.cs">
-      <DependentUpon>HexEditor.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Helpers\CheatManager\CheatInformation.cs" />
     <Compile Include="MemoryHelper.cs" />
-    <Compile Include="MemoryViewByteProvider.cs" />
     <Compile Include="Forms\frmPointerScanner.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -120,13 +115,14 @@
     </Compile>
     <Compile Include="ScanThread.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="Utils\dotNetExtensions.cs" />
-    <Compile Include="Utils\Settings.cs" />
+    <Compile Include="Helpers\CheatManager\CheatTable\CheatTableFile.cs" />
+    <Compile Include="Helpers\dotNetExtensions.cs" />
+    <Compile Include="Helpers\Settings.cs" />
+    <EmbeddedResource Include="Forms\ChildForms\childFrmEditCheat.resx">
+      <DependentUpon>childFrmEditCheat.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ChildForms\childFrmSendPayload.resx">
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HexEditor.resx">
-      <DependentUpon>HexEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmPointerScanner.resx">
       <DependentUpon>frmPointerScanner.cs</DependentUpon>

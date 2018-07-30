@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace PS4_Cheater.Forms {
+namespace PlayEngine.Forms {
    public partial class PointerScanner : Form {
       private enum ScanStatus {
          FirstScan,
