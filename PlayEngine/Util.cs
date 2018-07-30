@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Configuration;
 using librpc;
 using System.Collections.Generic;
+using PlayEngine.Helpers;
 
 namespace PlayEngine {
 
@@ -26,24 +27,18 @@ namespace PlayEngine {
          Int32 section_prot = GAME_INFO_5_05_SECTION_PROT;
 
          try {
-            ProcessManager processManager = new ProcessManager();
-            ProcessInfo processInfo = processManager.GetProcessInfo(process_name);
+            ProcessInfo processInfo = ProcessManager.mInstance.GetProcessInfo(process_name);
 
-            MemoryHelper memoryHelper = new MemoryHelper(false, processInfo.pid);
-            MappedSectionList mappedSectionList = processManager.MappedSectionList;
+            MappedSectionList mappedSectionList = ProcessManager.mInstance.MappedSectionList;
             mappedSectionList.InitMemorySectionList(processInfo);
             List<MappedSection> sectionList = mappedSectionList.GetMappedSectionList(section_name, section_prot);
 
             if (sectionList.Count != 1)
                return;
 
-            GameID = System.Text.Encoding.Default.GetString(memoryHelper.ReadMemory(sectionList[0].Start + id_offset, 16));
-            GameID = GameID.Trim(new Char[] { '\0' });
-            Version = System.Text.Encoding.Default.GetString(memoryHelper.ReadMemory(sectionList[0].Start + version_offset, 16));
-            Version = Version.Trim(new Char[] { '\0' });
-         } catch {
-
-         }
+            GameID = Memory.readString(processInfo.pid, sectionList[0].Start + id_offset);
+            Version = Memory.readString(processInfo.pid, sectionList[0].Start + version_offset);
+         } catch { }
       }
    }
 
@@ -59,7 +54,6 @@ namespace PlayEngine {
    }
 
    public class Util {
-      public static Int32 DefaultProcessID = 0;
       public static Int32 SceProcessID = 0;
    }
 }

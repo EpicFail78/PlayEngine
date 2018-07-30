@@ -32,19 +32,26 @@ namespace PlayEngine.Forms.ChildForms {
 
       private void btnSendPayload_Click(Object sender, EventArgs e) {
          try {
+            Boolean payloadAlreadyInjected = false;
             String payloadDir = Path.Combine(Application.StartupPath, "Payloads\\" + (String)cmbBoxPayload.SelectedItem);
             using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
-               IAsyncResult result = socket.BeginConnect(txtBoxIPAddress.Text, 733, null, null);
-               result.AsyncWaitHandle.WaitOne(1000);
-               if (!socket.Connected) {
+               try {
+                  IAsyncResult result = socket.BeginConnect(txtBoxIPAddress.Text, librpc.PS4RPC.RPC_PORT, null, null);
+                  result.AsyncWaitHandle.WaitOne(1000);
+                  socket.EndConnect(result);
                   socket.Close();
+               } catch { }
+               payloadAlreadyInjected = socket.Connected;
+            }
+            if (payloadAlreadyInjected) {
+               MessageBox.Show("Payload is already injected, connecting...", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            } else {
+               using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
                   socket.Connect(txtBoxIPAddress.Text, Convert.ToInt32(txtBoxIPPort.Text));
                   socket.SendFile(Path.Combine(payloadDir, "payload.bin"));
                   socket.Shutdown(SocketShutdown.Both);
                   socket.Close();
                   MessageBox.Show("Payload successfully injected!", "Success");
-               } else {
-                  MessageBox.Show("Payload is already injected, connecting...", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                }
             }
             Settings.mInstance.ps4.IPAddress = txtBoxIPAddress.Text;

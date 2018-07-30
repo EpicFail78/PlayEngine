@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 using PlayEngine.Helpers;
 using PlayEngine.Helpers.CheatManager;
+using System.Runtime.InteropServices;
 
 namespace PlayEngine.Forms {
    public partial class MainForm : Form {
@@ -58,51 +59,56 @@ namespace PlayEngine.Forms {
             "Exact value"
          };
 
-         public static MemoryHelper.CompareType getCompareTypeFromString(String str) {
+         public static Memory.CompareType getCompareTypeFromString(String str) {
             switch (str) {
                case "Exact value":
-                  return MemoryHelper.CompareType.ExactValue;
+                  return Memory.CompareType.ExactValue;
                case "Fuzzy value (float or double only)":
-                  return MemoryHelper.CompareType.FuzzyValue;
+                  return Memory.CompareType.FuzzyValue;
                case "Increased value":
-                  return MemoryHelper.CompareType.IncreasedValue;
+                  return Memory.CompareType.IncreasedValue;
                case "Increased value by...":
-                  return MemoryHelper.CompareType.IncreasedValueBy;
+                  return Memory.CompareType.IncreasedValueBy;
                case "Decreased value":
-                  return MemoryHelper.CompareType.DecreasedValue;
+                  return Memory.CompareType.DecreasedValue;
                case "Decreased value by...":
-                  return MemoryHelper.CompareType.DecreasedValueBy;
+                  return Memory.CompareType.DecreasedValueBy;
                case "Bigger than...":
-                  return MemoryHelper.CompareType.BiggerThan;
+                  return Memory.CompareType.BiggerThan;
                case "Smaller than...":
-                  return MemoryHelper.CompareType.SmallerThan;
+                  return Memory.CompareType.SmallerThan;
                case "Value between...":
-                  return MemoryHelper.CompareType.BetweenValues;
+                  return Memory.CompareType.BetweenValues;
                case "Changed value":
-                  return MemoryHelper.CompareType.ChangedValue;
+                  return Memory.CompareType.ChangedValue;
                case "Unchanged value":
-                  return MemoryHelper.CompareType.UnchangedValue;
+                  return Memory.CompareType.UnchangedValue;
                case "Unknown initial value":
-                  return MemoryHelper.CompareType.UnknownInitialValue;
+                  return Memory.CompareType.UnknownInitialValue;
                default:
-                  return MemoryHelper.CompareType.None;
+                  return Memory.CompareType.None;
             }
          }
-         public static MemoryHelper.ValueType getValueTypeFromString(String str) {
+         public static Type getValueTypeFromString(String str) {
             switch (str) {
                case "Byte":
-                  return MemoryHelper.ValueType.UInt8;
+                  return typeof(Byte);
                case "2 Bytes":
-                  return MemoryHelper.ValueType.UInt16;
+                  return typeof(UInt16);
                case "4 Bytes":
-                  return MemoryHelper.ValueType.UInt32;
+                  return typeof(UInt32);
                case "8 Bytes":
-                  return MemoryHelper.ValueType.UInt64;
+                  return typeof(UInt64);
+               case "Float":
+                  return typeof(Single);
+               case "Double":
+                  return typeof(Double);
+               case "String":
+                  return typeof(String);
                case "Array of bytes":
-                  return MemoryHelper.ValueType.ArrayOfBytes;
-               default:
-                  return (MemoryHelper.ValueType)Enum.Parse(typeof(MemoryHelper.ValueType), str);
+                  return typeof(Byte[]);
             }
+            return null;
          }
       }
       private void setControlEnabled(Control[] arrControls, Boolean isEnabled) {
@@ -111,8 +117,6 @@ namespace PlayEngine.Forms {
          }
       }
 
-      ProcessManager processManager;
-      MemoryHelper memoryHelper;
       private ScanStatus _curScanStatus = ScanStatus.FirstScan;
       private ScanStatus curScanStatus
       {
@@ -123,7 +127,7 @@ namespace PlayEngine.Forms {
             _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan: {
-                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, true);
+                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -136,7 +140,7 @@ namespace PlayEngine.Forms {
                }
                break;
                case ScanStatus.DidScan: {
-                  setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, listViewResults }, true);
+                  setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, cmbBoxScanType, listViewResults }, true);
                   setControlEnabled(new Control[] { cmbBoxValueType, chkListViewSearchSections, txtBoxSectionsFilter }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -149,7 +153,7 @@ namespace PlayEngine.Forms {
                break;
                case ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, chkBoxFastScan, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, false);
+                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
@@ -160,10 +164,11 @@ namespace PlayEngine.Forms {
          }
       }
 
-      public MainForm() {
-         processManager = new ProcessManager();
-         memoryHelper = new MemoryHelper(true, 0);
+      private librpc.ProcessInfo processInfo = null;
+      private Memory.CompareType scanCompareType = Memory.CompareType.ExactValue;
+      private Type scanValueType = typeof(UInt32);
 
+      public MainForm() {
          InitializeComponent();
          this.Text = String.Format("PS4 Cheater v{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
          cmbBoxValueType.SelectedIndex = 2; // 4 Bytes
@@ -173,7 +178,7 @@ namespace PlayEngine.Forms {
                IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, librpc.PS4RPC.RPC_PORT, null, null);
                result.AsyncWaitHandle.WaitOne(1000);
                if (socket.Connected)
-                  uiToolStrip_PayloadManager_chkPayloadActive.Checked = MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress);
+                  uiToolStrip_PayloadManager_chkPayloadActive.Checked = Memory.initPS4RPC(Settings.mInstance.ps4.IPAddress);
 
                socket.Shutdown(SocketShutdown.Both);
                socket.Close();
@@ -189,25 +194,24 @@ namespace PlayEngine.Forms {
       #region Functions
       public void addResult(String description, String sectionName, UInt32 sectionAddressOffset) {
          UInt64 runtimeAddress = 0;
-         for (int i = 0; i < processManager.MappedSectionList.Count; i++) {
-            if (processManager.MappedSectionList.GetSectionName(i).Contains(txtBoxSectionsFilter.Text, StringComparison.OrdinalIgnoreCase)) {
-               runtimeAddress = processManager.MappedSectionList[i].Start + sectionAddressOffset;
+         for (int i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++) {
+            if (ProcessManager.mInstance.MappedSectionList.GetSectionName(i).Contains(sectionName, StringComparison.OrdinalIgnoreCase)) {
+               runtimeAddress = ProcessManager.mInstance.MappedSectionList[i].Start + sectionAddressOffset;
                break;
             }
          }
-         String runtimeValue = memoryHelper.BytesToString(memoryHelper.GetBytesFromAddress(runtimeAddress));
+         var runtimeValue = Memory.read(processInfo.pid, runtimeAddress, scanValueType);
 
-         DataGridViewRow row = new DataGridViewRow();
-         DataGridViewCellCollection cells = new DataGridViewCellCollection(row);
-         cells[SavedResultsColumnIndex.iDescription].Value = "No description";
-         cells[SavedResultsColumnIndex.iAddress].Value = runtimeAddress;
-         cells[SavedResultsColumnIndex.iSection].Value = sectionName;
-         cells[SavedResultsColumnIndex.iValue].Value = runtimeValue;
+         DataGridViewRow row = dataGridSavedResults.Rows[dataGridSavedResults.Rows.Add()];
+         row.Cells[SavedResultsColumnIndex.iDescription].Value = "No description";
+         row.Cells[SavedResultsColumnIndex.iAddress].Value = runtimeAddress;
+         row.Cells[SavedResultsColumnIndex.iSection].Value = sectionName;
+         row.Cells[SavedResultsColumnIndex.iType].Value = (String)cmbBoxValueType.SelectedItem;
+         row.Cells[SavedResultsColumnIndex.iValue].Value = runtimeValue;
 
          CheatInformation cheatInformation = new CheatInformation();
          cheatInformation.sectionAddressOffset = sectionAddressOffset;
          row.Tag = cheatInformation;
-         dataGridSavedResults.Rows.Add(row);
       }
       #endregion
 
@@ -216,19 +220,14 @@ namespace PlayEngine.Forms {
          try {
             switch (curScanStatus) {
                case ScanStatus.FirstScan:
-                  if (MessageBox.Show(String.Format("Search size: {0}KB. Continue?", processManager.MappedSectionList.TotalMemorySize / 1024), "Scan", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                  if (MessageBox.Show(String.Format("Search size: {0}KB. Continue?", ProcessManager.mInstance.MappedSectionList.TotalMemorySize / 1024), "Scan", MessageBoxButtons.YesNo) != DialogResult.Yes)
                      return;
-
-                  memoryHelper.InitMemoryHandler(
-                     ScanTypeOptions.getValueTypeFromString((String)cmbBoxValueType.SelectedItem),
-                     ScanTypeOptions.getCompareTypeFromString((String)cmbBoxScanType.SelectedItem),
-                     Settings.mInstance.fastScanEnabled, txtBoxScanValue.Text.Length);
 
                   bgWorkerScanner.RunWorkerAsync(new Object[3] { txtBoxScanValue.Text, txtBoxScanValueSecond.Text, chkBoxIsHexValue.Checked });
                   break;
                case ScanStatus.DidScan:
                   listViewResults.Items.Clear();
-                  processManager.MappedSectionList.ClearResultList();
+                  ProcessManager.mInstance.MappedSectionList.ClearResultList();
                   curScanStatus = ScanStatus.FirstScan;
                   break;
                case ScanStatus.Scanning:
@@ -241,7 +240,6 @@ namespace PlayEngine.Forms {
       }
       private void btnScanNext_OnClick() {
          try {
-            memoryHelper.InitNextScanMemoryHandler(ScanTypeOptions.getCompareTypeFromString((String)cmbBoxScanType.SelectedItem));
             bgWorkerScanner.RunWorkerAsync(new Object[3] { txtBoxScanValue.Text, txtBoxScanValueSecond.Text, chkBoxIsHexValue.Checked });
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "btnScanNext");
@@ -250,23 +248,18 @@ namespace PlayEngine.Forms {
       #region uiToolStrip_linkPayloadAndProcess
       private void btnSendPayload_OnClick() {
          if (new Forms.ChildForms.childFrmSendPayload().ShowDialog() == DialogResult.OK) {
-            if (MemoryHelper.Connect(Settings.mInstance.ps4.IPAddress)) {
+            if (Memory.initPS4RPC(Settings.mInstance.ps4.IPAddress)) {
                uiToolStrip_PayloadManager_chkPayloadActive.Checked = true;
-               btnRefreshProcessList_OnClick(true);
+               btnRefreshProcessList_OnClick();
             }
          }
       }
-      private void btnRefreshProcessList_OnClick(Boolean suppressErrorMessage = false) {
+      private void btnRefreshProcessList_OnClick() {
          try {
-            if (uiToolStrip_PayloadManager_chkPayloadActive.Checked) {
-               uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Clear();
-               foreach (librpc.Process process in MemoryHelper.GetProcessList().processes)
-                  uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Add(process.name);
-               uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 0;
-            } else {
-               if (!suppressErrorMessage)
-                  MessageBox.Show("Payload is NOT injected!", "Error");
-            }
+            uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Clear();
+            foreach (librpc.Process process in Memory.ps4RPC.GetProcessList().processes)
+               uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Add(process.name);
+            uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 0;
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "Error during getting process list", MessageBoxButtons.OK, MessageBoxIcon.Error);
          }
@@ -319,12 +312,8 @@ namespace PlayEngine.Forms {
       }
       #endregion
 
-      private void chkBoxFastScan_CheckedChanged(Object sender, EventArgs e) {
-         Settings.mInstance.fastScanEnabled = (sender as CheckBox).Checked;
-         Settings.mInstance.saveToFile();
-      }
       private void cmbBoxValueType_SelectedIndexChanged(Object sender, EventArgs e) {
-         var newIndex = (sender as ComboBox).SelectedIndex;
+         var newIndex = cmbBoxValueType.SelectedIndex;
          switch (newIndex) {
             case 0: // Byte
             case 1: // 2 Bytes
@@ -342,31 +331,38 @@ namespace PlayEngine.Forms {
                cmbBoxScanType.DataSource = ScanTypeOptions.listSearchExactOnly;
                break;
          }
+         scanValueType = ScanTypeOptions.getValueTypeFromString((String)cmbBoxValueType.SelectedItem);
       }
       private void cmbBoxScanType_SelectedIndexChanged(Object sender, EventArgs e) {
          var newCompareType = ScanTypeOptions.getCompareTypeFromString((String)((sender as ComboBox).SelectedItem));
-         lblSecondValue.Enabled = txtBoxScanValueSecond.Enabled = newCompareType == MemoryHelper.CompareType.BetweenValues;
+         scanCompareType = newCompareType;
+         lblSecondValue.Enabled = txtBoxScanValueSecond.Enabled = newCompareType == Memory.CompareType.BetweenValues;
       }
 
       private void uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged(Object sender, EventArgs e) {
          Boolean isLoaded = uiToolStrip_PayloadManager_chkPayloadActive.Checked;
-         splitContainerMain.Enabled = uiToolStrip_linkProcessManager.Enabled = uiToolStrip_btnOpenPointerScanner.Enabled = isLoaded;
+         splitContainerMain.Enabled = uiToolStrip_linkProcessManager.Enabled = isLoaded;
       }
       private void uiToolStrip_ProcessManager_cmbBoxActiveProcess_SelectedIndexChanged(Object sender, EventArgs e) {
          try {
-            String selectedProcessName = uiToolStrip_ProcessManager_cmbBoxActiveProcess.Text;
+            var comboBox = sender as ToolStripComboBox;
+            if (comboBox.SelectedIndex < 1) {
+               comboBox.SelectedIndex = 1;
+               return;
+            }
+            String selectedProcessName = (String)uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem;
             curScanStatus = ScanStatus.FirstScan;
             chkListViewSearchSections.Items.Clear();
 
-            librpc.ProcessInfo processInfo = processManager.GetProcessInfo(selectedProcessName);
-            Util.DefaultProcessID = processInfo.pid;
-            processManager.MappedSectionList.InitMemorySectionList(processInfo);
+            processInfo = ProcessManager.mInstance.GetProcessInfo(selectedProcessName);
+            ProcessManager.mInstance.MappedSectionList.InitMemorySectionList(processInfo);
 
-            for (int i = 0; i < processManager.MappedSectionList.Count; i++)
-               chkListViewSearchSections.Items.Add(processManager.MappedSectionList.GetSectionName(i));
+            for (int i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++)
+               chkListViewSearchSections.Items.Add(ProcessManager.mInstance.MappedSectionList.GetSectionName(i));
             uiToolStrip_lblActiveProcess.Text = String.Format("Process: {0}", selectedProcessName);
+            //uiToolStrip_btnOpenPointerScanner.Enabled = true;
          } catch (Exception exception) {
-            MessageBox.Show(exception.Message);
+            MessageBox.Show(exception.ToString());
          }
       }
 
@@ -374,19 +370,19 @@ namespace PlayEngine.Forms {
          Int32 listViewIndex = 0;
          chkListViewSearchSections.Items.Clear();
 
-         for (int i = 0; i < processManager.MappedSectionList.Count; i++) {
-            String sectionName = processManager.MappedSectionList.GetSectionName(i);
+         for (int i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++) {
+            String sectionName = ProcessManager.mInstance.MappedSectionList.GetSectionName(i);
             if (sectionName.Contains(txtBoxSectionsFilter.Text, StringComparison.OrdinalIgnoreCase)) {
                chkListViewSearchSections.Items.Add(sectionName);
-               chkListViewSearchSections.Items[listViewIndex++].Checked = processManager.MappedSectionList[i].Check;
+               chkListViewSearchSections.Items[listViewIndex++].Checked = ProcessManager.mInstance.MappedSectionList[i].Check;
             }
          }
       }
       private void chkListBoxSearchSections_ItemCheck(Object sender, ItemCheckEventArgs e) {
-         for (int i = 0; i < processManager.MappedSectionList.Count; i++) {
-            String sectionName = processManager.MappedSectionList.GetSectionName(i);
+         for (int i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++) {
+            String sectionName = ProcessManager.mInstance.MappedSectionList.GetSectionName(i);
             if (chkListViewSearchSections.Items[e.Index].Text == sectionName) {
-               processManager.MappedSectionList.SectionCheck(i, e.NewValue == CheckState.Checked);
+               ProcessManager.mInstance.MappedSectionList.SectionCheck(i, e.NewValue == CheckState.Checked);
                break;
             }
          }
@@ -394,7 +390,7 @@ namespace PlayEngine.Forms {
 
       private void listViewResults_SaveSelectedEntries() {
          foreach (ListViewItem selectedEntry in listViewResults.SelectedItems) {
-            String sectionName = selectedEntry.SubItems[0].Text;
+            String sectionName = selectedEntry.SubItems[1].Text;
             UInt32 sectionAddressOffset = (UInt32)selectedEntry.Tag;
             addResult("No description", sectionName, sectionAddressOffset);
          }
@@ -410,70 +406,82 @@ namespace PlayEngine.Forms {
       private void dataGridSavedResults_CellDoubleClick(Object sender, DataGridViewCellEventArgs e) {
          var cells = dataGridSavedResults.Rows[e.RowIndex].Cells;
          var cheatInformation = (CheatInformation)dataGridSavedResults.Rows[e.RowIndex].Tag;
-         new ChildForms.childFrmEditCheat(
+         var frmEditInstance = new ChildForms.childFrmEditCheat(
             (String)cells[SavedResultsColumnIndex.iDescription].Value,
             (String)cells[SavedResultsColumnIndex.iSection].Value,
             cheatInformation.sectionAddressOffset,
-            memoryHelper.valueType,
-            (String)cells[SavedResultsColumnIndex.iValue].Value
-            ).ShowDialog();
+            (String)cells[SavedResultsColumnIndex.iType].Value,
+            cells[SavedResultsColumnIndex.iValue].Value.ToString()
+         );
+         if (frmEditInstance.ShowDialog() == DialogResult.OK) {
+            var returnInformation = frmEditInstance.returnInformation;
+            cells[SavedResultsColumnIndex.iDescription].Value = returnInformation.description;
+            cells[SavedResultsColumnIndex.iSection].Value = returnInformation.sectionName;
+            cheatInformation.sectionAddressOffset = returnInformation.sectionAddressOffset;
+            cells[SavedResultsColumnIndex.iType].Value = returnInformation.valueType;
+            cells[SavedResultsColumnIndex.iValue].Value = returnInformation.value;
+
+            UInt64 runtimeAddress = 0;
+            for (Int32 i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++) {
+               if (ProcessManager.mInstance.MappedSectionList.GetSectionName(i).Contains(returnInformation.sectionName, StringComparison.OrdinalIgnoreCase)) {
+                  runtimeAddress = ProcessManager.mInstance.MappedSectionList[i].Start + returnInformation.sectionAddressOffset;
+                  break;
+               }
+            }
+            Memory.write(processInfo.pid, runtimeAddress, Convert.ChangeType(returnInformation.value, ScanTypeOptions.getValueTypeFromString(returnInformation.valueType)));
+         }
       }
 
       #region Background Workers
       #region bgWorkerScanner
-      private void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
+      private unsafe void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
          var oldScanStatus = curScanStatus;
          curScanStatus = ScanStatus.Scanning;
          UInt64 processedMemoryRange = 0;
-         UInt64 totalMemoryRange = processManager.MappedSectionList.TotalMemorySize + 1;
+         UInt64 totalMemoryRange = ProcessManager.mInstance.MappedSectionList.TotalMemorySize + 1;
          String[] scanValues = new String[2] { (String)((Object[])e.Argument)[0], (String)((Object[])e.Argument)[1] };
          bgWorkerScanner.ReportProgress(0);
 
-         for (int section_idx = 0; section_idx < processManager.MappedSectionList.Count; section_idx++) {
+         for (int section_idx = 0; section_idx < ProcessManager.mInstance.MappedSectionList.Count; section_idx++) {
             if (bgWorkerScanner.CancellationPending) {
                e.Cancel = true;
                break;
             }
-            if (listViewResults.Items.Count == 100)
+            if (listViewResults.Items.Count == 15)
                listViewResults.Invoke(new Action(() => listViewResults.BeginUpdate()));
 
-            MappedSection mappedSection = processManager.MappedSectionList[section_idx];
-            mappedSection.UpdateResultList(processManager, memoryHelper, scanValues[0], scanValues[1], (Boolean)((Object[])e.Argument)[2], oldScanStatus == ScanStatus.FirstScan);
-
+            MappedSection mappedSection = ProcessManager.mInstance.MappedSectionList[section_idx];
             if (mappedSection.Check) {
-               processedMemoryRange += (UInt64)mappedSection.Length;
-               ResultList resultList = mappedSection.ResultList;
-               if (resultList != null) {
-                  // Per section scan limits
-                  UInt64 maxResultCount = 1000, curResultCount = 0;//, totalResultCount = processManager.MappedSectionList.TotalResultCount();
-                  for (resultList.Begin(); !resultList.End(); resultList.Next()) {
-                     if (curResultCount > maxResultCount)
-                        break;
+               // Per section scan limits
+               UInt64 maxResultCount = 1000, curResultCount = 0;
+               var results = Memory.search(
+                  Memory.readByteArray(processInfo.pid, mappedSection.Start, mappedSection.Length),
+                  scanValues[0],
+                  scanValueType,
+                  scanCompareType,
+                  new object[2] { scanValues[0], scanValues[1] }
+               );
+               foreach (UInt32 sectionAddressOffset in results) {
+                  if (curResultCount > maxResultCount)
+                     break;
+                  UInt64 runtimeAddress = mappedSection.Start + sectionAddressOffset;
 
-                     UInt32 sectionAddressOffset = 0;
-                     Byte[] runtimeValue = null;
-                     resultList.Get(ref sectionAddressOffset, ref runtimeValue);
-                     UInt64 runtimeAddress = mappedSection.Start + sectionAddressOffset;
+                  ListViewItem listViewItem = new ListViewItem();
+                  // Section Offset
+                  listViewItem.Tag = sectionAddressOffset;
+                  // Address
+                  listViewItem.Text = runtimeAddress.ToString("X");
+                  // Section
+                  listViewItem.SubItems.Add(ProcessManager.mInstance.MappedSectionList.GetSectionName(section_idx));
+                  // Value
+                  listViewItem.SubItems.Add(Memory.read(processInfo.pid, runtimeAddress, scanValueType).ToString());
 
-                     ListViewItem listViewItem = new ListViewItem();
-                     // Section Offset
-                     listViewItem.Tag = sectionAddressOffset;
-                     // Address
-                     listViewItem.Text = runtimeAddress.ToString("X");
-                     // Section
-                     listViewItem.SubItems.Add(processManager.MappedSectionList.GetSectionName(section_idx));
-                     // Value
-                     runtimeValue = memoryHelper.GetBytesFromAddress(runtimeAddress);
-                     resultList.Set(runtimeValue);
-                     listViewItem.SubItems.Add(memoryHelper.BytesToString(runtimeValue));
-
-                     curResultCount++;
-                     listViewResults.Invoke(new Action(() => listViewResults.Items.Add(listViewItem)));
-                     if (bgWorkerScanner.CancellationPending)
-                        break;
-                  }
+                  curResultCount++;
+                  listViewResults.Invoke(new Action(() => listViewResults.Items.Add(listViewItem)));
+                  if (bgWorkerScanner.CancellationPending)
+                     break;
                }
-
+               processedMemoryRange += (UInt64)mappedSection.Length;
                listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = String.Format("{0} results", listViewResults.Items.Count)));
             }
             bgWorkerScanner.ReportProgress((Int32)(
@@ -486,7 +494,7 @@ namespace PlayEngine.Forms {
          uiToolStrip_progressBarScanPercent.Value = e.ProgressPercentage;
       }
       private void bgWorkerScanner_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
-         listViewResults.Invoke(new Action(() => listViewResults.EndUpdate()));
+         listViewResults.EndUpdate();
          curScanStatus = ScanStatus.DidScan;
          if (e.Error != null)
             uiStatusStrip_lblStatus.Text = e.Error.Message;
@@ -495,19 +503,21 @@ namespace PlayEngine.Forms {
       #region bgWorkerResultsUpdater
       private void bgWorkerResultsUpdater_DoWork(Object sender, DoWorkEventArgs e) {
          Thread.Sleep(1000);
-         foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
-            if (bgWorkerResultsUpdater.CancellationPending) {
-               e.Cancel = true;
-               return;
-            }
-            var valueInMemory = memoryHelper.GetBytesFromAddress((UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value);
-            var value = memoryHelper.BytesToString(valueInMemory);
-            dataGridSavedResults.Invoke(new Action(() => dataGridSavedResults.Rows[row.Index].Cells[SavedResultsColumnIndex.iValue].Value = value));
-         }
+         //foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
+         //   if (bgWorkerResultsUpdater.CancellationPending) {
+         //      e.Cancel = true;
+         //      return;
+         //   }
+         //   var runtimeValue = Memory.read(
+         //      processInfo.pid,
+         //      (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
+         //      (Type)row.Cells[SavedResultsColumnIndex.iType].Value
+         //   );
+         //   dataGridSavedResults.Invoke(new Action(() => dataGridSavedResults.Rows[row.Index].Cells[SavedResultsColumnIndex.iValue].Value = runtimeValue));
+         //}
       }
       #endregion
 
       #endregion
-
    }
 }

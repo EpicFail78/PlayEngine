@@ -117,6 +117,15 @@
          // 
          this.cmbBoxValueType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cmbBoxValueType.FormattingEnabled = true;
+         this.cmbBoxValueType.Items.AddRange(new object[] {
+            "Byte",
+            "2 Bytes",
+            "4 Bytes",
+            "8 Bytes",
+            "Float",
+            "Double",
+            "String",
+            "Array of bytes"});
          this.cmbBoxValueType.Location = new System.Drawing.Point(84, 85);
          this.cmbBoxValueType.Name = "cmbBoxValueType";
          this.cmbBoxValueType.Size = new System.Drawing.Size(145, 21);
@@ -130,15 +139,18 @@
          this.btnApply.TabIndex = 12;
          this.btnApply.Text = "OK";
          this.btnApply.UseVisualStyleBackColor = true;
+         this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
          // 
          // btnCancel
          // 
+         this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
          this.btnCancel.Location = new System.Drawing.Point(154, 137);
          this.btnCancel.Name = "btnCancel";
          this.btnCancel.Size = new System.Drawing.Size(75, 23);
          this.btnCancel.TabIndex = 13;
          this.btnCancel.Text = "Cancel";
          this.btnCancel.UseVisualStyleBackColor = true;
+         this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
          // 
          // childFrmEditCheat
          // 

@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +34,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>PlayEngine.Program</StartupObject>
@@ -95,14 +97,9 @@
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CheatManager\CheatInformation.cs" />
-    <Compile Include="MemoryHelper.cs" />
-    <Compile Include="Forms\frmPointerScanner.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\frmPointerScanner.Designer.cs">
-      <DependentUpon>frmPointerScanner.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PointerList.cs" />
+    <Compile Include="Helpers\librpc\Process.cs" />
+    <Compile Include="Helpers\librpc\PS4RPC.cs" />
+    <Compile Include="Helpers\Memory.cs" />
     <Compile Include="ProcessManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -113,7 +110,6 @@
     <Compile Include="Forms\frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="ScanThread.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Helpers\CheatManager\CheatTable\CheatTableFile.cs" />
     <Compile Include="Helpers\dotNetExtensions.cs" />
@@ -123,9 +119,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ChildForms\childFrmSendPayload.resx">
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\frmPointerScanner.resx">
-      <DependentUpon>frmPointerScanner.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -156,12 +149,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\jkpatch\librpc\librpc.csproj">
-      <Project>{7b98cff7-287f-4672-9203-a0493e87e053}</Project>
-      <Name>librpc</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

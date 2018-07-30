@@ -71,7 +71,6 @@ namespace PlayEngine.Forms {
       }
 
       private MainForm mainForm;
-      private MemoryHelper memoryHelper;
       private PointerList pointerList = new PointerList();
       private ProcessManager processManager = null;
       private List<PointerResult> pointerResults  = new List<PointerResult>();
@@ -112,19 +111,17 @@ namespace PlayEngine.Forms {
       }
       private void PointerList_OnNewPathGenerated(PointerList pointerList, List<Int64> path_offset, List<Pointer> path_address) {
          if (path_address.Count > 0) {
-            Int32 baseSectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_offset.Count - 1].Address);
-            if (fastScan && !processManager.MappedSectionList[baseSectionID].Name.StartsWith("executable"))
+            Int32 baseSectionID = ProcessManager.mInstance.MappedSectionList.GetMappedSectionID(path_address[path_offset.Count - 1].Address);
+            if (fastScan && !ProcessManager.mInstance.MappedSectionList[baseSectionID].Name.StartsWith("executable"))
                return;
 
             ScannerThreadUIUpdateInfo view_info = new ScannerThreadUIUpdateInfo(path_offset, path_address, baseSectionID);
             bgWorkerScanner.ReportProgress(95, view_info);
          }
       }
-      public PointerScanner(MainForm mainForm, UInt64 address, MemoryHelper.ValueType valueType, ProcessManager processManager) {
+      public PointerScanner(MainForm mainForm, UInt64 address, ProcessManager processManager) {
          this.mainForm = mainForm;
          this.processManager = processManager;
-         memoryHelper = new MemoryHelper(true, 0);
-         memoryHelper.InitMemoryHandler(valueType, MemoryHelper.CompareType.ExactValue, true);
 
          InitializeComponent();
          txtBoxScanAddress.Text = address.ToString("X");
@@ -135,6 +132,8 @@ namespace PlayEngine.Forms {
          if (curScanStatus != ScanStatus.FirstScan) {
             pointerList.Stop = true;
             bgWorkerScanner.CancelAsync();
+            dataGridPointerList.Rows.Clear();
+            dataGridPointerList.Columns.Clear();
             curScanStatus = ScanStatus.FirstScan;
             return;
          }
@@ -203,8 +202,8 @@ namespace PlayEngine.Forms {
                   }
 
                   if (ptrResult.offsets.Length > 0) {
-                     row[row.Count - 2].Value = (ptrResult.GetBaseAddress(processManager.MappedSectionList).ToString("X"));   //address
-                     row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(ptrResult.baseSectionID));   //section
+                     row[row.Count - 2].Value = (ptrResult.GetBaseAddress(ProcessManager.mInstance.MappedSectionList).ToString("X"));   //address
+                     row[row.Count - 1].Value = (ProcessManager.mInstance.MappedSectionList.GetSectionName(ptrResult.baseSectionID));   //section
                   }
                }
                pointerResults = new List<PointerResult>(saveFile.pointers);
@@ -244,16 +243,16 @@ namespace PlayEngine.Forms {
 
       private void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
          bgWorkerScanner.ReportProgress(0);
-         for (Int32 section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
+         for (Int32 section_idx = 0; section_idx < ProcessManager.mInstance.MappedSectionList.Count; ++section_idx) {
             if (bgWorkerScanner.CancellationPending)
                break;
 
-            MappedSection mappedSection = processManager.MappedSectionList[section_idx];
+            MappedSection mappedSection = ProcessManager.mInstance.MappedSectionList[section_idx];
             if (mappedSection.Name.StartsWith("libSce"))
                continue;
 
-            mappedSection.PointerSearchInit(processManager, memoryHelper, pointerList);
-            bgWorkerScanner.ReportProgress((Int32)(((Single)section_idx / processManager.MappedSectionList.Count) * 80));
+            //mappedSection.PointerSearchInit(processManager, pointerList);
+            bgWorkerScanner.ReportProgress((Int32)(((Single)section_idx / ProcessManager.mInstance.MappedSectionList.Count) * 80));
          }
 
          if (bgWorkerScanner.CancellationPending) {
@@ -279,7 +278,7 @@ namespace PlayEngine.Forms {
             List<Pointer> path_address = pointerFinderWorkerListViewUpdate.pathAddress;
             Int32 baseSectionID = pointerFinderWorkerListViewUpdate.sectionID;
             try {
-               UInt64 baseOffset = path_address[path_offset.Count - 1].Address - processManager.MappedSectionList[baseSectionID].Start;
+               UInt64 baseOffset = path_address[path_offset.Count - 1].Address - ProcessManager.mInstance.MappedSectionList[baseSectionID].Start;
 
                PointerResult pointerResult = new PointerResult(baseSectionID, baseOffset, path_offset);
                pointerResults.Add(pointerResult);
@@ -289,13 +288,13 @@ namespace PlayEngine.Forms {
 
                for (Int32 i = 0; i < path_offset.Count; ++i) {
                   row[i].Value = (path_offset[i].ToString("X"));                           //offset
-                  Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[i].Address);
+                  Int32 sectionID = ProcessManager.mInstance.MappedSectionList.GetMappedSectionID(path_address[i].Address);
                }
 
                if (path_offset.Count > 0) {
                   row[row.Count - 2].Value = (path_address[path_address.Count - 1].Address.ToString("X"));                  //address
-                  Int32 sectionID = processManager.MappedSectionList.GetMappedSectionID(path_address[path_address.Count - 1].Address);
-                  row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(sectionID));               //section
+                  Int32 sectionID = ProcessManager.mInstance.MappedSectionList.GetMappedSectionID(path_address[path_address.Count - 1].Address);
+                  row[row.Count - 1].Value = (ProcessManager.mInstance.MappedSectionList.GetSectionName(sectionID));               //section
                }
                uiStatusStrip_lblStatus.Text = String.Format("{0} results", pointerResults.Count);
             } catch (Exception ex) {
@@ -311,12 +310,12 @@ namespace PlayEngine.Forms {
          var pointerFinderWorkerArgs = (ScannerThreadArgs)e.Argument;
          pointerList.Clear();
          next_pointer_finder_worker.ReportProgress(0);
-         for (Int32 section_idx = 0; section_idx < processManager.MappedSectionList.Count; ++section_idx) {
+         for (Int32 section_idx = 0; section_idx < ProcessManager.mInstance.MappedSectionList.Count; ++section_idx) {
             if (next_pointer_finder_worker.CancellationPending) break;
-            MappedSection mappedSection = processManager.MappedSectionList[section_idx];
+            MappedSection mappedSection = ProcessManager.mInstance.MappedSectionList[section_idx];
             if (mappedSection.Name.StartsWith("libSce")) continue;
-            mappedSection.PointerSearchInit(processManager, memoryHelper, pointerList);
-            next_pointer_finder_worker.ReportProgress((Int32)(((Single)section_idx / processManager.MappedSectionList.Count) * 30));
+            //mappedSection.PointerSearchInit(processManager, pointerList);
+            next_pointer_finder_worker.ReportProgress((Int32)(((Single)section_idx / ProcessManager.mInstance.MappedSectionList.Count) * 30));
          }
 
          if (next_pointer_finder_worker.CancellationPending) return;
@@ -335,7 +334,7 @@ namespace PlayEngine.Forms {
 
             PointerResult pointerResult = pointerResults[i];
 
-            if (pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList) == pointerFinderWorkerArgs.address) {
+            if (pointerList.GetTailAddress(pointerResult, ProcessManager.mInstance.MappedSectionList) == pointerFinderWorkerArgs.address) {
                newPointerResultList.Add(pointerResult);
                Int32 row_index = dataGridPointerList.Rows.Add();
                DataGridViewCellCollection row = dataGridPointerList.Rows[row_index].Cells;
@@ -345,8 +344,8 @@ namespace PlayEngine.Forms {
                }
 
                if (pointerResult.offsets.Length > 0) {
-                  row[row.Count - 2].Value = (pointerResult.GetBaseAddress(processManager.MappedSectionList).ToString("X"));   //address
-                  row[row.Count - 1].Value = (processManager.MappedSectionList.GetSectionName(pointerResult.baseSectionID));   //section
+                  row[row.Count - 2].Value = (pointerResult.GetBaseAddress(ProcessManager.mInstance.MappedSectionList).ToString("X"));   //address
+                  row[row.Count - 1].Value = (ProcessManager.mInstance.MappedSectionList.GetSectionName(pointerResult.baseSectionID));   //section
                }
             }
          }
@@ -367,10 +366,10 @@ namespace PlayEngine.Forms {
 
          PointerResult pointerResult = pointerResults[e.RowIndex];
 
-         UInt64 baseAddress = pointerResult.GetBaseAddress(processManager.MappedSectionList);
-         UInt64 tailAddress = pointerList.GetTailAddress(pointerResult, processManager.MappedSectionList);
-         String data = memoryHelper.BytesToString(memoryHelper.GetBytesFromAddress(tailAddress));
-         String valueType = memoryHelper.valueType.ToString();
+         UInt64 baseAddress = pointerResult.GetBaseAddress(ProcessManager.mInstance.MappedSectionList);
+         UInt64 tailAddress = pointerList.GetTailAddress(pointerResult, ProcessManager.mInstance.MappedSectionList);
+         //String data = memoryHelper.BytesToString(memoryHelper.GetBytesFromAddress(tailAddress));
+         //String valueType = memoryHelper.valueType.ToString();
          //mainForm.new_pointer_cheat(baseAddress, pointerResult.offsets.ToList(), valueType, data, false, "");
       }
    }

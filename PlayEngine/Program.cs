@@ -8,6 +8,7 @@ namespace PlayEngine {
       [STAThread]
       private static void Main() {
          Settings.mInstance = Settings.loadSettings();
+         ProcessManager.mInstance = new ProcessManager();
 
          Application.EnableVisualStyles();
          Application.SetCompatibleTextRenderingDefault(false);

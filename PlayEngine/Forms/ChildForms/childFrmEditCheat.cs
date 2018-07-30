@@ -1,23 +1,45 @@
 ﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Windows.Forms;
-
-using PlayEngine.Helpers;
 
 namespace PlayEngine.Forms.ChildForms {
    public partial class childFrmEditCheat : Form {
-      public childFrmEditCheat(String description, String sectionName, UInt32 sectionAddressOffset, MemoryHelper.ValueType valueType, String value) {
+      public class ReturnInformation {
+         public String description;
+         public String sectionName;
+         public UInt32 sectionAddressOffset;
+         public String valueType;
+         public String value;
+      }
+      public ReturnInformation returnInformation;
+
+      public childFrmEditCheat(String description, String sectionName, UInt32 sectionAddressOffset, String strValueType, Object value) {
          InitializeComponent();
+         for (int i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++)
+            cmbBoxSection.Items.Add(ProcessManager.mInstance.MappedSectionList.GetSectionName(i));
+         cmbBoxSection.SelectedItem = sectionName;
+         cmbBoxValueType.SelectedItem = strValueType;
 
          txtBoxDescription.Text = description;
-         //
          txtBoxSectionAddressOffset.Text = sectionAddressOffset.ToString("X");
-         cmbBoxValueType.Items.AddRange(Enum.GetNames(typeof(MemoryHelper.ValueType));
-         cmbBoxValueType.SelectedValue = value;
-         txtBoxValue.Text = value;
+         txtBoxValue.Text = value.ToString();
+      }
+
+      private void btnApply_Click(Object sender, EventArgs e) {
+         this.returnInformation = new ReturnInformation
+         {
+            description = txtBoxDescription.Text,
+            sectionName = (String)cmbBoxSection.SelectedItem,
+            sectionAddressOffset = UInt32.Parse(txtBoxSectionAddressOffset.Text, System.Globalization.NumberStyles.HexNumber),
+            valueType = (String)cmbBoxValueType.SelectedItem,
+            value = txtBoxValue.Text
+         };
+         this.DialogResult = DialogResult.OK;
+         this.Close();
+      }
+
+      private void btnCancel_Click(Object sender, EventArgs e) {
+         this.DialogResult = DialogResult.Cancel;
+         this.Close();
       }
    }
 }
