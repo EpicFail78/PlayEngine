@@ -41,7 +41,6 @@ namespace PlayEngine.Forms.ChildForms {
                   socket.EndConnect(result);
                   payloadAlreadyInjected = true;
                } catch { } finally {
-                  socket.Shutdown(SocketShutdown.Both);
                   socket.Close();
                }
             }

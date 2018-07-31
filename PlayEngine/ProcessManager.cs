@@ -253,6 +253,7 @@ namespace PlayEngine {
          StringBuilder section_name = new StringBuilder();
          section_name.Append(sectionInfo.Name + "-");
          section_name.Append(String.Format("{0:X}", sectionInfo.Prot) + "-");
+         section_name.Append(String.Format("{0:X}", sectionInfo.Start) + "-");
          section_name.Append((sectionInfo.Length / 1024).ToString() + "KB");
 
          return section_name.ToString();

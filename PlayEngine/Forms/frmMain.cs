@@ -370,7 +370,7 @@ namespace PlayEngine.Forms {
          Int32 listViewIndex = 0;
          chkListViewSearchSections.Items.Clear();
 
-         for (int i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++) {
+         for (Int32 i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++) {
             String sectionName = ProcessManager.mInstance.MappedSectionList.GetSectionName(i);
             if (sectionName.Contains(txtBoxSectionsFilter.Text, StringComparison.OrdinalIgnoreCase)) {
                chkListViewSearchSections.Items.Add(sectionName);
@@ -379,7 +379,7 @@ namespace PlayEngine.Forms {
          }
       }
       private void chkListBoxSearchSections_ItemCheck(Object sender, ItemCheckEventArgs e) {
-         for (int i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++) {
+         for (Int32 i = 0; i < ProcessManager.mInstance.MappedSectionList.Count; i++) {
             String sectionName = ProcessManager.mInstance.MappedSectionList.GetSectionName(i);
             if (chkListViewSearchSections.Items[e.Index].Text == sectionName) {
                ProcessManager.mInstance.MappedSectionList.SectionCheck(i, e.NewValue == CheckState.Checked);
@@ -442,7 +442,7 @@ namespace PlayEngine.Forms {
          String[] scanValues = new String[2] { (String)((Object[])e.Argument)[0], (String)((Object[])e.Argument)[1] };
          bgWorkerScanner.ReportProgress(0);
 
-         for (int section_idx = 0; section_idx < ProcessManager.mInstance.MappedSectionList.Count; section_idx++) {
+         for (Int32 section_idx = 0; section_idx < ProcessManager.mInstance.MappedSectionList.Count; section_idx++) {
             if (bgWorkerScanner.CancellationPending) {
                e.Cancel = true;
                break;
@@ -452,12 +452,12 @@ namespace PlayEngine.Forms {
             if (mappedSection.Check) {
                // Per section scan limits
                UInt64 maxResultCount = 1000, curResultCount = 0;
-               var results = Memory.search(
+               var results = Memory.scan(
                   Memory.readByteArray(processInfo.pid, mappedSection.Start, mappedSection.Length),
-                  scanValues[0],
+                  Convert.ChangeType(scanValues[0], scanValueType).getBytes(scanValueType),
                   scanValueType,
                   scanCompareType,
-                  new Object[2] { scanValues[0], scanValues[1] }
+                  new dynamic[2] { Convert.ChangeType(scanValues[0], scanValueType), Convert.ChangeType(scanValues[1], scanValueType) }
                );
                foreach (UInt32 sectionAddressOffset in results) {
                   if (curResultCount > maxResultCount)
@@ -482,8 +482,8 @@ namespace PlayEngine.Forms {
                   if (bgWorkerScanner.CancellationPending)
                      break;
                }
+               processedMemoryRange += (UInt64)mappedSection.Length;
             }
-            processedMemoryRange += (UInt64)mappedSection.Length;
             bgWorkerScanner.ReportProgress((Int32)(
                ((float)processedMemoryRange / (float)totalMemoryRange)
                * 100));
@@ -495,6 +495,7 @@ namespace PlayEngine.Forms {
       }
       private void bgWorkerScanner_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
          listViewResults.EndUpdate();
+         uiStatusStrip_lblStatus.Text = String.Format("{0} results", listViewResults.Items.Count);
          curScanStatus = ScanStatus.DidScan;
          if (e.Error != null)
             uiStatusStrip_lblStatus.Text = e.Error.Message;
