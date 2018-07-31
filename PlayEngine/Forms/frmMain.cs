@@ -170,7 +170,7 @@ namespace PlayEngine.Forms {
 
       public MainForm() {
          InitializeComponent();
-         this.Text = String.Format("PS4 Cheater v{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
+         this.Text = String.Format("PlayEngine v{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
          cmbBoxValueType.SelectedIndex = 2; // 4 Bytes
 
          using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
@@ -457,13 +457,11 @@ namespace PlayEngine.Forms {
                   scanValues[0],
                   scanValueType,
                   scanCompareType,
-                  new object[2] { scanValues[0], scanValues[1] }
+                  new Object[2] { scanValues[0], scanValues[1] }
                );
                foreach (UInt32 sectionAddressOffset in results) {
                   if (curResultCount > maxResultCount)
                      break;
-                  if (listViewResults.Items.Count == 15)
-                     listViewResults.Invoke(new Action(() => listViewResults.BeginUpdate()));
                   UInt64 runtimeAddress = mappedSection.Start + sectionAddressOffset;
 
                   ListViewItem listViewItem = new ListViewItem();
@@ -478,12 +476,14 @@ namespace PlayEngine.Forms {
 
                   curResultCount++;
                   listViewResults.Invoke(new Action(() => listViewResults.Items.Add(listViewItem)));
+                  listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = String.Format("{0} results", listViewResults.Items.Count)));
+                  if (listViewResults.Items.Count == 15)
+                     listViewResults.Invoke(new Action(() => listViewResults.BeginUpdate()));
                   if (bgWorkerScanner.CancellationPending)
                      break;
                }
-               processedMemoryRange += (UInt64)mappedSection.Length;
-               listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = String.Format("{0} results", listViewResults.Items.Count)));
             }
+            processedMemoryRange += (UInt64)mappedSection.Length;
             bgWorkerScanner.ReportProgress((Int32)(
                ((float)processedMemoryRange / (float)totalMemoryRange)
                * 100));

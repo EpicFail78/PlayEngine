@@ -39,9 +39,11 @@ namespace PlayEngine.Forms.ChildForms {
                   IAsyncResult result = socket.BeginConnect(txtBoxIPAddress.Text, librpc.PS4RPC.RPC_PORT, null, null);
                   result.AsyncWaitHandle.WaitOne(1000);
                   socket.EndConnect(result);
+                  payloadAlreadyInjected = true;
+               } catch { } finally {
+                  socket.Shutdown(SocketShutdown.Both);
                   socket.Close();
-               } catch { }
-               payloadAlreadyInjected = socket.Connected;
+               }
             }
             if (payloadAlreadyInjected) {
                MessageBox.Show("Payload is already injected, connecting...", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -51,8 +53,8 @@ namespace PlayEngine.Forms.ChildForms {
                   socket.SendFile(Path.Combine(payloadDir, "payload.bin"));
                   socket.Shutdown(SocketShutdown.Both);
                   socket.Close();
-                  MessageBox.Show("Payload successfully injected!", "Success");
                }
+               MessageBox.Show("Payload successfully injected!", "Success");
             }
             Settings.mInstance.ps4.IPAddress = txtBoxIPAddress.Text;
             Settings.mInstance.ps4.IPPort = Convert.ToInt32(txtBoxIPPort.Text);
